@@ -25,7 +25,6 @@ namespace bbbext_bnx;
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
  */
 final class lib_test extends \advanced_testcase {
-
     /**
      * Example of a unittest
      *
