@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/bigbluebuttonbn/extension/bnx/db" VERSION="20251028" COMMENT="XMLDB file for Moodle mod_bigbluebuttonbn extension bnx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../../../../lib/xmldb/xmldb.xsd"
+>
+    <TABLES>
+        <TABLE NAME="bbbext_bnx" COMMENT="Instance table for bnx subplugin.">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Primary key"/>
+                <FIELD NAME="bigbluebuttonbnid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="bigbluebuttonbnid_fk" TYPE="foreign" FIELDS="bigbluebuttonbnid" REFTABLE="bigbluebuttonbn" REFFIELDS="id"/>
+            </KEYS>
+        </TABLE>
+        <TABLE NAME="bbbext_bnx_settings" COMMENT="Settings for BN Experience features">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Primary key"/>
+                <FIELD NAME="bnxid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign key to bbbext_bnx.id"/>
+                <FIELD NAME="setting" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false" COMMENT="Feature key name (e.g. webcam, chat, notes)"/>
+                <FIELD NAME="value" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Default state: 1 = enabled, 0 = disabled"/>
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="bnxid_fk" TYPE="foreign" FIELDS="bnxid" REFTABLE="bbbext_bnx" REFFIELDS="id"/>
+                <KEY NAME="bnx_setting_unique" TYPE="unique" FIELDS="bnxid, setting"/>
+            </KEYS>
+        </TABLE>
+    </TABLES>
+</XMLDB>
