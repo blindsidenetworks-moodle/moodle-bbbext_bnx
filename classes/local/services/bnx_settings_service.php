@@ -190,6 +190,7 @@ class bnx_settings_service implements bnx_settings_service_interface {
             'bnxid' => $bnxid,
             'name' => $name,
             'value' => (string)$normalised,
+            'timecreated' => $now,
             'timemodified' => $now,
         ]);
     }
