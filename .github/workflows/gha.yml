@@ -8,7 +8,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:15
+        image: postgres:16
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
@@ -30,15 +30,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - php: '8.4'
-            # Main job. Run all checks that do not require setup and only need to be run once.
-            runchecks: 'all'
-            moodle-branch: 'main'
-            database: 'pgsql'
-          - php: '8.2'
-            moodle-branch: 'main'
-            database: 'mariadb'
+        php: ['8.3']
+        runchecks: ['all']
+        moodle-branch: ['MOODLE_501_STABLE', 'main']
+        database: ['mariadb', 'pgsql']
 
     steps:
       - name: Check out repository code
@@ -65,12 +60,11 @@ jobs:
           echo "NVM_DIR=$HOME/.nvm" >> $GITHUB_ENV
 
       - name: Install moodle-plugin-ci
-        run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
+        run: |
+          moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
-          # Uncomment this to run Behat tests using the Moodle App.
-          # MOODLE_APP: 'true'
 
       - name: PHP Lint
         if: ${{ !cancelled() && matrix.runchecks == 'all' }}
@@ -110,18 +104,8 @@ jobs:
         run: moodle-plugin-ci phpunit --fail-on-warning
 
       - name: Behat features
-        id: behat
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci behat --profile chrome --scss-deprecations
-
-      - name: Upload Behat Faildump
-        if: ${{ failure() && steps.behat.outcome == 'failure' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: Behat Faildump (${{ join(matrix.*, ', ') }})
-          path: ${{ github.workspace }}/moodledata/behat_dump
-          retention-days: 7
-          if-no-files-found: ignore
+        run: moodle-plugin-ci behat --profile chrome
 
       - name: Mark cancelled jobs as failed.
         if: ${{ cancelled() }}

@@ -20,6 +20,7 @@
  * @package   bbbext_bnx
  * @copyright 2025 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
  */
 
 namespace bbbext_bnx\bigbluebuttonbn;
@@ -117,7 +118,10 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
      * @return string[]
      */
     public function get_join_tables(): array {
-        return [self::BNX_TABLE];
+        return [
+            self::BNX_TABLE,
+            bnx_settings_service::BNX_SETTINGS_TABLE,
+        ];
     }
 
     /**
