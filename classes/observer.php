@@ -18,6 +18,7 @@ namespace bbbext_bnx;
 
 use bbbext_bnx\local\sidecar_state_manager;
 use core\plugininfo\mod;
+use mod_bigbluebuttonbn\local\config;
 
 /**
  * Event observer callbacks for BN Experience extension.
@@ -53,5 +54,38 @@ class observer {
         }
 
         sidecar_state_manager::apply_for_bnx_state($bnxdisabled);
+    }
+
+    /**
+     * React to subplugin state changes via generic callback discovery.
+     *
+     * When any bbbext subplugin is enabled, this observer checks whether the
+     * plugin defines a `\<plugin>\plugininfo_callbacks::on_enable()` method
+     * and invokes it. This allows each sidecar to declare its own enable-time
+     * behaviour without requiring changes to the parent plugin.
+     *
+     * @param \core\event\config_log_created $event
+     * @return void
+     */
+    public static function subplugin_config_log_created(\core\event\config_log_created $event): void {
+        $other = $event->other ?? [];
+
+        if (($other['name'] ?? '') !== 'disabled') {
+            return;
+        }
+
+        $plugin = $other['plugin'] ?? '';
+        $disabled = (int)($other['value'] ?? 0) === 1;
+
+        // Only act on enable events for bbbext plugins.
+        if ($disabled || strpos($plugin, 'bbbext_') !== 0) {
+            return;
+        }
+
+        // Generic callback discovery: invoke the sidecar's on_enable() if defined.
+        $callbackclass = '\\' . $plugin . '\\plugininfo_callbacks';
+        if (class_exists($callbackclass) && method_exists($callbackclass, 'on_enable')) {
+            $callbackclass::on_enable();
+        }
     }
 }

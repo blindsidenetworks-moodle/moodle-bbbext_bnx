@@ -15,19 +15,32 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for BigBlueButton BN Experience
+ * Stub plugininfo_callbacks fixture for subplugin_state_test.
+ *
+ * Simulates a sidecar plugin that defines an on_enable() callback,
+ * without requiring the real plugin to be installed.
  *
  * @package   bbbext_bnx
- * @copyright 2025 onwards, Blindside Networks Inc
+ * @copyright 2026 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace bbbext_bnx_teststub;
 
-$plugin->component    = 'bbbext_bnx';
-$plugin->release      = '1.0';
-$plugin->version      = 2026031304;
-$plugin->requires     = 2025100600; // Moodle 5.1.0 minimum.
-$plugin->supported    = [501, 502];
-$plugin->maturity     = MATURITY_STABLE;
+/**
+ * Stub plugininfo_callbacks for use in unit tests.
+ *
+ * @package   bbbext_bnx
+ * @copyright 2026 onwards, Blindside Networks Inc
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class plugininfo_callbacks {
+    /**
+     * Stub on_enable callback that sets a traceable config value.
+     *
+     * @return void
+     */
+    public static function on_enable(): void {
+        set_config('bbbext_bnx_teststub_on_enable_called', 1);
+    }
+}

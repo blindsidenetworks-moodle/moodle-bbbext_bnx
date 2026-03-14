@@ -41,5 +41,24 @@ function xmldb_bbbext_bnx_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026031301, 'bbbext', 'bnx');
     }
 
+    if ($oldversion < 2026031304) {
+        $plugins = \core_plugin_manager::instance()->get_installed_plugins('bbbext');
+        if ($plugins) {
+            foreach ($plugins as $name => $version) {
+                $component = 'bbbext_' . $name;
+                $disabled = get_config($component, 'disabled');
+                if (!empty($disabled)) {
+                    continue;
+                }
+                $callbackclass = '\\' . $component . '\\plugininfo_callbacks';
+                if (class_exists($callbackclass) && method_exists($callbackclass, 'on_enable')) {
+                    $callbackclass::on_enable();
+                }
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 2026031304, 'bbbext', 'bnx');
+    }
+
     return true;
 }
