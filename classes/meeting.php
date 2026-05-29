@@ -19,7 +19,7 @@ namespace bbbext_bnx;
 use stdClass;
 use mod_bigbluebuttonbn\instance;
 use mod_bigbluebuttonbn\local\exceptions\bigbluebutton_exception;
-use mod_bigbluebuttonbn\recording;
+use bbbext_bnx\recording;
 
 /**
  * Class to describe a BBB Meeting with BNX extensions support.
@@ -62,6 +62,15 @@ class meeting extends \mod_bigbluebuttonbn\meeting {
             }
             // Refresh cached info so join() sees the new createtime.
             $meeting->update_cache();
+        } else if ($instance->is_recorded() && !empty($meeting->get_meeting_info()->internalmeetingid)) {
+            // Meeting already exists on BBB. If a prior join attempt failed after the BBB create
+            // call but before the DB insert, the recording row may be missing. Recover it now.
+            recording::ensure_exists(
+                $instance->get_course_id(),
+                $instance->get_instance_id(),
+                $meeting->get_meeting_info()->internalmeetingid,
+                $instance->get_group_id()
+            );
         }
 
         return $meeting->join($origin);
@@ -124,6 +133,12 @@ class meeting extends \mod_bigbluebuttonbn\meeting {
     protected function do_get_meeting_info($updatecache = null): stdClass {
         // Delegate most of the work to parent and then adjust the few fields we need to change.
         $meetinginfo = parent::do_get_meeting_info((bool) $updatecache);
+
+        // Ensure internalmeetingid is populated even when running against an unpatched core.
+        if (!isset($meetinginfo->internalmeetingid)) {
+            $info = self::retrieve_cached_meeting_info($this->instance, (bool) $updatecache);
+            $meetinginfo->internalmeetingid = is_array($info) ? ($info['internalMeetingID'] ?? null) : null;
+        }
 
         // Replace the join URL with our custom join URL builder.
         $meetinginfo->joinurl = \bbbext_bnx\local\helpers\joinurl_helper::build_join_url($this->instance)->out(false);

@@ -77,6 +77,7 @@ class bigbluebutton_proxy extends \mod_bigbluebuttonbn\local\proxy\bigbluebutton
      */
     private static function request_create_meeting_xml(string $createmeetingurl, ?array $presentations) {
         $curl = new curl();
+        $curl->setopt(['CURLOPT_TIMEOUT' => 30]);
 
         if (empty($presentations)) {
             return self::parse_xml_if_string($curl->get($createmeetingurl));

@@ -277,6 +277,41 @@ class recording extends base_recording {
     }
 
     /**
+     * Ensure a recording row exists for the given meeting, inserting one if missing.
+     *
+     * Idempotent: safe to call on every join when the meeting is already running.
+     * Catches concurrent-insert exceptions so two simultaneous joins don't cause errors.
+     *
+     * @param int $courseid
+     * @param int $bigbluebuttonbnid
+     * @param string $recordingid BBB internalMeetingID
+     * @param int $groupid
+     */
+    public static function ensure_exists(
+        int $courseid,
+        int $bigbluebuttonbnid,
+        string $recordingid,
+        int $groupid
+    ): void {
+        global $DB;
+        if ($DB->record_exists(static::TABLE, ['recordingid' => $recordingid])) {
+            return;
+        }
+        try {
+            $recording = new static(0, (object) [
+                'courseid'          => $courseid,
+                'bigbluebuttonbnid' => $bigbluebuttonbnid,
+                'recordingid'       => $recordingid,
+                'groupid'           => $groupid,
+            ]);
+            $recording->create();
+        } catch (\Exception $e) {
+            // Concurrent insert from another request — row now exists, nothing to do.
+            debugging('BBB recording row concurrent insert: ' . $e->getMessage(), DEBUG_DEVELOPER);
+        }
+    }
+
+    /**
      * Get select for given group mode and context.
      *
      * @param int $groupmode
