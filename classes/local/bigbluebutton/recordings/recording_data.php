@@ -60,6 +60,10 @@ class recording_data extends base_recording_data {
     ): array {
         $table = parent::get_recording_table([], $tools, $instance, $courseid);
 
+        global $PAGE;
+        // Build the renderer once per table render rather than once per row (OL-3.1.9).
+        $renderer = $PAGE->get_renderer('mod_bigbluebuttonbn');
+
         $rows = [];
         foreach ($recordings as $rec) {
             $rowtools = $tools;
@@ -70,7 +74,7 @@ class recording_data extends base_recording_data {
                 $rowtools = array_diff($rowtools, ['protect', 'unprotect']);
             }
 
-            $row = self::row($instance, $rec, $rowtools, $courseid);
+            $row = self::row($instance, $rec, $rowtools, $courseid, $renderer);
             if (!empty($row)) {
                 $rows[] = $row;
             }
@@ -87,13 +91,15 @@ class recording_data extends base_recording_data {
      * @param recording $rec Recording being rendered
      * @param array|null $tools Tools available for this recording
      * @param int|null $courseid Course id when no instance is provided
+     * @param \renderer_base|null $renderer Optional pre-built mod_bigbluebuttonbn renderer to reuse across rows
      * @return stdClass|null
      */
     public static function row(
         ?instance $instance,
         recording $rec,
         ?array $tools = null,
-        ?int $courseid = 0
+        ?int $courseid = 0,
+        ?\renderer_base $renderer = null
     ): ?stdClass {
         global $PAGE;
 
@@ -105,7 +111,11 @@ class recording_data extends base_recording_data {
             return null;
         }
 
-        $renderer = $PAGE->get_renderer('mod_bigbluebuttonbn');
+        // Reuse the renderer supplied by the caller when available (OL-3.1.9);
+        // fall back to fetching it for any external callers of row().
+        if ($renderer === null) {
+            $renderer = $PAGE->get_renderer('mod_bigbluebuttonbn');
+        }
         $row = new stdClass();
 
         $row->playback = self::render_playback_cell($rec, $instance, $renderer);
