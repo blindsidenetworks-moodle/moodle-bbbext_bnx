@@ -24,6 +24,7 @@
  */
 
 use bbbext_bnx\form\guest_login;
+use bbbext_bnx\local\helpers\guestlink_lookup;
 use mod_bigbluebuttonbn\local\exceptions\server_not_available_exception;
 use mod_bigbluebuttonbn\local\proxy\bigbluebutton_proxy;
 use mod_bigbluebuttonbn\meeting;
@@ -38,12 +39,14 @@ global $PAGE, $OUTPUT, $DB, $SITE;
 $PAGE->set_course($SITE);
 $uid = required_param('uid', PARAM_ALPHANUMEXT);
 
-$bbid = $DB->get_field('bigbluebuttonbn', 'id', ['guestlinkuid' => trim($uid)]);
-if (empty($bbid)) {
+// Guest-link lookups go through the documented shim that isolates the
+// (currently unavoidable) direct read of the mod_bigbluebuttonbn table
+// pending an upstream get_from_guestlinkuid() API.
+$instance = guestlink_lookup::get_instance_from_uid($uid);
+if ($instance === null) {
     throw new moodle_exception('guestaccess_activitynotfound', 'mod_bigbluebuttonbn');
 }
 
-$instance = \mod_bigbluebuttonbn\instance::get_from_instanceid($bbid);
 if (!$instance->is_guest_allowed()) {
     throw new moodle_exception('guestaccess_feature_disabled', 'mod_bigbluebuttonbn');
 }
