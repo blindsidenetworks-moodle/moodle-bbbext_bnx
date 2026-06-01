@@ -94,7 +94,7 @@ class meeting extends \mod_bigbluebuttonbn\meeting {
      * @return array
      */
     public function create_meeting() {
-        // Get presentations from sidecar plugins (e.g., bnx_preuploads).
+        // Get presentations from sidecar plugins via the discovered presentation provider.
         $presentations = $this->get_presentations_for_ws();
         if (empty($presentations)) {
             return parent::create_meeting();
@@ -158,32 +158,30 @@ class meeting extends \mod_bigbluebuttonbn\meeting {
     /**
      * Get presentations for webservice consumption from sidecar plugins.
      *
+     * Resolves the first enabled bnx_ sidecar whose presentation_helper exposes
+     * get_presentations_for_ws(). Returns an empty array if no provider is enabled.
+     *
      * @return array
      */
     protected function get_presentations_for_ws(): array {
-        // Check if bnx_preuploads is installed, enabled, and has the helper class.
-        $helperclass = '\bbbext_bnx_preuploads\local\helpers\presentation_helper';
-        if (!local\helpers\sidecar_helper::is_available('bnx_preuploads', $helperclass)) {
-            return [];
-        }
-        return \bbbext_bnx_preuploads\local\helpers\presentation_helper::get_presentations_for_ws(
-            $this->instance->get_instance_id()
+        return local\helpers\sidecar_helper::get_presentations_from_provider(
+            $this->instance->get_instance_id(),
+            'get_presentations_for_ws'
         );
     }
 
     /**
      * Get presentations from sidecar plugins for display.
      *
+     * Resolves the first enabled bnx_ sidecar whose presentation_helper exposes
+     * get_presentations(). Returns an empty array if no provider is enabled.
+     *
      * @return array
      */
     protected function get_presentations(): array {
-        // Check if bnx_preuploads is installed, enabled, and has the helper class.
-        $helperclass = '\bbbext_bnx_preuploads\local\helpers\presentation_helper';
-        if (!local\helpers\sidecar_helper::is_available('bnx_preuploads', $helperclass)) {
-            return [];
-        }
-        return \bbbext_bnx_preuploads\local\helpers\presentation_helper::get_presentations(
-            $this->instance->get_instance_id()
+        return local\helpers\sidecar_helper::get_presentations_from_provider(
+            $this->instance->get_instance_id(),
+            'get_presentations'
         );
     }
 }

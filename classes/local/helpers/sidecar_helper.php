@@ -31,6 +31,9 @@ class sidecar_helper {
     /** @var string Class pattern for optional room alert providers implemented by sidecars. */
     private const ROOM_ALERT_PROVIDER_CLASS = '\\bbbext_{pluginname}\\local\\helpers\\alert_provider';
 
+    /** @var string Class pattern for optional presentation providers implemented by sidecars. */
+    private const PRESENTATION_PROVIDER_CLASS = '\\bbbext_{pluginname}\\local\\helpers\\presentation_helper';
+
     /**
      * Get the list of enabled bbbext plugins.
      *
@@ -113,6 +116,32 @@ class sidecar_helper {
         }
 
         return $output;
+    }
+
+    /**
+     * Resolve the first enabled sidecar implementing the named presentation-provider method.
+     *
+     * Sidecars may implement:
+     *   \bbbext_{pluginname}\local\helpers\presentation_helper::get_presentations(int $bigbluebuttonbnid): array
+     *   \bbbext_{pluginname}\local\helpers\presentation_helper::get_presentations_for_ws(int $bigbluebuttonbnid): array
+     *
+     * The first enabled bnx_ sidecar (by sortorder) whose presentation_helper class exists and
+     * implements the requested method is used. If none is available, an empty array is returned so
+     * BNX continues to work with no presentation sidecar installed.
+     *
+     * @param int $bigbluebuttonbnid Activity instance id.
+     * @param string $method Either 'get_presentations' or 'get_presentations_for_ws'.
+     * @return array
+     */
+    public static function get_presentations_from_provider(int $bigbluebuttonbnid, string $method): array {
+        foreach (self::get_ordered_sidecar_plugins() as $pluginname) {
+            $classname = str_replace('{pluginname}', $pluginname, self::PRESENTATION_PROVIDER_CLASS);
+            if (!class_exists($classname) || !method_exists($classname, $method)) {
+                continue;
+            }
+            return $classname::$method($bigbluebuttonbnid);
+        }
+        return [];
     }
 
     /**
