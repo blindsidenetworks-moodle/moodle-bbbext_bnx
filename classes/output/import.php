@@ -143,7 +143,9 @@ class import implements renderable, templatable {
             $templatedata->recordings->session->searchbutton = ['value' => ''];
 
             $sourceinstance = instance::get_from_instanceid($this->sourceinstanceid);
-            if ($sourceinstance->is_type_room_only()) {
+            // The source activity may have been deleted since the import dialog was opened;
+            // treat that as "no recordings available" rather than calling a method on null.
+            if ($sourceinstance === null || $sourceinstance->is_type_room_only()) {
                 $templatedata->recordings->session->has_recordings = false;
             }
         }

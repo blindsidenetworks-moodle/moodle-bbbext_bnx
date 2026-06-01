@@ -161,7 +161,11 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
 
         if (!empty($this->bigbluebuttonbndata->id) && $this->mform->elementExists('guestjoinurl')) {
             $instance = instance::get_from_instanceid((int)$this->bigbluebuttonbndata->id);
-            $this->mform->setDefault('guestjoinurl', joinurl_helper::build_guest_join_url($instance)->out(false));
+            // Only set the default when we resolved a real instance; otherwise leave the
+            // field untouched so the form does not crash for an orphaned id.
+            if ($instance !== null) {
+                $this->mform->setDefault('guestjoinurl', joinurl_helper::build_guest_join_url($instance)->out(false));
+            }
         }
 
         // Add the approval before join checkbox when editable.
