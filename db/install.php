@@ -31,17 +31,11 @@
  * @return bool
  */
 function xmldb_bbbext_bnx_install() {
-    global $DB;
-
     require_once(__DIR__ . '/migration.php');
 
-    // Enable the plugin by default.
+    // Enable the plugin by default. BNX never enables sibling or parent plugins;
+    // administrators are responsible for enabling mod_bigbluebuttonbn explicitly.
     set_config('enabled', 1, 'bbbext_bnx');
-
-    // Ensure BigBlueButtonBN module is enabled when BNX is installed.
-    if ($DB->record_exists('modules', ['name' => 'bigbluebuttonbn'])) {
-        \core\plugininfo\mod::enable_plugin('bigbluebuttonbn', 1);
-    }
 
     // Migrate legacy BN Reminders data/settings and disable bnreminders if present.
     bbbext_bnx_migrate_bnreminders_data();
