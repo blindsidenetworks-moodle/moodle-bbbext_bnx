@@ -69,31 +69,32 @@ if ($ADMIN->fulltree) {
         ],
     ];
 
+    // Deferred translation: only resolve these strings if the admin actually loads this page (OL-3.1.10).
     $options = [
-        '1' => get_string('options_enabled', 'bbbext_bnx'),
-        '0' => get_string('options_disabled', 'bbbext_bnx'),
+        '1' => new lang_string('options_enabled', 'bbbext_bnx'),
+        '0' => new lang_string('options_disabled', 'bbbext_bnx'),
     ];
 
     foreach ($featuresbysection as $section => $features) {
         $settings->add(new admin_setting_heading(
             "bbbext_bnx/section_{$section}",
-            get_string("section_{$section}_heading", 'bbbext_bnx'),
-            get_string("section_{$section}_desc", 'bbbext_bnx')
+            new lang_string("section_{$section}_heading", 'bbbext_bnx'),
+            new lang_string("section_{$section}_desc", 'bbbext_bnx')
         ));
 
         foreach ($features as $feature) {
             $settings->add(new admin_setting_configselect(
                 "bbbext_bnx/{$feature}_default",
-                get_string("{$feature}_default", 'bbbext_bnx'),
-                get_string("{$feature}_default_desc", 'bbbext_bnx'),
+                new lang_string("{$feature}_default", 'bbbext_bnx'),
+                new lang_string("{$feature}_default_desc", 'bbbext_bnx'),
                 '1',
                 $options
             ));
 
             $settings->add(new admin_setting_configcheckbox(
                 "bbbext_bnx/{$feature}_editable",
-                get_string("{$feature}_editable", 'bbbext_bnx'),
-                get_string("{$feature}_editable_desc", 'bbbext_bnx'),
+                new lang_string("{$feature}_editable", 'bbbext_bnx'),
+                new lang_string("{$feature}_editable_desc", 'bbbext_bnx'),
                 1
             ));
         }
@@ -102,28 +103,28 @@ if ($ADMIN->fulltree) {
     // Email customisation settings for reminders.
     $settings->add(new admin_setting_heading(
         'bbbext_bnx/emailcontent',
-        get_string('emailcontent', 'bbbext_bnx'),
-        get_string('emailcontent:desc', 'bbbext_bnx')
+        new lang_string('emailcontent', 'bbbext_bnx'),
+        new lang_string('emailcontent:desc', 'bbbext_bnx')
     ));
 
     $settings->add(new admin_setting_configtext(
         'bbbext_bnx/emailsubject',
-        get_string('emailsubject', 'bbbext_bnx'),
-        get_string('emailsubject:desc', 'bbbext_bnx'),
-        get_string('emailsubject:default', 'bbbext_bnx')
+        new lang_string('emailsubject', 'bbbext_bnx'),
+        new lang_string('emailsubject:desc', 'bbbext_bnx'),
+        new lang_string('emailsubject:default', 'bbbext_bnx')
     ));
 
     $settings->add(new admin_setting_confightmleditor(
         'bbbext_bnx/emailtemplate',
-        get_string('emailtemplate', 'bbbext_bnx'),
-        get_string('emailtemplate:desc', 'bbbext_bnx'),
-        get_string('emailtemplate:default', 'bbbext_bnx')
+        new lang_string('emailtemplate', 'bbbext_bnx'),
+        new lang_string('emailtemplate:desc', 'bbbext_bnx'),
+        new lang_string('emailtemplate:default', 'bbbext_bnx')
     ));
 
     $settings->add(new admin_setting_confightmleditor(
         'bbbext_bnx/emailfooter',
-        get_string('emailfooter', 'bbbext_bnx'),
-        get_string('emailfooter:desc', 'bbbext_bnx'),
+        new lang_string('emailfooter', 'bbbext_bnx'),
+        new lang_string('emailfooter:desc', 'bbbext_bnx'),
         ''
     ));
 }
