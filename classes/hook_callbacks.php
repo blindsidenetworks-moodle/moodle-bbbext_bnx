@@ -56,21 +56,9 @@ class hook_callbacks {
             return;
         }
 
-        // Check if we're in a module context.
-        $context = $PAGE->context;
-        if ($context->contextlevel !== CONTEXT_MODULE) {
-            return;
-        }
-
-        // Get the course module to check if it's a BigBlueButton activity.
-        try {
-            $cm = get_coursemodule_from_id('', $context->instanceid, 0, false, MUST_EXIST);
-        } catch (\Exception $e) {
-            return;
-        }
-
-        // Only proceed for BigBlueButton activities.
-        if ($cm->modname !== 'bigbluebuttonbn') {
+        // Cheap page-level guard so the hook is a no-op on every non-BBB page
+        // footer render and we never reach a DB lookup (OL-3.1.9).
+        if (empty($PAGE->cm) || $PAGE->cm->modname !== 'bigbluebuttonbn') {
             return;
         }
 
