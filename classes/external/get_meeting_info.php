@@ -47,12 +47,31 @@ class get_meeting_info extends \mod_bigbluebuttonbn\external\meeting_info {
         int $groupid,
         bool $updatecache = false
     ): array {
-        // Reuse the parent's implementation for parameter validation, permission checks,
-        // server availability checks and to build the WS-friendly meeting info.
+        // External Functions guide: every execute() must call validate_parameters() at the
+        // start and use the returned cleaned values, even when extending a parent that does
+        // the same. The raw arguments must not be used after this point.
+        [
+            'bigbluebuttonbnid' => $bigbluebuttonbnid,
+            'groupid' => $groupid,
+            'updatecache' => $updatecache,
+        ] = self::validate_parameters(self::execute_parameters(), [
+            'bigbluebuttonbnid' => $bigbluebuttonbnid,
+            'groupid' => $groupid,
+            'updatecache' => $updatecache,
+        ]);
+
+        // Reuse the parent's implementation for permission checks, server availability
+        // checks and to build the WS-friendly meeting info.
         $result = parent::execute($bigbluebuttonbnid, $groupid, $updatecache);
 
         // Obtain our local meeting info and copy only the fields we want to override.
         $instance = instance::get_from_instanceid($bigbluebuttonbnid);
+        if (!$instance) {
+            throw new \moodle_exception('nosuchinstance', 'mod_bigbluebuttonbn', '', (object) [
+                'id' => $bigbluebuttonbnid,
+                'entity' => 'bigbluebuttonbn',
+            ]);
+        }
         $instance->set_group_id($groupid);
         $meetinginfo = (array) \bbbext_bnx\meeting::get_meeting_info_for_instance($instance, $updatecache);
 

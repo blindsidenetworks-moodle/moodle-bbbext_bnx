@@ -52,8 +52,10 @@ class get_recordings extends external_api {
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
             'bigbluebuttonbnid' => new external_value(PARAM_INT, 'bigbluebuttonbn instance id'),
+            // Tools are a comma-separated list of alphabetic tool identifiers; PARAM_TEXT
+            // keeps simple punctuation while rejecting embedded HTML or control characters.
             'tools' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'A set of enabled tools',
                 VALUE_DEFAULT,
                 'protect,unprotect,publish,unpublish,delete'
@@ -125,8 +127,11 @@ class get_recordings extends external_api {
 
         $context = $instance->get_context();
         self::validate_context($context);
+        // External Functions guide: db/services.php 'capabilities' is advisory, the actual
+        // enforcement must happen here in the function body.
+        require_capability('mod/bigbluebuttonbn:view', $context);
         if (!$instance->user_has_group_access($USER, $groupid)) {
-            new restricted_context_exception();
+            throw new restricted_context_exception();
         }
         if ($groupid) {
             $instance->set_group_id($groupid);
@@ -166,6 +171,10 @@ class get_recordings extends external_api {
                     'allowHTML' => new external_value(PARAM_BOOL, 'Column contains HTML', VALUE_OPTIONAL, false),
                     'formatter' => new external_value(PARAM_ALPHANUMEXT, 'Formatter name', VALUE_OPTIONAL),
                 ])),
+                // The 'data' payload is a JSON-encoded array of recording rows whose
+                // user-derived fields have already been passed through format_text() /
+                // format_string() / s() by recording_data; PARAM_RAW is retained so the
+                // JSON envelope is not re-cleaned on its way out.
                 'data' => new external_value(PARAM_RAW),
             ], '', VALUE_OPTIONAL),
             'warnings' => new external_warnings(),
