@@ -46,6 +46,14 @@ final class mod_form_addons_test extends \advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
+
+        // BNX feature-enablement helpers gate on plugininfo->is_enabled(),
+        // which in turn requires the parent `mod_bigbluebuttonbn` module to be
+        // enabled. The parent installs itself with visible=0 and BNX no
+        // longer auto-enables it (Phase 3), so any test exercising the
+        // form-addons feature gates must enable the parent explicitly.
+        \core\plugininfo\mod::enable_plugin('bigbluebuttonbn', 1);
+        \core_plugin_manager::reset_caches();
     }
 
     /**
