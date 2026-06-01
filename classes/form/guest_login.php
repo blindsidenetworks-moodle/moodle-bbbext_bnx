@@ -64,7 +64,10 @@ class guest_login extends \moodleform {
             'password',
             get_string('guestaccess_password', 'mod_bigbluebuttonbn')
         );
-        $mform->setType('password', PARAM_RAW);
+        // PARAM_RAW_TRIMMED preserves all printable characters allowed in a guest password
+        // while trimming surrounding whitespace; the value is compared with hash_equals()
+        // in validation() and never echoed back to the page.
+        $mform->setType('password', PARAM_RAW_TRIMMED);
         $mform->addRule(
             'password',
             get_string('required'),
@@ -92,7 +95,11 @@ class guest_login extends \moodleform {
     public function validation($data, $files): array {
         $errors = parent::validation($data, $files);
         $instance = $this->_customdata['instance'];
-        if ($data['password'] != $instance->get_guest_access_password()) {
+        $submitted = isset($data['password']) ? (string) $data['password'] : '';
+        $expected = (string) $instance->get_guest_access_password();
+        // Timing-safe comparison to avoid leaking the password through response timing
+        // and to prevent PHP type-juggling on numeric-looking inputs.
+        if (!hash_equals($expected, $submitted)) {
             $errors['password'] = get_string('guestaccess_meeting_invalid_password', 'mod_bigbluebuttonbn');
         }
         return $errors;
