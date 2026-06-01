@@ -190,11 +190,41 @@ This plugin **does not store any personal data**. It only stores configuration v
 
 ## Version History
 
-- **1.1.1** (June 1, 2026) — Open LMS code-review remediation. Introduces the
-  public `\bbbext_bnx\event\state_changed` event and removes BNX-side
-  auto-enable/auto-disable of sibling sub-plugins; administrators now manage
-  each plugin's enablement explicitly. See [Sidecar contract](#sidecar-contract).
-- **1.0** (March 11, 2026) — First stable open-source release. See [RELEASENOTES](RELEASENOTES) for full history.
+- **1.1.1** (June 1, 2026) — Open LMS code-review remediation. Hardens external
+  API authorization and validation, sanitizes recording and meeting output,
+  enforces timing-safe guest password comparison, adds null guards after
+  `instance::get_from_instanceid()`, batches recording status writes, defers
+  settings string resolution, removes jQuery from `overridenav`, replaces
+  cross-module `window.*` pagination state with a `CustomEvent`, moves inline
+  guest JS into an AMD module, and gates production `debugging()` behind
+  `DEBUG_DEVELOPER`. Introduces the public `\bbbext_bnx\event\state_changed`
+  event and removes BNX-side auto-enable/auto-disable of sibling sub-plugins;
+  administrators now manage each plugin's enablement explicitly. See
+  [Sidecar contract](#sidecar-contract).
+- **1.1** (May 1, 2026) — Migrates BN Reminders functionality and reminder data
+  into BNX, consolidating reminder settings and email customization (MD-90,
+  MD-104). Migrates lock settings controls from `bnx_locksettings` into BNX and
+  absorbs the legacy sidecar configuration into BNX defaults (MD-107).
+  Refactors mod-form header label overrides into a reusable helper (MD-100).
+  Adds a shared developer debug helper for BNX sidecars.
+- **1.0.1** (April 1, 2026) — Adds a BNX-specific guest access endpoint
+  (`guest.php`) with its own join form, URL builder, and logout redirect flow,
+  replacing the core guest page in BNX contexts (GIT-1). Hides BBB server setup
+  instructions in the activity settings when credentials are pre-configured
+  (MD-98). Improves recordings table UX (MD-94). Supports auto-set default
+  settings decoupled from sidecars (MD-95, MD-97).
+- **1.0** (March 11, 2026) — First stable open-source release. Introduces the
+  BNX Framework with moderator approval workflows and shared capabilities that
+  power the BNX extension family. Adds PreSession lobby access (replaces Wait
+  for Moderator) and delivers an enhanced recording experience with end-to-end
+  recording features.
+- **0.1.0-beta.1** (March 11, 2026) — Initial beta of the BNX Framework. Adds
+  PreSession lobby access, enhanced recordings table, improved sidecar
+  integration (ordered plugin behavior, presentation title resolution), and
+  multiple stability and quality fixes (guest lobby/group assignment,
+  `approvalbeforejoin`, code quality).
+
+See [RELEASENOTES](RELEASENOTES) for the full per-commit history.
 
 ## Credits
 
