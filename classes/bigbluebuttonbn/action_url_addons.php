@@ -47,7 +47,7 @@ class action_url_addons extends \mod_bigbluebuttonbn\local\extension\action_url_
             return ['data' => [], 'metadata' => []];
         }
 
-        $additionaldata = action_url_parameters::get_parameters($action, $instanceid);
+        $additionaldata = action_url_parameters::get_parameters($action, $instanceid, $data);
 
         // Keep guest users inside the BNX guest entrypoint after the BBB session ends.
         if ($action === 'join' && isset($data['guest']) && $data['guest'] === 'true') {

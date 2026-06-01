@@ -178,6 +178,40 @@ final class action_url_parameters_test extends \advanced_testcase {
     }
 
     /**
+     * Test approval-before-join does not force moderators to join as guests.
+     *
+     * @return void
+     */
+    public function test_join_parameters_do_not_force_guest_for_moderator(): void {
+        set_config('approvalbeforejoin_editable', 0, 'bbbext_bnx');
+        set_config('approvalbeforejoin_default', 1, 'bbbext_bnx');
+
+        $course = $this->getDataGenerator()->create_course();
+        $bbb = $this->getDataGenerator()->create_module('bigbluebuttonbn', ['course' => $course->id]);
+        $instanceid = $bbb->id;
+
+        $resultjoin = action_url_parameters::get_parameters('join', $instanceid, ['role' => 'MODERATOR']);
+        $this->assertEquals([], $resultjoin);
+    }
+
+    /**
+     * Test approval-before-join still forces guest for non-moderator joins.
+     *
+     * @return void
+     */
+    public function test_join_parameters_force_guest_for_viewer(): void {
+        set_config('approvalbeforejoin_editable', 0, 'bbbext_bnx');
+        set_config('approvalbeforejoin_default', 1, 'bbbext_bnx');
+
+        $course = $this->getDataGenerator()->create_course();
+        $bbb = $this->getDataGenerator()->create_module('bigbluebuttonbn', ['course' => $course->id]);
+        $instanceid = $bbb->id;
+
+        $resultjoin = action_url_parameters::get_parameters('join', $instanceid, ['role' => 'VIEWER']);
+        $this->assertEquals(['guest' => 'true'], $resultjoin);
+    }
+
+    /**
      * Default lock parameters emitted when no per-instance overrides exist.
      *
      * @return array<string, string>

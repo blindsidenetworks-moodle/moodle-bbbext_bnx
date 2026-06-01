@@ -46,9 +46,10 @@ class action_url_parameters {
      *
      * @param string $action the action being performed
      * @param int $instanceid the BBB instance ID
+     * @param array $data action payload data
      * @return array<string, mixed> parameters keyed by name
      */
-    public static function get_parameters(string $action, int $instanceid): array {
+    public static function get_parameters(string $action, int $instanceid, array $data = []): array {
         $parameters = [];
 
         if ($action === 'create') {
@@ -60,7 +61,10 @@ class action_url_parameters {
                 $parameters['guestPolicy'] = 'ASK_MODERATOR';
             }
             if ($action === 'join') {
-                $parameters['guest'] = 'true';
+                $role = strtoupper((string)($data['role'] ?? ''));
+                if ($role !== 'MODERATOR') {
+                    $parameters['guest'] = 'true';
+                }
             }
         }
 
