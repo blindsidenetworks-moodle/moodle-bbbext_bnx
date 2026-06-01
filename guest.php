@@ -105,18 +105,8 @@ if ($data = $form->get_data()) {
 
 if (!defined('BEHAT_SITE_RUNNING')) {
     // Open the join flow in a script-opened child window so logout auto-close is permitted by browsers.
-    $PAGE->requires->js_init_code(
-        "(function() {
-            var form = document.querySelector('form.mform');
-            if (!form) {
-                return;
-            }
-            form.addEventListener('submit', function() {
-                window.open('', 'bigbluebutton_conference');
-                form.setAttribute('target', 'bigbluebutton_conference');
-            });
-        })();"
-    );
+    // Moved out of inline js_init_code into an AMD module (OL-4.1.4).
+    $PAGE->requires->js_call_amd('bbbext_bnx/guest_login', 'init', ['form.mform']);
 }
 
 echo $OUTPUT->header();
