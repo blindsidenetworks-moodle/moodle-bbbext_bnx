@@ -81,7 +81,13 @@ abstract class recording_editable extends base_recording_editable {
         require_login($instance->get_course(), true, $instance->get_cm());
         require_capability('mod/bigbluebuttonbn:managerecordings', $instance->get_context());
 
-        $recording->set(static::get_type(), $value);
+        // Moodle Security policy: user-submitted content must be cleaned before storage.
+        // Recording 'name' is short text without markup; recording 'description' is short
+        // descriptive text rendered inside an inplace editable, so it should not carry
+        // active HTML. Both are normalised here using core PARAM cleaners.
+        $cleanvalue = clean_param((string) $value, PARAM_NOTAGS);
+
+        $recording->set(static::get_type(), $cleanvalue);
         $recording->update();
 
         return new static($recording, $instance);

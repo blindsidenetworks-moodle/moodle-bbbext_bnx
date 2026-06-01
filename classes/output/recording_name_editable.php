@@ -49,8 +49,11 @@ class recording_name_editable extends recording_editable {
      * @return string
      */
     public function get_recording_value(recording $recording): string {
-        $metaname = $recording->get('name');
-        return \html_writer::span($metaname, 'recording-name');
+        // Return the raw name; the parent constructor passes the result through
+        // format_string() with the activity context, which strips tags and runs filters.
+        // The previous html_writer::span() wrapper bypassed that pipeline and the unsafe
+        // wrapped value reached the page unescaped.
+        return (string) $recording->get('name');
     }
 
     /**

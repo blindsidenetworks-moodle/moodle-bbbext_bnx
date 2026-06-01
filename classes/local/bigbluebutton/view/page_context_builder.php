@@ -103,13 +103,25 @@ class page_context_builder {
     private function create_base_context(): stdClass {
         $pollinterval = bigbluebutton_proxy::get_poll_interval();
 
+        // Moodle Templates guide: triple-brace Mustache output ({{{...}}}) is only safe
+        // when the value has already been passed through format_text() (or another
+        // sanitiser). The meeting description is user-submitted HTML, so it must be
+        // formatted here with the activity context before reaching the template.
+        $context = $this->instance->get_context();
+        $rawdescription = (string) $this->instance->get_meeting_description(true);
+        $formatteddescription = format_text(
+            $rawdescription,
+            FORMAT_HTML,
+            ['context' => $context]
+        );
+
         return (object) [
             'instanceid' => $this->instance->get_instance_id(),
             'pollinterval' => $pollinterval * 1000,
             'groupselector' => $this->render_groups_selector(),
             'meetingname' => $this->instance->get_meeting_name(),
-            'meetingdescription' => $this->instance->get_meeting_description(true),
-            'description' => $this->instance->get_meeting_description(true),
+            'meetingdescription' => $formatteddescription,
+            'description' => $formatteddescription,
             'joinurl' => \bbbext_bnx\local\helpers\joinurl_helper::build_join_url($this->instance)->out(false),
             'recordings' => (object) [
                 'session' => (object) [],
