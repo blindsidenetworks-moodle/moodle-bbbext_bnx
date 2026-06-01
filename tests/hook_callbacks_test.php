@@ -35,6 +35,11 @@ final class hook_callbacks_test extends \advanced_testcase {
     public function test_is_enabled_returns_true_when_plugin_is_enabled(): void {
         $this->resetAfterTest(true);
 
+        // BNX plugininfo gates `is_enabled()` on the parent `mod_bigbluebuttonbn`
+        // being enabled. The parent module installs itself with visible=0, and
+        // since Phase 3 BNX no longer auto-enables it. Tests that need a
+        // fully-enabled BNX state must enable the parent explicitly.
+        \core\plugininfo\mod::enable_plugin('bigbluebuttonbn', 1);
         unset_config('disabled', 'bbbext_bnx');
         \core_plugin_manager::reset_caches();
 

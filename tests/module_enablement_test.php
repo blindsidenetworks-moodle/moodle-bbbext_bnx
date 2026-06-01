@@ -19,7 +19,16 @@ namespace bbbext_bnx;
 use core\plugininfo\mod;
 
 /**
- * Conformance tests for BigBlueButtonBN auto-enable behaviour in BNX.
+ * Conformance tests for the Phase 3 sidecar contract: BNX must never mutate
+ * `mod_bigbluebuttonbn` enablement from its install, upgrade, or observer code.
+ *
+ * Before Phase 3 (commit cf0bf19) BNX called
+ * `\core\plugininfo\mod::enable_plugin('bigbluebuttonbn', 1)` from
+ * `db/install.php`, the pre-2026031101 step of `db/upgrade.php`, and the
+ * `config_log_created` observer. That behaviour violated the Moodle Component
+ * Communication policy and is now explicitly forbidden. These tests lock the
+ * new contract in: each entry point must leave the parent module's `visible`
+ * flag exactly as it found it.
  *
  * @package   bbbext_bnx
  * @copyright 2026 onwards, Blindside Networks Inc
@@ -28,12 +37,12 @@ use core\plugininfo\mod;
  */
 final class module_enablement_test extends \advanced_testcase {
     /**
-     * BNX install must ensure the BigBlueButtonBN module is enabled.
+     * BNX install must NOT enable the BigBlueButtonBN parent module.
      *
      * @covers ::xmldb_bbbext_bnx_install
      * @return void
      */
-    public function test_install_enables_bigbluebuttonbn_module(): void {
+    public function test_install_does_not_enable_bigbluebuttonbn_module(): void {
         global $CFG;
 
         $this->resetAfterTest(true);
@@ -45,16 +54,20 @@ final class module_enablement_test extends \advanced_testcase {
         require_once($CFG->dirroot . '/mod/bigbluebuttonbn/extension/bnx/db/install.php');
         xmldb_bbbext_bnx_install();
 
-        $this->assert_bigbluebuttonbn_enabled(true);
+        $this->assert_bigbluebuttonbn_enabled(false);
     }
 
     /**
-     * Enabling BNX must ensure the BigBlueButtonBN module is enabled.
+     * Enabling BNX must NOT auto-enable the BigBlueButtonBN parent module.
+     *
+     * The observer's only responsibility on enable is to trigger
+     * `\bbbext_bnx\event\state_changed` (covered by state_changed_test).
+     * It must not touch the parent module's `visible` flag.
      *
      * @covers \bbbext_bnx\observer::config_log_created
      * @return void
      */
-    public function test_enabling_bnx_enables_bigbluebuttonbn_module(): void {
+    public function test_enabling_bnx_does_not_enable_bigbluebuttonbn_module(): void {
         $this->resetAfterTest(true);
         $this->skip_if_missing_bigbluebutton_module();
 
@@ -72,16 +85,16 @@ final class module_enablement_test extends \advanced_testcase {
         ]);
         observer::config_log_created($event);
 
-        $this->assert_bigbluebuttonbn_enabled(true);
+        $this->assert_bigbluebuttonbn_enabled(false);
     }
 
     /**
-     * BNX upgrade must backfill BigBlueButtonBN enablement for already-installed sites.
+     * BNX upgrade must NOT backfill BigBlueButtonBN enablement.
      *
      * @covers ::xmldb_bbbext_bnx_upgrade
      * @return void
      */
-    public function test_upgrade_enables_bigbluebuttonbn_module(): void {
+    public function test_upgrade_does_not_enable_bigbluebuttonbn_module(): void {
         global $CFG;
 
         $this->resetAfterTest(true);
@@ -95,6 +108,29 @@ final class module_enablement_test extends \advanced_testcase {
         require_once($CFG->libdir . '/upgradelib.php');
         require_once($CFG->dirroot . '/mod/bigbluebuttonbn/extension/bnx/db/upgrade.php');
         xmldb_bbbext_bnx_upgrade(2026031100);
+
+        $this->assert_bigbluebuttonbn_enabled(false);
+    }
+
+    /**
+     * BNX install must NOT disable an already-enabled BigBlueButtonBN module either.
+     *
+     * Belt-and-braces: the contract is "leave the parent alone", in both directions.
+     *
+     * @covers ::xmldb_bbbext_bnx_install
+     * @return void
+     */
+    public function test_install_does_not_disable_bigbluebuttonbn_module(): void {
+        global $CFG;
+
+        $this->resetAfterTest(true);
+        $this->skip_if_missing_bigbluebutton_module();
+
+        mod::enable_plugin('bigbluebuttonbn', 1);
+        $this->assert_bigbluebuttonbn_enabled(true);
+
+        require_once($CFG->dirroot . '/mod/bigbluebuttonbn/extension/bnx/db/install.php');
+        xmldb_bbbext_bnx_install();
 
         $this->assert_bigbluebuttonbn_enabled(true);
     }
