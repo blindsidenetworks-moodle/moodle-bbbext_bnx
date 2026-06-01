@@ -16,7 +16,6 @@
 
 namespace bbbext_bnx;
 
-use context_module;
 use core\hook\output\before_standard_footer_html_generation;
 use html_writer;
 

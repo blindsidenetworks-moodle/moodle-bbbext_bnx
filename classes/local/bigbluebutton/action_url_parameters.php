@@ -27,7 +27,6 @@ namespace bbbext_bnx\local\bigbluebutton;
 
 use bbbext_bnx\bigbluebuttonbn\mod_instance_helper;
 use bbbext_bnx\local\services\bnx_settings_service;
-use bbbext_bnx\local\services\bnx_settings_service_interface;
 
 /**
  * Collects action URL parameters based on enabled features.
