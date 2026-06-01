@@ -250,10 +250,10 @@ class import implements renderable, templatable {
             }
 
             if (!empty($recordings['warnings'])) {
-                debugging('Warnings while fetching recordings: ' . json_encode($recordings['warnings']));
+                debugging('Warnings while fetching recordings: ' . json_encode($recordings['warnings']), DEBUG_DEVELOPER);
             }
         } catch (moodle_exception $e) {
-            debugging('Error fetching recordings: ' . $e->getMessage());
+            debugging('Error fetching recordings: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
 
         return $templatedata;
