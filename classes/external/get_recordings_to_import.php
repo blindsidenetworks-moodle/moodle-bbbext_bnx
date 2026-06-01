@@ -67,8 +67,10 @@ class get_recordings_to_import extends external_api {
                 VALUE_DEFAULT,
                 0
             ),
+            // Comma-separated list of alphabetic tool identifiers; PARAM_TEXT keeps the
+            // separator while rejecting embedded HTML or control characters.
             'tools' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'Enabled tools list.',
                 VALUE_DEFAULT,
                 'protect,unprotect,publish,unpublish,delete'
@@ -156,6 +158,10 @@ class get_recordings_to_import extends external_api {
                     'allowHTML' => new external_value(PARAM_BOOL, 'Whether this column contains HTML', VALUE_OPTIONAL, false),
                     'formatter' => new external_value(PARAM_ALPHANUMEXT, 'Formatter name', VALUE_OPTIONAL),
                 ])),
+                // The 'data' payload is a JSON-encoded array of recording rows whose
+                // user-derived fields have already been passed through format_text() /
+                // format_string() / s() by recording_data; PARAM_RAW is retained so the
+                // JSON envelope is not re-cleaned on its way out.
                 'data' => new external_value(PARAM_RAW),
             ], '', VALUE_OPTIONAL),
             'warnings' => new external_warnings(),
@@ -224,7 +230,10 @@ class get_recordings_to_import extends external_api {
             throw new \invalid_parameter_exception('Source BigBlueButton ID is invalid');
         }
 
-        self::validate_context($sourceinstance->get_context());
+        $context = $sourceinstance->get_context();
+        self::validate_context($context);
+        // Capabilities listed in db/services.php are advisory only; enforce here.
+        require_capability('mod/bigbluebuttonbn:view', $context);
 
         return $sourceinstance;
     }
@@ -237,7 +246,15 @@ class get_recordings_to_import extends external_api {
      */
     private static function resolve_destination_instance(int $destinstanceid): instance {
         $destinstance = instance::get_from_instanceid($destinstanceid);
-        self::validate_context($destinstance->get_context());
+        if (!$destinstance) {
+            throw new \invalid_parameter_exception('Destination BigBlueButton ID is invalid');
+        }
+        $context = $destinstance->get_context();
+        self::validate_context($context);
+        // Capabilities listed in db/services.php are advisory only; enforce here.
+        // Importing into a destination activity requires the import capability granted to
+        // editing teachers and managers.
+        require_capability('mod/bigbluebuttonbn:importrecordings', $context);
         return $destinstance;
     }
 
