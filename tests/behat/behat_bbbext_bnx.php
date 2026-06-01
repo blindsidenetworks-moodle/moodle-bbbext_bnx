@@ -77,4 +77,20 @@ class behat_bbbext_bnx extends behat_base {
         $url->param('password', $instance->get_guest_access_password());
         $this->getSession()->visit($this->locate_path($url->out(false)));
     }
+
+    /**
+     * Navigate to the BNX guest page for a BigBlueButton activity without pre-filling
+     * the password. Use this variant when the scenario needs to exercise the
+     * `guest_login::validation()` password compare (OL-3.2.6) with arbitrary input.
+     *
+     * @Given /^I am on the "(?P<identifier_string>(?:[^"\\]|\\.)*)" "bbbext_bnx > BNX Guest without password" page$/
+     * @param string $identifier activity name identifier
+     * @return void
+     */
+    public function i_am_on_bnx_guest_page_without_password(string $identifier): void {
+        $cm = $this->get_cm_by_activity_name('bigbluebuttonbn', $identifier);
+        $instance = instance::get_from_cmid($cm->id);
+        $url = joinurl_helper::build_guest_join_url($instance);
+        $this->getSession()->visit($this->locate_path($url->out(false)));
+    }
 }
