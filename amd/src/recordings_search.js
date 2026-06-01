@@ -39,10 +39,14 @@ export const setupSearch = () => {
             row.dataset.filtered = match ? 'true' : 'false';
         });
 
-        window.currentPage = 1;
-        if (typeof window.updatePagination === 'function') {
-            window.updatePagination();
-        }
+        // Notify any pagination/listing module that the visible row set has
+        // changed; module isolation replaces the previous window.* globals
+        // (OL-3.1.7). Listeners can read event.detail.query and rebuild
+        // their own page state.
+        tableContainer.dispatchEvent(new CustomEvent('bbbext_bnx:filter:changed', {
+            bubbles: true,
+            detail: {query},
+        }));
     };
 
     searchButton.addEventListener('click', () => {
