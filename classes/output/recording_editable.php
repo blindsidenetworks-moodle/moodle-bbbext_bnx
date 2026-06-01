@@ -76,7 +76,22 @@ abstract class recording_editable extends base_recording_editable {
      */
     public static function update($itemid, $value) {
         $recording = \bbbext_bnx\recording::get_record(['id' => $itemid]);
-        $instance = instance::get_from_instanceid($recording->get('bigbluebuttonbnid'));
+        if ($recording === false) {
+            throw new \moodle_exception('nosuchinstance', 'mod_bigbluebuttonbn', '', (object) [
+                'id' => $itemid,
+                'entity' => 'recording',
+            ]);
+        }
+        $bigbluebuttonbnid = (int) $recording->get('bigbluebuttonbnid');
+        $instance = instance::get_from_instanceid($bigbluebuttonbnid);
+        // The owning activity may have been deleted while this inplace edit was in flight.
+        // Refuse the update rather than calling methods on a null instance.
+        if ($instance === null) {
+            throw new \moodle_exception('nosuchinstance', 'mod_bigbluebuttonbn', '', (object) [
+                'id' => $bigbluebuttonbnid,
+                'entity' => 'bigbluebuttonbn',
+            ]);
+        }
 
         require_login($instance->get_course(), true, $instance->get_cm());
         require_capability('mod/bigbluebuttonbn:managerecordings', $instance->get_context());

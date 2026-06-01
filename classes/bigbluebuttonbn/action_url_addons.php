@@ -52,7 +52,11 @@ class action_url_addons extends \mod_bigbluebuttonbn\local\extension\action_url_
         // Keep guest users inside the BNX guest entrypoint after the BBB session ends.
         if ($action === 'join' && isset($data['guest']) && $data['guest'] === 'true') {
             $instance = instance::get_from_instanceid($instanceid);
-            $additionaldata['logoutURL'] = joinurl_helper::build_guest_join_url($instance)->out(false);
+            // If the activity has been deleted between request scheduling and execution,
+            // skip the logoutURL override gracefully rather than fatalling on a null call.
+            if ($instance !== null) {
+                $additionaldata['logoutURL'] = joinurl_helper::build_guest_join_url($instance)->out(false);
+            }
         }
 
         return ['data' => $additionaldata, 'metadata' => []];
