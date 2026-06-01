@@ -49,6 +49,9 @@ $cm = $destinationinstance->get_cm();
 $course = $destinationinstance->get_course();
 
 require_login($course, true, $cm);
+// Moodle Security policy: authentication is not authorisation. Only users with the
+// importrecordings capability in the destination activity context may reach this flow.
+require_capability('mod/bigbluebuttonbn:importrecordings', $destinationinstance->get_context());
 
 $originurl = new moodle_url('/mod/bigbluebuttonbn/extension/bnx/import.php', [
     'destbn' => $destinationinstance->get_instance_id(),
@@ -67,18 +70,28 @@ if (!(bool) config::importrecordings_enabled()) {
 $sourceinstanceid = is_numeric($sourcebn) ? (int) $sourcebn : -1;
 
 $PAGE->set_url($originurl);
-$PAGE->set_title($destinationinstance->get_meeting_name());
+// Pass the activity context so configured filters and XSS protection run on the
+// formatted meeting name before it is used as the page title.
+$PAGE->set_title(format_string(
+    $destinationinstance->get_meeting_name(),
+    true,
+    ['context' => $destinationinstance->get_context()]
+));
 $PAGE->set_cacheable(false);
 $PAGE->set_heading($course->fullname);
 
 $renderer = $PAGE->get_renderer('mod_bigbluebuttonbn');
+
+// Initialise the rendered output so the variable always exists, including on the
+// server_not_available_exception path.
+$renderedinfo = '';
 
 try {
     $renderedinfo = $renderer->render(
         new import($destinationinstance, $sourcecourseid, $sourceinstanceid, $originpage, $originparams)
     );
 } catch (server_not_available_exception $e) {
-    bigbluebutton_proxy::handle_server_not_available($instance);
+    bigbluebutton_proxy::handle_server_not_available($destinationinstance);
 }
 
 echo $OUTPUT->header();
