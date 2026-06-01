@@ -221,22 +221,56 @@ class recording extends base_recording {
             }
         }
 
-        return array_filter(array_map(function ($recording) use ($metadatas, $withindays, $failedids) {
-            if (!array_key_exists($recording->recordingid, $metadatas)) {
-                if (!in_array($recording->recordingid, $failedids) && $withindays > $recording->timecreated) {
-                    $rec = new static(0, $recording, null);
-                    $rec->set_status(static::RECORDING_STATUS_DISMISSED);
+        $dismissedids = [];
+        $deletedids = [];
+
+        $results = array_filter(array_map(
+            function ($recording) use ($metadatas, $withindays, $failedids, &$dismissedids, &$deletedids) {
+                if (!array_key_exists($recording->recordingid, $metadatas)) {
+                    if (!in_array($recording->recordingid, $failedids) && $withindays > $recording->timecreated) {
+                        $dismissedids[] = (int) $recording->id;
+                    }
+                    return false;
                 }
-                return false;
-            }
-            $metadata = $metadatas[$recording->recordingid];
-            if (($metadata['state'] ?? null) === 'deleted') {
-                $rec = new static(0, $recording, null);
-                $rec->set_status(static::RECORDING_STATUS_DELETED);
-                return false;
-            }
-            return new static(0, $recording, $metadata);
-        }, $recordings));
+                $metadata = $metadatas[$recording->recordingid];
+                if (($metadata['state'] ?? null) === 'deleted') {
+                    $deletedids[] = (int) $recording->id;
+                    return false;
+                }
+                return new static(0, $recording, $metadata);
+            },
+            $recordings
+        ));
+
+        // Flush status transitions in a single UPDATE per group rather than
+        // one UPDATE per row (OL-3.1.9).
+        static::bulk_set_status($dismissedids, static::RECORDING_STATUS_DISMISSED);
+        static::bulk_set_status($deletedids, static::RECORDING_STATUS_DELETED);
+
+        return $results;
+    }
+
+    /**
+     * Batch update the status column for a set of recording ids.
+     *
+     * Used as a perf optimisation in fetch_records() so that dismissing or
+     * marking deleted a large number of recordings issues one UPDATE per
+     * status group rather than one UPDATE per row (OL-3.1.9).
+     *
+     * @param int[] $ids
+     * @param int $status
+     * @return void
+     */
+    protected static function bulk_set_status(array $ids, int $status): void {
+        global $DB;
+
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+        if (empty($ids)) {
+            return;
+        }
+        [$insql, $params] = $DB->get_in_or_equal($ids, SQL_PARAMS_NAMED);
+        $params['status'] = $status;
+        $DB->set_field_select(static::TABLE, 'status', $status, "id {$insql}", $params);
     }
 
     /**
