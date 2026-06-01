@@ -29,19 +29,15 @@ use mod_bigbluebuttonbn\local\exceptions\server_not_available_exception;
 use mod_bigbluebuttonbn\local\proxy\bigbluebutton_proxy;
 use mod_bigbluebuttonbn\logger;
 
-require_once(dirname(dirname(dirname(dirname(dirname(__FILE__))))) . '/config.php');
+require_once(__DIR__ . '/../../../../config.php');
 
 global $SESSION, $PAGE, $CFG, $DB, $USER, $OUTPUT;
 
 $action = required_param('action', PARAM_TEXT);
 $id = optional_param('id', 0, PARAM_INT);
 $bn = optional_param('bn', 0, PARAM_INT);
-$rid = optional_param('rid', '', PARAM_TEXT);
-$rtype = optional_param('rtype', 'presentation', PARAM_TEXT);
-$errors = optional_param('errors', '', PARAM_TEXT);
 $timeline = optional_param('timeline', 0, PARAM_INT);
 $index = optional_param('index', 0, PARAM_INT);
-$group = optional_param('group', -1, PARAM_INT);
 
 // Get the bbb instance from either the cmid (id), or the instanceid (bn).
 if ($id) {
