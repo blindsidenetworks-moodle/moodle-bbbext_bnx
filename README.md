@@ -13,7 +13,7 @@ This plugin extends the BigBlueButton activity module with foundational UX impro
 - **Waiting Room (moderator approval before join)**: Replaces the built-in "Wait for Moderator" screen with a Waiting Room lobby. Participants wait until a moderator approves their entry — configurable site-wide with per-activity override for teachers.
 - **Enhanced recording experience**: Replaces the core recordings table with a fully functional implementation including search, sorting, pagination, editable recording name and description, and recording import. Driven by dedicated AJAX web services.
 - **Navigation label override**: Replaces the default BigBlueButton activity navigation label with "BigBlueButton +" to surface the enhanced experience to users.
-- **Sidecar state management**: When BNX is disabled, all dependent `bbbext_bnx_*` sidecars are automatically disabled and their previous state is snapshotted so they are restored when BNX is re-enabled.
+- **Sidecar integration contract**: BNX publishes the `\bbbext_bnx\event\state_changed` event on every BNX enable/disable transition. Sidecar `bbbext_bnx_*` plugins subscribe to that event in their own `db/events.php` and decide for themselves how to react. BNX no longer auto-enables or auto-disables sibling sub-plugins; administrator intent on sibling enablement is always preserved (see [Sidecar contract](#sidecar-contract) below).
 - **Backup and restore**: Full backup and restore support for per-activity settings.
 - **GDPR Compliant**: No personal user data is stored (null privacy provider).
 
@@ -60,10 +60,11 @@ When enabled, the plugin sets:
 | `view_page_addons` | Overrides the BBB view page to embed the enhanced recordings experience |
 | `page_context_builder` | Builds the full template context for the view page |
 | `hook_callbacks` | Injects the navigation label override on BigBlueButton module pages |
-| `sidecar_state_manager` | Manages enable/disable state of dependent BNX sidecars |
 | `recording_helper` | Helpers for recording data retrieval and formatting |
 | `joinurl_helper` | Builds custom join URLs |
+| `guestlink_lookup` | Isolated shim for parent-table guest-link UID lookups (pending upstream `mod_bigbluebuttonbn\instance::get_from_guestlinkuid()`) |
 | `sidecar_helper` | Utilities shared across BNX sidecar plugins |
+| `state_changed` | Event triggered on BNX enable/disable transitions; the public sidecar integration contract |
 
 ### Web Services
 
@@ -90,12 +91,109 @@ The plugin uses the `action_url_addons` hook to append parameters:
 1. If the Waiting Room setting is editable, the per-activity value is used.
 2. Otherwise, the site-wide admin default is used.
 
+## Sidecar contract
+
+Starting with BNX **1.1.1**, the integration boundary between `bbbext_bnx` and
+its sibling `bbbext_bnx_*` sub-plugins ("sidecars") is a public, event-driven
+contract. BNX no longer reaches into sibling plugins' enablement, configuration,
+or storage; sidecars opt in to BNX-driven behaviour through documented hooks.
+
+This change brings BNX in line with the Moodle
+[Component Communication policy](https://moodledev.io/general/development/policies/component-communication).
+
+### What BNX guarantees
+
+- **No auto-enablement.** BNX never calls `\core\plugininfo\mod::enable_plugin()`
+  for `mod_bigbluebuttonbn` or for any sibling `bbbext_bnx_*` plugin. The
+  administrator enables the parent module and each sidecar explicitly.
+- **No cross-plugin writes.** BNX install/upgrade code mutates only BNX-owned
+  tables and the `bbbext_bnx` config namespace.
+- **No direct sibling-table reads.** Parent-table lookups are confined to
+  `\bbbext_bnx\local\helpers\guestlink_lookup` and are tracked for removal
+  once upstream `mod_bigbluebuttonbn` exposes a matching API
+  (see Moodle tracker request for `instance::get_from_guestlinkuid()`).
+- **A public event for state transitions.** Every BNX enable/disable transition
+  emits `\bbbext_bnx\event\state_changed` with payload
+  `other => ['enabled' => bool]`. Sidecars subscribe to this event if they want
+  to mirror BNX state; sidecars that do not subscribe are unaffected.
+
+### Event payload
+
+```php
+\bbbext_bnx\event\state_changed::create([
+    'context' => \context_system::instance(),
+    'other'   => ['enabled' => true],  // false on disable
+])->trigger();
+```
+
+- `crud`: `'u'`
+- `edulevel`: `LEVEL_OTHER`
+- `other['enabled']`: `bool` (required) — `true` when BNX has just been enabled,
+  `false` when BNX has just been disabled.
+
+### Subscribing from a sidecar
+
+A sidecar (e.g. `bbbext_bnx_mysidecar`) declares an observer in its own
+`db/events.php`:
+
+```php
+// mod/bigbluebuttonbn/extension/mysidecar/db/events.php
+$observers = [
+    [
+        'eventname' => \bbbext_bnx\event\state_changed::class,
+        'callback'  => \bbbext_bnx_mysidecar\observer::class . '::bnx_state_changed',
+        'internal'  => false,
+    ],
+];
+```
+
+and implements the observer:
+
+```php
+// mod/bigbluebuttonbn/extension/mysidecar/classes/observer.php
+namespace bbbext_bnx_mysidecar;
+
+class observer {
+    public static function bnx_state_changed(\bbbext_bnx\event\state_changed $event): void {
+        $enabled = (bool) $event->other['enabled'];
+        // Mirror BNX state inside *this* sidecar only. Never touch other plugins.
+        if ($enabled) {
+            // ... enable sidecar-owned features ...
+        } else {
+            // ... disable sidecar-owned features ...
+        }
+    }
+}
+```
+
+Sidecars that should remain enabled regardless of BNX state simply do not
+subscribe. Each sidecar is responsible for its own enablement; BNX is not.
+
+### Sidecar callback discovery
+
+For non-state behaviour (e.g. presentation providers), BNX discovers sidecar
+implementations by the `{pluginname}`-templated class-name convention enforced
+by `\bbbext_bnx\local\helpers\sidecar_helper`. A sidecar that wants to provide
+presentations exposes:
+
+```
+\bbbext_{pluginname}\local\helpers\presentation_helper::get_presentations_for_ws(int $instanceid): array
+```
+
+BNX iterates enabled sidecars, calls the method when present, and degrades to
+an empty result when no sidecar provides it. The contract is conventional, not
+typed; a future Moodle hook may replace it (tracker request filed).
+
 ## Privacy
 
 This plugin **does not store any personal data**. It only stores configuration values and per-activity feature toggles.
 
 ## Version History
 
+- **1.1.1** (June 1, 2026) — Open LMS code-review remediation. Introduces the
+  public `\bbbext_bnx\event\state_changed` event and removes BNX-side
+  auto-enable/auto-disable of sibling sub-plugins; administrators now manage
+  each plugin's enablement explicitly. See [Sidecar contract](#sidecar-contract).
 - **1.0** (March 11, 2026) — First stable open-source release. See [RELEASENOTES](RELEASENOTES) for full history.
 
 ## Credits
