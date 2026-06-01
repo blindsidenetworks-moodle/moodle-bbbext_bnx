@@ -36,26 +36,9 @@ function xmldb_bbbext_bnx_upgrade($oldversion) {
     require_once(__DIR__ . '/migration.php');
 
     if ($oldversion < 2026031101) {
-        // Ensure BigBlueButtonBN module is enabled for already-installed BNX sites.
-        if ($DB->record_exists('modules', ['name' => 'bigbluebuttonbn'])) {
-            \core\plugininfo\mod::enable_plugin('bigbluebuttonbn', 1);
-        }
-
-        $plugins = \core_plugin_manager::instance()->get_installed_plugins('bbbext');
-        if ($plugins) {
-            foreach ($plugins as $name => $version) {
-                $component = 'bbbext_' . $name;
-                $disabled = get_config($component, 'disabled');
-                if (!empty($disabled)) {
-                    continue;
-                }
-                $callbackclass = '\\' . $component . '\\plugininfo_callbacks';
-                if (class_exists($callbackclass) && method_exists($callbackclass, 'on_enable')) {
-                    $callbackclass::on_enable();
-                }
-            }
-        }
-
+        // Historical step. Cross-plugin enablement (mod_bigbluebuttonbn) and sidecar
+        // on_enable discovery were removed under OL-3.1.3. Site administrators
+        // explicitly manage parent and sibling plugin enablement.
         upgrade_plugin_savepoint(true, 2026031101, 'bbbext', 'bnx');
     }
 

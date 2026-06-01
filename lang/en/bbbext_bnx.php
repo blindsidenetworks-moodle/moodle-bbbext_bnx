@@ -61,6 +61,9 @@ $string['emailunsubscribemessage'] = '<span>
 You can unsubscribe to this reminder by clicking on the following <a href="{$a->unsubscribeurl}">Unsubscribe link</a>.
 </span>';
 $string['error:duplicate'] = 'You have already one reminder for this meeting for the same time span';
+$string['eventstate_changed'] = 'BNX state changed';
+$string['eventstate_changed_disabled_desc'] = 'The bbbext_bnx plugin has been disabled.';
+$string['eventstate_changed_enabled_desc'] = 'The bbbext_bnx plugin has been enabled.';
 $string['hideviewerscursor_default'] = 'Show viewers\' cursors by default';
 $string['hideviewerscursor_default_desc'] = 'Choose whether participant cursors are visible during multi-user whiteboard sessions in new activities.';
 $string['hideviewerscursor_editable'] = 'Allow teachers to change cursor visibility';

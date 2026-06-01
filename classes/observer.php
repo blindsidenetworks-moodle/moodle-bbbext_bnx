@@ -16,8 +16,7 @@
 
 namespace bbbext_bnx;
 
-use bbbext_bnx\local\sidecar_state_manager;
-use core\plugininfo\mod;
+use bbbext_bnx\event\state_changed;
 
 /**
  * Event observer callbacks for BN Experience extension.
@@ -29,7 +28,11 @@ use core\plugininfo\mod;
  */
 class observer {
     /**
-     * Handle config log changes and cascade BNX sidecar status on BNX plugin state changes.
+     * React to bbbext_bnx enable/disable transitions and publish a public state event.
+     *
+     * BNX does not mutate sibling sub-plugin enablement. Sidecars that wish to mirror
+     * BNX state subscribe to {@see \bbbext_bnx\event\state_changed} in their own
+     * db/events.php and write only to their own enablement.
      *
      * @param \core\event\config_log_created $event
      * @return void
@@ -37,83 +40,26 @@ class observer {
     public static function config_log_created(\core\event\config_log_created $event): void {
         $other = $event->other ?? [];
 
+        // Fast early-return: this observer fires on every config change site-wide.
         if (($other['name'] ?? '') !== 'disabled') {
             return;
         }
-
         if (($other['plugin'] ?? '') !== 'bbbext_bnx') {
             return;
         }
 
-        $bnxdisabled = (int)($other['value'] ?? 0) === 1;
+        $enabled = (int)($other['value'] ?? 0) !== 1;
 
-        if (!$bnxdisabled) {
+        if ($enabled) {
+            // Refresh BNX-owned lock settings from core on every enable.
             require_once(__DIR__ . '/../db/migration.php');
-
-            // Ensure BigBlueButtonBN module is enabled when BNX is enabled.
-            mod::enable_plugin('bigbluebuttonbn', 1);
-
-            // Refresh core lock settings into BNX on every enable.
             bbbext_bnx_sync_core_locksettings_data();
-
-            // BNX owns reminders when enabled; force-disable legacy bnreminders.
-            self::disable_bnreminders_if_enabled();
         }
 
-        sidecar_state_manager::apply_for_bnx_state($bnxdisabled);
-    }
-
-    /**
-     * Disable bnreminders if it is currently enabled.
-     *
-     * @return void
-     */
-    private static function disable_bnreminders_if_enabled(): void {
-        $bnreminders = \core_plugin_manager::instance()->get_plugin_info('bbbext_bnreminders');
-        if (!$bnreminders || !$bnreminders->is_enabled()) {
-            return;
-        }
-
-        $oldvalue = get_config('bbbext_bnreminders', 'disabled');
-        if (!empty($oldvalue)) {
-            return;
-        }
-
-        set_config('disabled', 1, 'bbbext_bnreminders');
-        add_to_config_log('disabled', $oldvalue, 1, 'bbbext_bnreminders');
-        \core_plugin_manager::reset_caches();
-    }
-
-    /**
-     * React to subplugin state changes via generic callback discovery.
-     *
-     * When any bbbext subplugin is enabled, this observer checks whether the
-     * plugin defines a `\<plugin>\plugininfo_callbacks::on_enable()` method
-     * and invokes it. This allows each sidecar to declare its own enable-time
-     * behaviour without requiring changes to the parent plugin.
-     *
-     * @param \core\event\config_log_created $event
-     * @return void
-     */
-    public static function subplugin_config_log_created(\core\event\config_log_created $event): void {
-        $other = $event->other ?? [];
-
-        if (($other['name'] ?? '') !== 'disabled') {
-            return;
-        }
-
-        $plugin = $other['plugin'] ?? '';
-        $disabled = (int)($other['value'] ?? 0) === 1;
-
-        // Only act on enable events for bbbext plugins.
-        if ($disabled || strpos($plugin, 'bbbext_') !== 0) {
-            return;
-        }
-
-        // Generic callback discovery: invoke the sidecar's on_enable() if defined.
-        $callbackclass = '\\' . $plugin . '\\plugininfo_callbacks';
-        if (class_exists($callbackclass) && method_exists($callbackclass, 'on_enable')) {
-            $callbackclass::on_enable();
-        }
+        // Publish the public state change event. Sidecars own their own reaction.
+        state_changed::create([
+            'context' => \context_system::instance(),
+            'other'   => ['enabled' => $enabled],
+        ])->trigger();
     }
 }
