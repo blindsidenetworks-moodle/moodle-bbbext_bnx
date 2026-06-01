@@ -35,12 +35,34 @@ class sidecar_helper {
     private const PRESENTATION_PROVIDER_CLASS = '\\bbbext_{pluginname}\\local\\helpers\\presentation_helper';
 
     /**
+     * @var array<string,array>|null Per-request memoization of sorted sidecar plugins keyed by
+     *      the required class pattern (or '__none__' when no filter is applied). Populated lazily
+     *      by {@see get_sorted_sidecar_plugins()} so repeated calls in a single request avoid the
+     *      per-plugin get_config() loop (OL-3.1.9).
+     */
+    private static ?array $sortedcache = null;
+
+    /**
+     * @var array<string,int>|null Per-request memoization of bbbext_* sortorder values.
+     *      Populated lazily on first use and shared across every sort invocation within a request.
+     */
+    private static ?array $sortordercache = null;
+
+    /**
      * Get the list of enabled bbbext plugins.
      *
      * @return array Associative array of enabled plugin names to paths.
      */
     private static function get_enabled_plugins(): array {
         return \core_plugin_manager::instance()->get_enabled_plugins('bbbext');
+    }
+
+    /**
+     * Reset the per-request caches. Intended for PHPUnit and explicit invalidation only.
+     */
+    public static function reset_caches(): void {
+        self::$sortedcache = null;
+        self::$sortordercache = null;
     }
 
     /**
@@ -165,11 +187,21 @@ class sidecar_helper {
     /**
      * Get sorted sidecar plugins by sortorder, optionally filtered by class.
      *
+     * Results are memoized per-request and keyed by the required class pattern so the
+     * per-plugin `get_config()` lookup runs at most once per pattern per request
+     * (OL-3.1.9 N+1 remediation).
+     *
      * @param string|null $requiredclass Class pattern with {pluginname} placeholder.
      * @return array
      */
     private static function get_sorted_sidecar_plugins(?string $requiredclass = null): array {
+        $cachekey = $requiredclass ?? '__none__';
+        if (self::$sortedcache !== null && array_key_exists($cachekey, self::$sortedcache)) {
+            return self::$sortedcache[$cachekey];
+        }
+
         $enabledplugins = self::get_enabled_plugins();
+        $sortorders = self::get_sortorder_map(array_keys($enabledplugins));
         $result = [];
         foreach (array_keys($enabledplugins) as $name) {
             // Only sort bnx sidecar plugins.
@@ -185,16 +217,42 @@ class sidecar_helper {
                 }
             }
 
-            $idx = get_config('bbbext_' . $name, 'sortorder');
-            if (!$idx) {
-                $idx = 0;
-            }
+            $idx = $sortorders[$name] ?? 0;
             while (array_key_exists($idx, $result)) {
                 $idx += 1;
             }
             $result[$idx] = $name;
         }
         ksort($result);
+
+        if (self::$sortedcache === null) {
+            self::$sortedcache = [];
+        }
+        self::$sortedcache[$cachekey] = $result;
         return $result;
+    }
+
+    /**
+     * Resolve the `sortorder` config for every enabled bbbext plugin in one pass.
+     *
+     * The result is memoized for the lifetime of the request so subsequent calls re-use the
+     * already-resolved values instead of re-issuing one `get_config()` per plugin per call
+     * site (OL-3.1.9).
+     *
+     * @param string[] $pluginnames Plugin short names (without the `bbbext_` prefix).
+     * @return array<string,int> Map of plugin short name => integer sortorder (default 0).
+     */
+    private static function get_sortorder_map(array $pluginnames): array {
+        if (self::$sortordercache !== null) {
+            return self::$sortordercache;
+        }
+
+        $map = [];
+        foreach ($pluginnames as $name) {
+            $idx = get_config('bbbext_' . $name, 'sortorder');
+            $map[$name] = $idx !== false && $idx !== null ? (int) $idx : 0;
+        }
+        self::$sortordercache = $map;
+        return $map;
     }
 }
