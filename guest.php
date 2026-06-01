@@ -49,13 +49,19 @@ if (!$instance->is_guest_allowed()) {
 }
 
 $PAGE->set_url('/mod/bigbluebuttonbn/extension/bnx/guest.php', ['uid' => $uid]);
-$title = $instance->get_course()->shortname . ': ' . format_string($instance->get_meeting_name());
+$title = $instance->get_course()->shortname . ': ' . format_string(
+    $instance->get_meeting_name(),
+    true,
+    ['context' => $instance->get_context()]
+);
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $PAGE->set_pagelayout('standard');
 
 $reason = optional_param('reason', '', PARAM_TEXT);
-$errors = optional_param('errors', '', PARAM_RAW);
+// The 'errors' value is an internal status code echoed back by BBB on session end;
+// it must be a short alphanumeric identifier, never free-form text or HTML.
+$errors = optional_param('errors', '', PARAM_ALPHANUMEXT);
 
 // BBB appends reason/errors when ending the session; in that case we only need to auto-close this tab.
 if ($reason !== '' || $errors !== '') {
@@ -74,7 +80,9 @@ if ($reason !== '' || $errors !== '') {
 
 $form = new guest_login(null, ['uid' => $uid, 'instance' => $instance]);
 if (defined('BEHAT_SITE_RUNNING')) {
-    $form->set_data(['password' => optional_param('password', '', PARAM_RAW)]);
+    // PARAM_RAW_TRIMMED preserves printable password characters while trimming whitespace;
+    // the value is compared with hash_equals() in guest_login::validation() and never echoed.
+    $form->set_data(['password' => optional_param('password', '', PARAM_RAW_TRIMMED)]);
 }
 
 if ($data = $form->get_data()) {
