@@ -103,7 +103,9 @@ class recording extends base_recording {
             );
             if ($groupselects) {
                 $selects[] = $groupselects;
-                $params = array_merge_recursive($params, $groupparams);
+                // Use array_merge to keep unique named bind parameters; array_merge_recursive
+                // would nest values whose keys collide (e.g. 'groupid') and produce invalid DML.
+                $params = array_merge($params, $groupparams);
             }
         }
 
@@ -358,7 +360,9 @@ class recording extends base_recording {
                 }
                 [$groupselects, $groupparams] = $DB->get_in_or_equal($allowedgroupsid, SQL_PARAMS_NAMED);
                 $selects[] = 'groupid ' . $groupselects;
-                $params = array_merge_recursive($params, $groupparams);
+                // Use array_merge to keep unique named bind parameters; array_merge_recursive
+                // would nest values whose keys collide and produce invalid DML.
+                $params = array_merge($params, $groupparams);
             }
         }
         return [
