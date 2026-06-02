@@ -1,17 +1,21 @@
+1.1.1 (June 1, 2026)
+- fix: Avoid forcing guest=true for moderator joins so moderator access is not misclassified as guest access (MD-109).
+- fix: Fix missing recording row creation when BigBlueButton create calls fail in specific error paths (MDL-88775).
+
 1.1 (May 1, 2026)
-- Migrates BN Reminders functionality and reminder data into BNX, consolidating reminder settings and email customization into the core BNX experience (MD-90, MD-104).
-- Migrates lock settings controls from bnx_locksettings into BNX and absorbs the legacy sidecar configuration into BNX defaults (MD-107).
-- Refactors mod form header label overrides into a reusable helper to simplify BNX-driven form customizations (MD-100).
-- Adds a shared developer debug helper for BNX sidecars.
+- feat: Migrate BN Reminders functionality and reminder data into BNX, consolidating reminder settings and email customization into the core BNX experience (MD-90, MD-104).
+- feat: Migrate lock settings controls from bnx_locksettings into BNX and absorb the legacy sidecar configuration into BNX defaults (MD-107).
+- chore: Refactor mod form header label overrides into a reusable helper to simplify BNX-driven form customizations (MD-100).
+- feat: Add a shared developer debug helper for BNX sidecars.
 
 1.0.1 (April 1, 2026)
-- Adds a BNX-specific guest access endpoint (guest.php) with its own join form, URL builder, and logout redirect flow, replacing the core guest page in BNX contexts (GIT-1).
-- Hides BBB server setup instructions in the activity settings when credentials are pre-configured (MD-98).
-- Improves recordings table UX (MD-94).
-- Supports auto-set default settings decoupled from sidecars (MD-95, MD-97).
+- feat: Add a BNX-specific guest access endpoint (guest.php) with its own join form, URL builder, and logout redirect flow, replacing the core guest page in BNX contexts (GIT-1).
+- fix: Hide BBB server setup instructions in the activity settings when credentials are pre-configured (MD-98).
+- feat: Improve recordings table UX (MD-94).
+- feat: Support auto-set default settings decoupled from sidecars (MD-95, MD-97).
 
 1.0 (March 11, 2026)
-- First stable open-source release of bbbext_bnx.
-- Introduces the BNX Framework: BigBlueButton BN Experience is a foundational UX enhancement extension for BigBlueButton in Moodle, featuring moderator approval workflows and shared capabilities that power the BNX extension family.
-- Adds PreSession lobby access which replaces Wait for Moderator.
-- Delivers an enhanced recording experience by improving the room recordings table and ensuring recording features work end-to-end.
+- feat: First stable open-source release of bbbext_bnx.
+- feat: Introduce the BNX Framework: BigBlueButton BN Experience is a foundational UX enhancement extension for BigBlueButton in Moodle, featuring moderator approval workflows and shared capabilities that power the BNX extension family.
+- feat: Add PreSession lobby access which replaces Wait for Moderator.
+- feat: Deliver an enhanced recording experience by improving the room recordings table and ensuring recording features work end-to-end.
