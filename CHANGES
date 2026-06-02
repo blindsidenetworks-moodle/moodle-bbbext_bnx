@@ -17,6 +17,8 @@
 - fix: Memoize sidecar sort order to remove N+1 get_config() calls on every recordings-table render (OL-3.1.9).
 - chore: Document the sidecar contract and integration boundaries in README and backfill the version history.
 - chore: Add PHPUnit tests for the guest-login password compare, external null guards, and external parameter validation (OL-3.2.6, OL-3.1.6, OL-3.2.10), and Behat scenarios for guest-login password validation and the BNX recordings table (OL-4.1.6).
+- chore: Sync the db/install.xml schema VERSION with version.php on each release (OL-3.1.2).
+- chore: Consolidate db/events.php to a single config_log_created observer; the second observer was removed together with sidecar_state_manager (OL-4.1.5).
 
 1.1.1 (June 1, 2026)
 - fix: Avoid forcing guest=true for moderator joins so moderator access is not misclassified as guest access (MD-109).
