@@ -93,7 +93,7 @@ The plugin uses the `action_url_addons` hook to append parameters:
 
 ## Sidecar contract
 
-Starting with BNX **1.1.1**, the integration boundary between `bbbext_bnx` and
+Starting with BNX **1.2**, the integration boundary between `bbbext_bnx` and
 its sibling `bbbext_bnx_*` sub-plugins ("sidecars") is a public, event-driven
 contract. BNX no longer reaches into sibling plugins' enablement, configuration,
 or storage; sidecars opt in to BNX-driven behaviour through documented hooks.
@@ -190,17 +190,23 @@ This plugin **does not store any personal data**. It only stores configuration v
 
 ## Version History
 
-- **1.1.1** (June 1, 2026) — Open LMS code-review remediation. Hardens external
-  API authorization and validation, sanitizes recording and meeting output,
-  enforces timing-safe guest password comparison, adds null guards after
-  `instance::get_from_instanceid()`, batches recording status writes, defers
-  settings string resolution, removes jQuery from `overridenav`, replaces
-  cross-module `window.*` pagination state with a `CustomEvent`, moves inline
-  guest JS into an AMD module, and gates production `debugging()` behind
-  `DEBUG_DEVELOPER`. Introduces the public `\bbbext_bnx\event\state_changed`
-  event and removes BNX-side auto-enable/auto-disable of sibling sub-plugins;
-  administrators now manage each plugin's enablement explicitly. See
-  [Sidecar contract](#sidecar-contract).
+- **1.2-beta.1** (June 2, 2026) — Open LMS code-review remediation. Hardens
+  external API authorization and validation, sanitizes recording and meeting
+  output, enforces timing-safe guest password comparison, adds null guards
+  after `instance::get_from_instanceid()`, batches recording status writes,
+  defers settings string resolution, removes jQuery from `overridenav`,
+  replaces cross-module `window.*` pagination state with a `CustomEvent`,
+  moves inline guest JS into an AMD module, and gates production `debugging()`
+  behind `DEBUG_DEVELOPER`. Introduces the public
+  `\bbbext_bnx\event\state_changed` event and removes BNX-side auto-enable/
+  auto-disable of sibling sub-plugins; administrators now manage each plugin's
+  enablement explicitly. See [Sidecar contract](#sidecar-contract) and
+  [docs/release-notes/1.2-beta.1.md](docs/release-notes/1.2-beta.1.md) for the
+  per-commit remediation log.
+- **1.1.1** (June 1, 2026) — Avoids forcing `guest=true` for moderator joins so
+  moderator access is not misclassified as guest access (MD-109). Fixes
+  missing recording row creation when BigBlueButton create calls fail in
+  specific error paths (MDL-88775).
 - **1.1** (May 1, 2026) — Migrates BN Reminders functionality and reminder data
   into BNX, consolidating reminder settings and email customization (MD-90,
   MD-104). Migrates lock settings controls from `bnx_locksettings` into BNX and
