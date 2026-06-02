@@ -1,6 +1,100 @@
 1.1.1.1 (June 5, 2026)
 - fix: Hotfix release for the BNX 1.1.1 branch.
 
+1.2-beta.1 (June 2, 2026)
+- Remediation release for Open LMS code review findings: Phase 1 (security, authorization, parameter validation, safe output handling) and Phase 2 (runtime stability).
+
+Open LMS issue mapping
+- OL-3.2.5, OL-3.2.7, OL-3.2.10, OL-3.2.1: da66d86
+	- Hardened external API authorization and validation paths.
+	- Added explicit capability checks in external services.
+	- Replaced non-thrown restricted_context_exception with throw.
+	- Added explicit validate_parameters() in BNX meeting info external service.
+	- Narrowed external tools parameter cleaning and documented justified PARAM_RAW response payload usage.
+
+- OL-3.2.6, OL-3.2.1, OL-3.2.3: dd75c94
+	- Replaced loose guest password comparison with timing-safe hash_equals().
+	- Tightened guest input cleaning, including status-code parameter handling.
+	- Applied context-aware format_string() for guest page title rendering.
+
+- OL-3.2.8, OL-3.2.9, OL-3.2.11: c575e21
+	- Sanitized recording editable values before storage.
+	- Ensured meeting description is format_text() processed with activity context before triple-brace template output.
+	- Removed unsafe wrapping that bypassed context-aware output sanitization for recording name/description display.
+
+- OL-3.2.2, OL-3.2.3, OL-3.1.5: 490e5f8
+	- Added explicit import capability enforcement.
+	- Applied context-aware format_string() for import page title.
+	- Fixed import runtime stability issues (undefined rendered output variable and incorrect exception-path instance variable).
+
+- OL-3.1.6: 864ef15
+	- Added null guards after instance::get_from_instanceid() in action URL addons, mod form addons, import output builder, and recording inplace editable.
+	- Degraded paths fall back to safe no-ops or throw moodle_exception('nosuchinstance') instead of fatalling.
+
+- OL-3.1.8: 5358472
+	- Replaced array_merge_recursive() with array_merge() at both SQL bind-param merge sites in classes/recording.php to prevent collided keys from producing invalid DML.
+
+- OL-3.1.9 (partial): 3636d9f, 5542cd5, 660111c
+	- Batched recording status writes via a single set_field_select() per status group, removing N+1 UPDATEs from the recordings table render.
+	- Reused the mod_bigbluebuttonbn renderer across all rows of a recording table build instead of fetching it per row.
+	- Short-circuited the BNX before_footer hook using PAGE->cm, eliminating get_coursemodule_from_id() calls on every non-BBB module-context page.
+
+- OL-3.1.10: 131dbd4
+	- Switched settings.php admin_setting_* labels, descriptions, defaults, and option values to deferred lang_string resolution; left the configured-credentials heading description as-is because it is consumed at construction time.
+
+- OL-3.1.1: 2bd2edc
+	- Rewrote amd/src/overridenav.js as an ES module without jquery, using document.querySelector and a DOMContentLoaded-aware init().
+
+- OL-3.1.7: 3f8b857
+	- Removed window.currentPage / window.updatePagination() from amd/src/recordings_search.js and replaced the cross-module signal with a bbbext_bnx:filter:changed CustomEvent on the table container.
+
+- OL-4.1.4: 379d328
+	- Moved the inline guest.php js_init_code block into a new bbbext_bnx/guest_login AMD module loaded via js_call_amd; BEHAT_SITE_RUNNING guard preserved.
+
+- OL-4.1.1 / OL-4.1.3: 5396175
+	- Dropped unused optional_param declarations (rid, rtype, errors, group) and replaced the nested dirname() chain with an __DIR__-relative config include in bbb_view.php.
+
+- OL-4.1.2: 31fe088
+	- Removed unused class imports: context_module from hook_callbacks.php and bnx_settings_service_interface from action_url_parameters.php.
+
+- OL-4.1.7: 27ba91f
+	- Gated import-output debugging() calls behind DEBUG_DEVELOPER so developer diagnostics no longer surface at DEBUG_NORMAL.
+
+- OL-3.1.4: 50bc1d3
+	- Replaced hard-coded presentation provider lookups with discovery via the sidecar contract, so BNX no longer depends on the internal layout of sibling sub-plugins.
+
+- OL-3.1.3, OL-4.1.5: cf0bf19
+	- Added the `\bbbext_bnx\event\state_changed` event emitted by the `config_log_created` observer on enable/disable.
+	- Removed the legacy `sidecar_state_manager` and the auto-enable of `mod_bigbluebuttonbn` from `db/install.php`, `db/upgrade.php`, and the observer; BNX no longer mutates parent or sibling enablement.
+
+- OL-3.2.4: f68e4e7
+	- Isolated parent-table lookups behind a documented `\bbbext_bnx\local\helpers\guestlink_lookup` shim with TODO MDL-99999 markers; `guest.php` and `joinurl_helper` now go through the shim instead of issuing raw `$DB` queries against `bigbluebuttonbn`.
+
+- Documentation: 44e44bf, 49e9c74
+	- README now documents the sidecar contract, the event-driven enable/disable flow, and the parent-table shim.
+	- Version history backfilled with 1.1, 1.0.1, 1.0, and the 0.1.0-beta.1 entry.
+
+- OL-3.1.9 (sidecar memoization): f2ff643
+	- Memoized `sidecar_helper::get_sorted_sidecar_plugins()` with `$sortedcache` / `$sortordercache` and a `reset_caches()` hook so the sort order is built once per request, removing N+1 `get_config()` calls on every recordings-table render.
+
+- Test alignment (CI): 28a9512
+	- Aligned PHPUnit fixtures with the no-auto-enable contract: `hook_callbacks_test` and `mod_form_addons_test` now enable the parent module explicitly in setUp, and `module_enablement_test` was rewritten to assert the new "leave parent alone" contract in both directions.
+
+- OL-3.2.6, OL-3.1.6, OL-3.2.10 (PHPUnit coverage): 6d45654
+	- Added `tests/form/guest_login_test.php` covering correct/wrong/numeric-zero/empty/missing password scenarios against `guest_login::validation()`.
+	- Added `tests/external/get_recordings_to_import_test.php` covering bogus destination/source/course ids surfacing as `invalid_parameter_exception` or `dml_exception`, plus a happy-path envelope assertion.
+	- Added `tests/external/get_meeting_info_test.php` covering the `execute_parameters` schema, the `presentationtitle` extension in `execute_returns`, and a happy-path execution that exercises the full `validate_parameters()` → `parent::execute()` → override pipeline.
+
+- OL-4.1.6 (Behat coverage): 7f523db
+	- Added `tests/behat/guest_login_password_validation.feature` with three scenarios (wrong password rejected, numeric "0" rejected, empty rejected) on a BNX-enabled instance.
+	- Added `tests/behat/recordings_listing.feature` with three scenarios (list renders, in-place rename persists, in-place description edit persists) on a BNX-enabled instance using the standard `mod_bigbluebuttonbn > meeting`/`recordings` generators.
+	- Added an `I am on the "..." "bbbext_bnx > BNX Guest without password" page` Behat step for the validation scenarios.
+
+Validation summary
+- PHP syntax checks (php -l) passed on all touched files across phases 1, 2, 3, 4, 6, and 7.
+- PHPCS with Moodle standard passed for all touched files.
+- PHPUnit and Behat are exercised by CI on Moodle 5.1.4+ / PHP 8.3 / MariaDB 10.11; the test-fixture alignment commit (28a9512) is the green baseline that the Phase 7 coverage packs extend.
+
 1.1.1 (June 1, 2026)
 - fix: Avoid forcing guest=true for moderator joins so moderator access is not misclassified as guest access (MD-109).
 - fix: Fix missing recording row creation when BigBlueButton create calls fail in specific error paths (MDL-88775).
