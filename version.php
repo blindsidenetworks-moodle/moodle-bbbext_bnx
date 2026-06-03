@@ -29,5 +29,5 @@ $plugin->component    = 'bbbext_bnx';
 $plugin->release      = '1.2-beta.1';
 $plugin->version      = 2026060200;
 $plugin->requires     = 2025100600; // Moodle 5.1.0 minimum.
-$plugin->supported    = [501, 502];
+$plugin->supported    = [501, 503];
 $plugin->maturity     = MATURITY_BETA;
