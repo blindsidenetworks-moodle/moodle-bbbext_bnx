@@ -83,7 +83,7 @@ if ($groupid) {
 // Print the page header.
 $PAGE->set_context($context);
 $PAGE->set_url('/mod/bigbluebuttonbn/extension/bnx/bbb_view.php', ['id' => $cm->id, 'bigbluebuttonbn' => $bigbluebuttonbn->id]);
-$PAGE->set_title(format_string($bigbluebuttonbn->name));
+$PAGE->set_title(format_string($bigbluebuttonbn->name, ['context' => $context]));
 $PAGE->set_cacheable(false);
 $PAGE->set_heading($course->fullname);
 $PAGE->blocks->show_only_fake_blocks();
