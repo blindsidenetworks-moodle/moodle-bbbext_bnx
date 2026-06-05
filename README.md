@@ -45,7 +45,7 @@ Teachers can configure this on the BigBlueButton activity form under **Room Sett
 
 When enabled, the plugin sets:
 - `guestPolicy=ASK_MODERATOR` for `create`
-- `guest=true` for `join`
+- preserves `guest=true` only for real guest joins
 
 ## Architecture
 
@@ -82,7 +82,7 @@ The plugin uses the `action_url_addons` hook to append parameters:
 ['guestPolicy' => 'ASK_MODERATOR']
 
 // join
-['guest' => 'true']
+['guest' => 'true'] // only when the incoming join is already a guest join
 ```
 
 ### Settings Resolution

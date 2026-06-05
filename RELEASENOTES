@@ -1,3 +1,6 @@
+1.1.1.1 (June 5, 2026)
+- fix: Hotfix release for the BNX 1.1.1 branch.
+
 1.1.1 (June 1, 2026)
 - fix: Avoid forcing guest=true for moderator joins so moderator access is not misclassified as guest access (MD-109).
 - fix: Fix missing recording row creation when BigBlueButton create calls fail in specific error paths (MDL-88775).

@@ -61,9 +61,8 @@ class action_url_parameters {
                 $parameters['guestPolicy'] = 'ASK_MODERATOR';
             }
             if ($action === 'join') {
-                $role = strtoupper((string)($data['role'] ?? ''));
-                if ($role !== 'MODERATOR') {
-                    $parameters['guest'] = 'true';
+                if (array_key_exists('guest', $data)) {
+                    $parameters['guest'] = self::is_guest_join_value($data['guest']) ? 'true' : null;
                 }
             }
         }
@@ -146,5 +145,19 @@ class action_url_parameters {
         }
         $default = get_config('bbbext_bnx', 'approvalbeforejoin_default');
         return (bool) $default;
+    }
+
+    /**
+     * Determine whether the provided guest value represents a guest join.
+     *
+     * @param mixed $guest action payload guest value
+     * @return bool
+     */
+    private static function is_guest_join_value($guest): bool {
+        if (is_string($guest)) {
+            return strtolower($guest) === 'true' || $guest === '1';
+        }
+
+        return $guest === true || $guest === 1;
     }
 }

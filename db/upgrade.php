@@ -110,10 +110,11 @@ function xmldb_bbbext_bnx_upgrade($oldversion) {
     }
 
     if ($oldversion < 2026050102) {
-        // One-time migration from core lock settings into BNX lock settings.
-        bbbext_bnx_migrate_core_locksettings_data();
-
         upgrade_plugin_savepoint(true, 2026050102, 'bbbext', 'bnx');
+    }
+
+    if ($oldversion < 2026050103) {
+        upgrade_plugin_savepoint(true, 2026050103, 'bbbext', 'bnx');
     }
 
     return true;

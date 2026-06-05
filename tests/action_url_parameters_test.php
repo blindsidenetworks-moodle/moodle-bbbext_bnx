@@ -57,6 +57,7 @@ final class action_url_parameters_test extends \advanced_testcase {
      * @param bool|null $instancesetting Instance-specific setting
      * @param array $expectedcreate Expected parameters for create action
      * @param array $expectedjoin Expected parameters for join action
+     * @param array $joindata Join action input payload
      *
      * @return void
      */
@@ -66,6 +67,7 @@ final class action_url_parameters_test extends \advanced_testcase {
         ?bool $instancesetting,
         array $expectedcreate,
         array $expectedjoin,
+        array $joindata,
     ): void {
         global $DB;
 
@@ -98,7 +100,7 @@ final class action_url_parameters_test extends \advanced_testcase {
         );
 
         // Test join action.
-        $resultjoin = action_url_parameters::get_parameters('join', $instanceid);
+        $resultjoin = action_url_parameters::get_parameters('join', $instanceid, $joindata);
         $this->assertEquals($expectedjoin, $resultjoin, 'Join action parameters mismatch');
     }
 
@@ -115,7 +117,8 @@ final class action_url_parameters_test extends \advanced_testcase {
                 'default' => true,
                 'instancesetting' => true,
                 'expectedcreate' => ['guestPolicy' => 'ASK_MODERATOR'],
-                'expectedjoin' => ['guest' => 'true'],
+                'expectedjoin' => ['guest' => null],
+                'joindata' => ['guest' => 'false', 'role' => 'VIEWER'],
             ],
             // Editable enabled, default disabled.
             'editable_enabled_default_disabled_instance_enabled' => [
@@ -123,7 +126,8 @@ final class action_url_parameters_test extends \advanced_testcase {
                 'default' => false,
                 'instancesetting' => true,
                 'expectedcreate' => ['guestPolicy' => 'ASK_MODERATOR'],
-                'expectedjoin' => ['guest' => 'true'],
+                'expectedjoin' => ['guest' => null],
+                'joindata' => ['guest' => 'false', 'role' => 'VIEWER'],
             ],
             // Admin default disabled, not editable.
             'default_disabled_not_editable' => [
@@ -132,6 +136,7 @@ final class action_url_parameters_test extends \advanced_testcase {
                 'instancesetting' => null,
                 'expectedcreate' => [],
                 'expectedjoin' => [],
+                'joindata' => ['guest' => 'true', 'role' => 'VIEWER'],
             ],
         ];
     }
@@ -190,16 +195,16 @@ final class action_url_parameters_test extends \advanced_testcase {
         $bbb = $this->getDataGenerator()->create_module('bigbluebuttonbn', ['course' => $course->id]);
         $instanceid = $bbb->id;
 
-        $resultjoin = action_url_parameters::get_parameters('join', $instanceid, ['role' => 'MODERATOR']);
-        $this->assertEquals([], $resultjoin);
+        $resultjoin = action_url_parameters::get_parameters('join', $instanceid, ['role' => 'MODERATOR', 'guest' => 'false']);
+        $this->assertEquals(['guest' => null], $resultjoin);
     }
 
     /**
-     * Test approval-before-join still forces guest for non-moderator joins.
+     * Test approval-before-join does not force authenticated viewers to join as guests.
      *
      * @return void
      */
-    public function test_join_parameters_force_guest_for_viewer(): void {
+    public function test_join_parameters_do_not_force_guest_for_authenticated_viewer(): void {
         set_config('approvalbeforejoin_editable', 0, 'bbbext_bnx');
         set_config('approvalbeforejoin_default', 1, 'bbbext_bnx');
 
@@ -207,7 +212,24 @@ final class action_url_parameters_test extends \advanced_testcase {
         $bbb = $this->getDataGenerator()->create_module('bigbluebuttonbn', ['course' => $course->id]);
         $instanceid = $bbb->id;
 
-        $resultjoin = action_url_parameters::get_parameters('join', $instanceid, ['role' => 'VIEWER']);
+        $resultjoin = action_url_parameters::get_parameters('join', $instanceid, ['role' => 'VIEWER', 'guest' => 'false']);
+        $this->assertEquals(['guest' => null], $resultjoin);
+    }
+
+    /**
+     * Test approval-before-join preserves guest joins.
+     *
+     * @return void
+     */
+    public function test_join_parameters_preserve_guest_for_guest_user(): void {
+        set_config('approvalbeforejoin_editable', 0, 'bbbext_bnx');
+        set_config('approvalbeforejoin_default', 1, 'bbbext_bnx');
+
+        $course = $this->getDataGenerator()->create_course();
+        $bbb = $this->getDataGenerator()->create_module('bigbluebuttonbn', ['course' => $course->id]);
+        $instanceid = $bbb->id;
+
+        $resultjoin = action_url_parameters::get_parameters('join', $instanceid, ['role' => 'VIEWER', 'guest' => 'true']);
         $this->assertEquals(['guest' => 'true'], $resultjoin);
     }
 

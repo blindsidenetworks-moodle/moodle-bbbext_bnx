@@ -32,7 +32,7 @@ jobs:
       matrix:
         php: ['8.3']
         runchecks: ['all']
-        moodle-branch: ['MOODLE_501_STABLE', 'main']
+        moodle-branch: ['MOODLE_501_STABLE', 'MOODLE_502_STABLE', 'main']
         database: ['mariadb', 'pgsql']
 
     steps:
