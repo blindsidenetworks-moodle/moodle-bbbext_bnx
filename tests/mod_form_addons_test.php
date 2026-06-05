@@ -38,6 +38,15 @@ use bbbext_bnx\local\services\bnx_settings_service;
  * @covers    \bbbext_bnx\bigbluebuttonbn\mod_form_addons
  */
 final class mod_form_addons_test extends \advanced_testcase {
+    /** @var array<string, mixed> */
+    private array $originalpost = [];
+
+    /** @var array<string, mixed> */
+    private array $originalget = [];
+
+    /** @var array<string, mixed> */
+    private array $originalrequest = [];
+
     /**
      * Setup test case.
      *
@@ -54,6 +63,23 @@ final class mod_form_addons_test extends \advanced_testcase {
         // form-addons feature gates must enable the parent explicitly.
         \core\plugininfo\mod::enable_plugin('bigbluebuttonbn', 1);
         \core_plugin_manager::reset_caches();
+
+        $this->originalpost = $_POST;
+        $this->originalget = $_GET;
+        $this->originalrequest = $_REQUEST;
+    }
+
+    /**
+     * Restore request globals after each test.
+     *
+     * @return void
+     */
+    protected function tearDown(): void {
+        $_POST = $this->originalpost;
+        $_GET = $this->originalget;
+        $_REQUEST = $this->originalrequest;
+
+        parent::tearDown();
     }
 
     /**
@@ -164,6 +190,67 @@ final class mod_form_addons_test extends \advanced_testcase {
         $addons->add_fields();
 
         $this->assertTrue($form->elementExists('bnx_reminders'));
+    }
+
+    /**
+     * Test reminder add-button requests use sanitized text input and still add a row.
+     *
+     * @return void
+     */
+    public function test_add_fields_adds_reminder_group_when_add_button_submitted(): void {
+        global $CFG;
+
+        require_once($CFG->libdir . '/formslib.php');
+
+        set_config('reminder_editable', 1, 'bbbext_bnx');
+        set_config('reminder_default', 1, 'bbbext_bnx');
+
+        $_POST = [
+            'bnx_paramcount' => '1',
+            'bnx_addparamgroup' => '<b>Add reminder</b>',
+        ];
+        $_REQUEST = $_POST;
+        $_GET = [];
+
+        $form = new \MoodleQuickForm('bnxform', 'post', '');
+        $addons = new mod_form_addons($form);
+
+        $addons->add_fields();
+
+        $this->assertTrue($form->elementExists('bnx_timespangroup[0]'));
+        $this->assertTrue($form->elementExists('bnx_timespangroup[1]'));
+    }
+
+    /**
+     * Test reminder delete-button requests use sanitized text input and still remove a row.
+     *
+     * @return void
+     */
+    public function test_definition_after_data_removes_deleted_reminder_group(): void {
+        global $CFG;
+
+        require_once($CFG->libdir . '/formslib.php');
+
+        set_config('reminder_editable', 1, 'bbbext_bnx');
+        set_config('reminder_default', 1, 'bbbext_bnx');
+
+        $_POST = [
+            'bnx_paramcount' => '2',
+            'bnx_paramdelete' => ['0' => '<b>Delete</b>'],
+        ];
+        $_REQUEST = $_POST;
+        $_GET = [];
+
+        $form = new \MoodleQuickForm('bnxform', 'post', '');
+        $addons = new mod_form_addons($form);
+
+        $addons->add_fields();
+        $this->assertTrue($form->elementExists('bnx_timespangroup[1]'));
+
+        $addons->definition_after_data();
+
+        $this->assertTrue($form->elementExists('bnx_timespangroup[0]'));
+        $this->assertFalse($form->elementExists('bnx_timespangroup[1]'));
     }
 
     /**

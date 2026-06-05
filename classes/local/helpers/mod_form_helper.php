@@ -271,11 +271,13 @@ class mod_form_helper {
         }
         $defaultcount = max(1, count($existingtimespans));
         $paramcount = optional_param('bnx_paramcount', $defaultcount, PARAM_INT);
-        if (optional_param('bnx_addparamgroup', 0, PARAM_RAW)) {
+        // Submit buttons send human-readable labels, so PARAM_TEXT preserves the
+        // no-submit control flow without accepting raw request payloads.
+        if (optional_param('bnx_addparamgroup', '', PARAM_TEXT) !== '') {
             $paramcount++;
         }
 
-        $isdeleting = optional_param_array('bnx_paramdelete', [], PARAM_RAW);
+        $isdeleting = optional_param_array('bnx_paramdelete', [], PARAM_TEXT);
         foreach (array_keys($isdeleting) as $index) {
             $mform->registerNoSubmitButton("bnx_paramdelete[$index]");
         }
@@ -315,7 +317,7 @@ class mod_form_helper {
             $mform->hideIf("bnx_timespangroup[$i]", 'bnx_reminderenabled', 'notchecked', 0);
             $mform->disabledIf("bnx_timespangroup[$i]", 'openingtime[enabled]', 'notchecked', 0);
             $mform->setType("bnx_timespan[$i]", PARAM_ALPHANUM);
-            $mform->setType("bnx_paramdelete[$i]", PARAM_RAW);
+            $mform->setType("bnx_paramdelete[$i]", PARAM_TEXT);
             $mform->disabledIf("bnx_timespan[$i]", 'openingtime[enabled]', 'notchecked', 0);
             $mform->registerNoSubmitButton("bnx_paramdelete[$i]");
 
@@ -338,7 +340,7 @@ class mod_form_helper {
      * @return void
      */
     public static function reminder_definition_after_data(\MoodleQuickForm &$mform): void {
-        $isdeleting = optional_param_array('bnx_paramdelete', [], PARAM_RAW);
+        $isdeleting = optional_param_array('bnx_paramdelete', [], PARAM_TEXT);
         if (empty($isdeleting)) {
             return;
         }
