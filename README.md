@@ -1,248 +1,265 @@
 # BigBlueButton BN Experience
 
-BigBlueButton BN Experience is a foundational UX enhancement extension for BigBlueButton in Moodle — featuring moderator approval workflows and shared capabilities that power the entire BNX extension family. Developed and supported by Blindside Networks, the creators of BigBlueButton.
+`bbbext_bnx` is the foundation of the BNX extension family for
+`mod_bigbluebuttonbn`. It ships end-user features of its own and provides the
+shared runtime contract used by sibling `bbbext_bnx_*` sidecars.
 
-## Description
+## What BNX currently provides
 
-This plugin extends the BigBlueButton activity module with foundational UX improvements and shared behaviours that can be reused by other `bbbext_bnx_*` sidecar plugins.
+- Moderator approval before join (`approvalbeforejoin`) with site defaults and
+  optional per-activity override
+- Enhanced recordings UX with search, sorting, pagination, in-place editing,
+  and recording import
+- BNX-specific guest entry flow and logout redirect handling
+- BNX-managed lock-settings overlay for selected BigBlueButton join controls
+- Reminder scheduling, guest reminder subscriptions, and reminder email
+  customization
+- Shared sidecar discovery and room-adjustment helpers
+- A public BNX enable/disable event contract for sidecars
 
-**Note:** This plugin is the parent for other `bbbext_bnx_*` extensions and must be enabled for those plugins to function.
+BNX is a `bbbext` subplugin. It does not replace `mod_bigbluebuttonbn`; it
+extends the parent module through the extension hooks that the parent module
+already exposes.
 
-## Features
+## Supported platform
 
-- **Waiting Room (moderator approval before join)**: Replaces the built-in "Wait for Moderator" screen with a Waiting Room lobby. Participants wait until a moderator approves their entry — configurable site-wide with per-activity override for teachers.
-- **Enhanced recording experience**: Replaces the core recordings table with a fully functional implementation including search, sorting, pagination, editable recording name and description, and recording import. Driven by dedicated AJAX web services.
-- **Navigation label override**: Replaces the default BigBlueButton activity navigation label with "BigBlueButton +" to surface the enhanced experience to users.
-- **Sidecar integration contract**: BNX publishes the `\bbbext_bnx\event\state_changed` event on every BNX enable/disable transition. Sidecar `bbbext_bnx_*` plugins subscribe to that event in their own `db/events.php` and decide for themselves how to react. BNX no longer auto-enables or auto-disables sibling sub-plugins; administrator intent on sibling enablement is always preserved (see [Sidecar contract](#sidecar-contract) below).
-- **Backup and restore**: Full backup and restore support for per-activity settings.
-- **GDPR Compliant**: No personal user data is stored (null privacy provider).
-
-## Requirements
-
-- Moodle 5.1 or later
-- BigBlueButton plugin (`mod_bigbluebuttonbn`)
+- Moodle: 5.1 to 5.2 (`$plugin->supported = [501, 502]`)
+- Minimum Moodle requirement: 5.1 (`$plugin->requires = 2025100600`)
+- Plugin maturity: beta (`MATURITY_BETA`)
+- BigBlueButton server: no BNX-specific server-version gate is enforced; BNX
+  follows the BigBlueButton API and server compatibility of the installed
+  `mod_bigbluebuttonbn` release
 
 ## Installation
 
-1. Copy the plugin to `mod/bigbluebuttonbn/extension/bnx/`
-2. Visit Site Administration > Notifications to complete installation
-3. Configure settings at Site Administration > Plugins > Activity modules > BigBlueButton > BigBlueButton BN Experience
+1. Install the parent `mod_bigbluebuttonbn` plugin and configure its server
+   credentials.
+2. Copy BNX into `mod/bigbluebuttonbn/extension/bnx/`.
+3. Visit Site administration > Notifications to complete installation and
+   upgrade steps.
+4. Review BNX settings at:
+   Site administration > Plugins > Activity modules > BigBlueButton >
+   BigBlueButton BN Experience
 
-## Configuration
+## Provisioning and prerequisites
 
-### Admin Settings
+BNX assumes that the parent `mod_bigbluebuttonbn` plugin is already installed
+and enabled by the administrator.
 
-| Setting | Description | Default |
-|---------|-------------|---------|
-| Waiting Room enabled by default | Default on/off state for the Waiting Room across all activities | Enabled |
-| Allow teachers to change the Waiting Room setting per activity | Allow teachers to override the Waiting Room on or off for individual activities | Enabled |
+Important:
 
-### Per-Activity Settings
+- BNX does **not** auto-enable `mod_bigbluebuttonbn`
+- BNX does **not** auto-enable sibling sidecars
+- BNX sidecars are enabled and disabled independently by the administrator
 
-Teachers can configure this on the BigBlueButton activity form under **Room Settings +**:
+Current operational expectation:
 
-- **Moderator approval required to join session**
+- if the parent module is disabled, BNX and its sidecars are effectively
+  unusable even if they remain installed
+- some sidecars have additional parent-owned prerequisites; for example,
+  `bbbext_bnx_datahub` requires `meetingevents_enabled` on
+  `mod_bigbluebuttonbn`
 
-When enabled, the plugin sets:
+When enabled, the plugin adjusts BigBlueButton create and join parameters:
+
 - `guestPolicy=ASK_MODERATOR` for `create`
 - preserves `guest=true` only for real guest joins
 
-## Architecture
+BNX documents these prerequisites but does not currently provide the same
+status-check coverage for them that `bbbext_bnx_datahub` provides for meeting
+events.
 
-### Key Classes
+## Feature configuration
 
-| Class | Purpose |
-|-------|---------|
-| `action_url_addons` | Injects guest policy parameters into BBB API calls |
-| `mod_form_addons` | Adds the Waiting Room checkbox and per-activity fields to the activity form |
-| `mod_instance_helper` | Handles per-activity settings storage |
-| `action_url_parameters` | Computes create/join parameters based on settings |
-| `view_page_addons` | Overrides the BBB view page to embed the enhanced recordings experience |
-| `page_context_builder` | Builds the full template context for the view page |
-| `hook_callbacks` | Injects the navigation label override on BigBlueButton module pages |
-| `recording_helper` | Helpers for recording data retrieval and formatting |
-| `joinurl_helper` | Builds custom join URLs |
-| `guestlink_lookup` | Isolated shim for parent-table guest-link UID lookups (pending upstream `mod_bigbluebuttonbn\instance::get_from_guestlinkuid()`) |
-| `sidecar_helper` | Utilities shared across BNX sidecar plugins |
-| `state_changed` | Event triggered on BNX enable/disable transitions; the public sidecar integration contract |
+### Site-level settings
 
-### Web Services
+BNX currently groups settings into these areas:
 
-| Service | Description |
-|---------|-------------|
-| `bbbext_bnx_get_meeting_info` | Returns meeting info with BNX extensions |
-| `bbbext_bnx_get_recordings` | Returns recordings list for the enhanced recordings table |
-| `bbbext_bnx_get_recordings_to_import` | Returns recordings available to import |
+- Waiting room
+- Lock settings
+- Reminders
+- Reminder email subject/template/footer
 
-### API Integration
+The parent BigBlueButton settings page also changes slightly when credentials
+are preconfigured in `config.php`: BNX replaces the generic setup description
+with a shorter message indicating that credentials are already managed there.
 
-The plugin uses the `action_url_addons` hook to append parameters:
+### Per-activity settings
 
-```php
-// create
-['guestPolicy' => 'ASK_MODERATOR']
+BNX contributes settings through the parent module's extension hooks. Depending
+on site configuration, teachers may see:
 
-// join
-['guest' => 'true'] // only when the incoming join is already a guest join
+- moderator approval before join
+- BNX-managed lock settings
+- reminder enablement, guest reminders, and reminder timespans
+- BNX guest join URL
+
+For join URL handling, BNX preserves `['guest' => 'true']` only when the
+incoming join is already a guest join.
+
+If a feature is not editable at site level, BNX persists the site default and
+hides the editable control from the activity form.
+
+## Runtime model
+
+### Parent hook integration
+
+BNX uses the `bbbext` hook points exposed by `mod_bigbluebuttonbn`:
+
+- `action_url_addons`
+- `mod_form_addons`
+- `mod_instance_helper`
+- `view_page_addons`
+
+These hook classes live in [`classes/bigbluebuttonbn/`](classes/bigbluebuttonbn).
+
+### Room page flow
+
+1. The parent module resolves BNX hook implementations.
+2. BNX builds the room-page context through
+   [`page_context_builder`](classes/local/bigbluebutton/view/page_context_builder.php).
+3. Mustache templates render the BNX view.
+4. AJAX/external services provide refreshed meeting and recordings data.
+
+### Sidecar contract
+
+BNX no longer auto-manages sibling plugin enablement. The supported contract is:
+
+- sidecars discover BNX utilities through helper classes
+- BNX emits `\bbbext_bnx\event\state_changed` when BNX itself is enabled or
+  disabled
+- sidecars may subscribe to that event if they want to react to BNX state
+- sidecars remain responsible for their own configuration and enablement
+
+BNX also supports convention-based sidecar discovery for selected behaviors,
+such as presentation providers and room alerts, through
+[`sidecar_helper`](classes/local/helpers/sidecar_helper.php).
+
+## Migrations and upgrade behavior
+
+BNX performs real upgrade-time migrations. Today that includes:
+
+- migrating legacy BN Reminders data and settings into BNX
+- disabling the legacy `bbbext_bnreminders` plugin after successful migration
+- migrating core BigBlueButton lock settings into BNX-managed lock settings
+- syncing those migrated lock settings again when BNX is enabled
+
+This means BNX is not a pure "read only" sidecar with respect to other plugin
+state. The current implementation intentionally preserves customer migration
+behavior, even though some certification reviews may prefer looser coupling.
+
+## Known limitations and design constraints
+
+- Guest-link lookup still relies on a documented BNX shim because the parent
+  module does not yet expose a public `get_from_guestlinkuid()` API.
+- BNX still contains some cross-component migration behavior because legacy
+  functionality was consolidated into BNX.
+- The enhanced recordings front end largely moved to event-based module
+  communication, but one compatibility global remains in
+  `amd/src/recordings_pagination.js`.
+- BNX does not currently expose administrator status checks for all parent
+  prerequisites.
+- Some BBB-server-dependent behaviors are better covered by PHPUnit than by
+  isolated Behat scenarios.
+
+## Testing and CLI
+
+BNX does not ship custom CLI commands of its own. Maintenance and validation use
+standard Moodle tooling.
+
+Typical commands:
+
+```bash
+# Initialise PHPUnit if needed.
+php public/admin/tool/phpunit/cli/init.php
+
+# Run targeted BNX PHPUnit tests.
+php vendor/bin/phpunit -c phpunit.xml public/mod/bigbluebuttonbn/extension/bnx/tests/form/guest_login_test.php
+php vendor/bin/phpunit -c phpunit.xml public/mod/bigbluebuttonbn/extension/bnx/tests/module_enablement_test.php
+
+# List BNX Behat coverage files.
+find public/mod/bigbluebuttonbn/extension/bnx/tests/behat -maxdepth 1 -type f | sort
 ```
 
-### Settings Resolution
+Current automated coverage includes:
 
-1. If the Waiting Room setting is editable, the per-activity value is used.
-2. Otherwise, the site-wide admin default is used.
+- PHPUnit coverage for meeting info, import-recording service paths, guest
+  password validation, module enablement boundaries, state-change events,
+  reminders, form helpers, and migrations
+- Behat coverage for basic BNX flows, guest login validation, guest meeting
+  joins, and recordings listing/editing
 
-## Sidecar contract
+## Troubleshooting
 
-Starting with BNX **1.2**, the integration boundary between `bbbext_bnx` and
-its sibling `bbbext_bnx_*` sub-plugins ("sidecars") is a public, event-driven
-contract. BNX no longer reaches into sibling plugins' enablement, configuration,
-or storage; sidecars opt in to BNX-driven behaviour through documented hooks.
+### BNX is installed but features are not visible
 
-This change brings BNX in line with the Moodle
-[Component Communication policy](https://moodledev.io/general/development/policies/component-communication).
+Check:
 
-### What BNX guarantees
+- `mod_bigbluebuttonbn` is installed and enabled
+- BNX itself is enabled
+- the current activity is a BigBlueButton activity
+- feature defaults/editability were configured in BNX settings
 
-- **No auto-enablement.** BNX never calls `\core\plugininfo\mod::enable_plugin()`
-  for `mod_bigbluebuttonbn` or for any sibling `bbbext_bnx_*` plugin. The
-  administrator enables the parent module and each sidecar explicitly.
-- **No cross-plugin writes.** BNX install/upgrade code mutates only BNX-owned
-  tables and the `bbbext_bnx` config namespace.
-- **No direct sibling-table reads.** Parent-table lookups are confined to
-  `\bbbext_bnx\local\helpers\guestlink_lookup` and are tracked for removal
-  once upstream `mod_bigbluebuttonbn` exposes a matching API
-  (see Moodle tracker request for `instance::get_from_guestlinkuid()`).
-- **A public event for state transitions.** Every BNX enable/disable transition
-  emits `\bbbext_bnx\event\state_changed` with payload
-  `other => ['enabled' => bool]`. Sidecars subscribe to this event if they want
-  to mirror BNX state; sidecars that do not subscribe are unaffected.
+### Sidecar behavior is missing
 
-### Event payload
+Check:
 
-```php
-\bbbext_bnx\event\state_changed::create([
-    'context' => \context_system::instance(),
-    'other'   => ['enabled' => true],  // false on disable
-])->trigger();
-```
+- the sidecar plugin is enabled independently
+- the sidecar is ordered correctly if behavior is order-sensitive
+- any sidecar-specific parent prerequisites are satisfied
 
-- `crud`: `'u'`
-- `edulevel`: `LEVEL_OTHER`
-- `other['enabled']`: `bool` (required) — `true` when BNX has just been enabled,
-  `false` when BNX has just been disabled.
+Example:
 
-### Subscribing from a sidecar
+- `bbbext_bnx_datahub` depends on `meetingevents_enabled` in the parent module
+  and surfaces that dependency through its own status check
 
-A sidecar (e.g. `bbbext_bnx_mysidecar`) declares an observer in its own
-`db/events.php`:
+### Guest links stop working after parent changes
 
-```php
-// mod/bigbluebuttonbn/extension/mysidecar/db/events.php
-$observers = [
-    [
-        'eventname' => \bbbext_bnx\event\state_changed::class,
-        'callback'  => \bbbext_bnx_mysidecar\observer::class . '::bnx_state_changed',
-        'internal'  => false,
-    ],
-];
-```
+BNX guest links currently depend on the parent module's `guestlinkuid` field
+through the documented `guestlink_lookup` shim. If upstream parent APIs change,
+the guest-link path may need to be updated accordingly.
 
-and implements the observer:
+### Reminder data did not migrate as expected
 
-```php
-// mod/bigbluebuttonbn/extension/mysidecar/classes/observer.php
-namespace bbbext_bnx_mysidecar;
+BNX migration logic is idempotent but depends on the presence of the legacy
+plugin configuration/tables at install or upgrade time. Review:
 
-class observer {
-    public static function bnx_state_changed(\bbbext_bnx\event\state_changed $event): void {
-        $enabled = (bool) $event->other['enabled'];
-        // Mirror BNX state inside *this* sidecar only. Never touch other plugins.
-        if ($enabled) {
-            // ... enable sidecar-owned features ...
-        } else {
-            // ... disable sidecar-owned features ...
-        }
-    }
-}
-```
+- [`db/migration.php`](db/migration.php)
+- [`tests/install_migration_test.php`](tests/install_migration_test.php)
 
-Sidecars that should remain enabled regardless of BNX state simply do not
-subscribe. Each sidecar is responsible for its own enablement; BNX is not.
+## Developer notes
 
-### Sidecar callback discovery
+- Do not assume BNX can freely mutate parent or sibling plugin settings.
+- Do not reintroduce hard-coded sibling class dependencies.
+- Prefer the existing sidecar helper and event contract over ad hoc sidecar
+  wiring.
+- Treat the guest-link shim as temporary until the parent plugin exposes a
+  proper API.
 
-For non-state behaviour (e.g. presentation providers), BNX discovers sidecar
-implementations by the `{pluginname}`-templated class-name convention enforced
-by `\bbbext_bnx\local\helpers\sidecar_helper`. A sidecar that wants to provide
-presentations exposes:
+## Change history
 
-```
-\bbbext_{pluginname}\local\helpers\presentation_helper::get_presentations_for_ws(int $instanceid): array
-```
+See:
 
-BNX iterates enabled sidecars, calls the method when present, and degrades to
-an empty result when no sidecar provides it. The contract is conventional, not
-typed; a future Moodle hook may replace it (tracker request filed).
+- [CHANGES](CHANGES) for developer-facing change history
+- [RELEASENOTES](RELEASENOTES) for administrator/customer-facing release notes
+- [docs/release-notes/1.2-beta.1.md](docs/release-notes/1.2-beta.1.md) for the
+  detailed Open LMS remediation log for 1.2-beta.1
 
-## Privacy
+## Related plugins
 
-This plugin **does not store any personal data**. It only stores configuration values and per-activity feature toggles.
+- `mod_bigbluebuttonbn` — parent module
+- `bbbext_bnx_datahub` — analytics/reporting sidecar
+- `bbbext_bnx_insights` — in-session student-insight sidecar
+- `bbbext_bnx_preuploads` — presentation-provider sidecar
+- `bbbext_bnx_earlyaccess` — early teacher-access sidecar
 
-## Version History
+Legacy plugins whose functionality has been migrated into BNX:
 
-- **1.2-beta.1** (June 2, 2026) — Open LMS code-review remediation. Hardens
-  external API authorization and validation, sanitizes recording and meeting
-  output, enforces timing-safe guest password comparison, adds null guards
-  after `instance::get_from_instanceid()`, batches recording status writes,
-  defers settings string resolution, removes jQuery from `overridenav`,
-  replaces cross-module `window.*` pagination state with a `CustomEvent`,
-  moves inline guest JS into an AMD module, and gates production `debugging()`
-  behind `DEBUG_DEVELOPER`. Introduces the public
-  `\bbbext_bnx\event\state_changed` event and removes BNX-side auto-enable/
-  auto-disable of sibling sub-plugins; administrators now manage each plugin's
-  enablement explicitly. See [Sidecar contract](#sidecar-contract) and
-  [docs/release-notes/1.2-beta.1.md](docs/release-notes/1.2-beta.1.md) for the
-  per-commit remediation log.
-- **1.1.1** (June 1, 2026) — Avoids forcing `guest=true` for moderator joins so
-  moderator access is not misclassified as guest access (MD-109). Fixes
-  missing recording row creation when BigBlueButton create calls fail in
-  specific error paths (MDL-88775).
-- **1.1** (May 1, 2026) — Migrates BN Reminders functionality and reminder data
-  into BNX, consolidating reminder settings and email customization (MD-90,
-  MD-104). Migrates lock settings controls from `bnx_locksettings` into BNX and
-  absorbs the legacy sidecar configuration into BNX defaults (MD-107).
-  Refactors mod-form header label overrides into a reusable helper (MD-100).
-  Adds a shared developer debug helper for BNX sidecars.
-- **1.0.1** (April 1, 2026) — Adds a BNX-specific guest access endpoint
-  (`guest.php`) with its own join form, URL builder, and logout redirect flow,
-  replacing the core guest page in BNX contexts (GIT-1). Hides BBB server setup
-  instructions in the activity settings when credentials are pre-configured
-  (MD-98). Improves recordings table UX (MD-94). Supports auto-set default
-  settings decoupled from sidecars (MD-95, MD-97).
-- **1.0** (March 11, 2026) — First stable open-source release. Introduces the
-  BNX Framework with moderator approval workflows and shared capabilities that
-  power the BNX extension family. Adds PreSession lobby access (replaces Wait
-  for Moderator) and delivers an enhanced recording experience with end-to-end
-  recording features.
-- **0.1.0-beta.1** (March 11, 2026) — Initial beta of the BNX Framework. Adds
-  PreSession lobby access, enhanced recordings table, improved sidecar
-  integration (ordered plugin behavior, presentation title resolution), and
-  multiple stability and quality fixes (guest lobby/group assignment,
-  `approvalbeforejoin`, code quality).
-
-See [RELEASENOTES](RELEASENOTES) for the full per-commit history.
+- `bbbext_bnreminders`
+- `bbbext_bnx_locksettings`
 
 ## Credits
 
-**Author**: Jesus Federico, Shamiso Jaravaza  
-**Copyright**: 2026 onwards, Blindside Networks Inc  
-**License**: GNU GPL v3 or later
-
-## Related Plugins
-
-- **bbbext_bnx_insights**: Sends student insights from Moodle directly into the BigBlueButton live session, per student.
-- **bbbext_bnx_datahub**: Integrates with Moodle report builder to provide advanced reporting and analytics.
-- **bbbext_bnx_preuploads**: Allows multiple preuploaded presentations for meeting content.
-- **bbbext_bnx_earlyaccess**: Allows teachers to join the room for testing before the activity starts.
-- **bbbext_bnx_locksettings**: Extends join settings to align with the lock controls offered by the BigBlueButton API.
-- **mod_bigbluebuttonbn**: Core BigBlueButton activity module
+**Author:** Jesus Federico, Shamiso Jaravaza  
+**Copyright:** 2026 onwards, Blindside Networks Inc  
+**License:** GNU GPL v3 or later
