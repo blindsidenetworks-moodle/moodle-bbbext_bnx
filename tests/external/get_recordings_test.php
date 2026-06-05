@@ -17,6 +17,7 @@
 namespace bbbext_bnx\external;
 
 use core_external\external_api;
+use core_external\restricted_context_exception;
 use mod_bigbluebuttonbn\instance;
 use mod_bigbluebuttonbn\test\testcase_helper_trait;
 
@@ -44,7 +45,6 @@ final class get_recordings_test extends \core_external\tests\externallib_testcas
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        $this->initialise_mock_server();
     }
 
     /**
@@ -67,6 +67,8 @@ final class get_recordings_test extends \core_external\tests\externallib_testcas
      * @return void
      */
     public function test_execute_sanitises_recording_name_inside_json_payload(): void {
+        $this->initialise_mock_server();
+
         $dataset = [
             'type' => instance::TYPE_ALL,
             'groups' => null,
@@ -99,4 +101,32 @@ final class get_recordings_test extends \core_external\tests\externallib_testcas
         $this->assertStringNotContainsString('<script>', $rows[0]->recording);
         $this->assertStringNotContainsString('<img', $rows[0]->description);
     }
+
+    /**
+     * Users must not be able to request recordings for a group they cannot
+     * access.
+     *
+     * @covers ::execute
+     * @return void
+     */
+    public function test_execute_throws_for_restricted_group_access(): void {
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course(['groupmodeforce' => true, 'groupmode' => SEPARATEGROUPS]);
+        $groupone = $generator->create_group(['name' => 'G1', 'courseid' => $course->id]);
+        $grouptwo = $generator->create_group(['name' => 'G2', 'courseid' => $course->id]);
+        $record = $generator->create_module('bigbluebuttonbn', ['course' => $course->id], ['visible' => true]);
+        $instance = instance::get_from_instanceid($record->id);
+
+        $studentone = $generator->create_and_enrol($course, 'student', ['username' => 's1']);
+        $generator->create_group_member(['userid' => $studentone->id, 'groupid' => $groupone->id]);
+        $studenttwo = $generator->create_and_enrol($course, 'student', ['username' => 's2']);
+        $generator->create_group_member(['userid' => $studenttwo->id, 'groupid' => $grouptwo->id]);
+
+        $this->setUser($studentone);
+
+        $this->expectException(restricted_context_exception::class);
+
+        $this->get_recordings($instance->get_instance_id(), null, $grouptwo->id);
+    }
+
 }

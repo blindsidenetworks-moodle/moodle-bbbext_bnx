@@ -43,7 +43,6 @@ final class get_recordings_to_import_test extends \advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        $this->initialise_mock_server();
     }
 
     /**
@@ -151,5 +150,31 @@ final class get_recordings_to_import_test extends \advanced_testcase {
         $this->assertArrayHasKey('status', $result);
         $this->assertArrayHasKey('warnings', $result);
         $this->assertTrue($result['status']);
+    }
+
+    /**
+     * Users without the import capability must be denied before any recording
+     * import data is returned.
+     *
+     * @covers ::execute
+     * @return void
+     */
+    public function test_execute_throws_when_import_capability_is_missing(): void {
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $bbbgenerator = $generator->get_plugin_generator('mod_bigbluebuttonbn');
+        $destactivity = $bbbgenerator->create_instance(['course' => $course->id]);
+        $user = $generator->create_and_enrol($course, 'student');
+        $this->setUser($user);
+
+        $this->expectException(\required_capability_exception::class);
+
+        get_recordings_to_import::execute(
+            destinstanceid: (int) $destactivity->id,
+            sourceinstanceid: 0,
+            sourcecourseid: 0,
+            tools: 'protect,unprotect,publish,unpublish,delete',
+            groupid: null
+        );
     }
 }
