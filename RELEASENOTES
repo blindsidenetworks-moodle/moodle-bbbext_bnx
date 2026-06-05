@@ -1,7 +1,4 @@
-1.1.1.1 (June 5, 2026)
-- fix: Hotfix release for the BNX 1.1.1 branch.
-
-1.2-beta.1 (June 2, 2026)
+1.2-beta.1 (June 5, 2026)
 - fix: Harden security and authorization across external services and guest/import entry points to address Open LMS code review findings (OL-3.2.1, OL-3.2.2, OL-3.2.3, OL-3.2.5, OL-3.2.6, OL-3.2.7, OL-3.2.10, OL-3.1.5).
 - fix: Enforce explicit capability checks in external APIs and the import flow, and deny restricted context access by throwing exceptions.
 - fix: Apply stricter input cleaning for guest and external parameters, and add explicit external parameter validation in the BNX meeting info service.
@@ -10,7 +7,7 @@
 - fix: Add null guards after instance::get_from_instanceid() in addon and output paths (OL-3.1.6), and replace array_merge_recursive() with array_merge() for recording SQL bind parameters (OL-3.1.8).
 - fix: Batch recording status updates to remove N+1 writes, reuse the mod_bigbluebuttonbn renderer across recording table rows, and short-circuit the BNX footer hook on non-BBB pages (OL-3.1.9).
 - fix: Switch settings labels to deferred lang_string resolution (OL-3.1.10).
-- chore: Rewrite the overridenav AMD module without jquery (OL-3.1.1), replace window-based pagination signaling with a CustomEvent flow (OL-3.1.7), and move the inline guest-login JS into a new bbbext_bnx/guest_login AMD module (OL-4.1.4).
+- chore: Rewrite the overridenav AMD module without jquery (OL-3.1.1), move recordings search signaling to a CustomEvent flow while retaining one pagination compatibility global (OL-3.1.7), and move the inline guest-login JS into a new bbbext_bnx/guest_login AMD module (OL-4.1.4).
 - chore: Remove unused optional_param declarations and the nested dirname() chain in bbb_view.php (OL-4.1.1, OL-4.1.3), drop unused class imports in hook_callbacks and action_url_parameters (OL-4.1.2), and gate developer diagnostics in the import output behind DEBUG_DEVELOPER (OL-4.1.7).
 - feat: Discover presentation providers via the sidecar contract instead of hard-coded coupling (OL-3.1.4), emit a `\bbbext_bnx\event\state_changed` event on enable/disable, and remove the legacy sidecar_state_manager that mutated parent module enablement (OL-3.1.3, OL-4.1.5).
 - fix: Isolate parent-table lookups behind a documented shim (OL-3.2.4).
@@ -20,6 +17,9 @@
 - chore: Sync the db/install.xml schema VERSION with version.php on each release (OL-3.1.2).
 - chore: Consolidate db/events.php to a single config_log_created observer; the second observer was removed together with sidecar_state_manager (OL-4.1.5).
 - chore: See docs/release-notes/1.2-beta.1.md for the per-commit Open LMS remediation log and validation summary.
+
+1.1.1.1 (June 5, 2026)
+- fix: Hotfix release for the BNX 1.1.1 branch.
 
 1.1.1 (June 1, 2026)
 - fix: Avoid forcing guest=true for moderator joins so moderator access is not misclassified as guest access (MD-109).
