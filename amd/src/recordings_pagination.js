@@ -140,11 +140,11 @@ export const setupPagination = () => {
         updatePaginationControls();
     });
 
-    window.updatePagination = () => {
+    tableContainer.addEventListener('bbbext_bnx:filter:changed', () => {
         currentPage = 1;
         renderTable(currentPage);
         updatePaginationControls();
-    };
+    });
 
     rows.forEach(row => {
         row.dataset.filtered = 'true';
