@@ -42,11 +42,10 @@ if (
     && isset($bbbgeneralpage->settings->bigbluebuttonbn_config_general)
 ) {
     // Replace the setup description with a message indicating credentials are configured in config.php.
-    $message = get_string('config_general_description_credentials_preconfigured', 'bbbext_bnx');
     $bbbgeneralpage->settings->bigbluebuttonbn_config_general = new admin_setting_heading(
         'bigbluebuttonbn_config_general',
         '',
-        $message
+        new lang_string('config_general_description_credentials_preconfigured', 'bbbext_bnx')
     );
 }
 
