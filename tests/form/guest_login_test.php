@@ -32,7 +32,6 @@ use mod_bigbluebuttonbn\instance;
  * @copyright 2026 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
- * @coversDefaultClass \bbbext_bnx\form\guest_login
  */
 final class guest_login_test extends \advanced_testcase {
     /**
@@ -65,7 +64,6 @@ final class guest_login_test extends \advanced_testcase {
     /**
      * The correct password must be accepted (no `password` error returned).
      *
-     * @covers ::validation
      * @return void
      */
     public function test_validation_accepts_correct_password(): void {
@@ -82,7 +80,6 @@ final class guest_login_test extends \advanced_testcase {
     /**
      * An obviously-wrong password must be rejected.
      *
-     * @covers ::validation
      * @return void
      */
     public function test_validation_rejects_wrong_password(): void {
@@ -103,7 +100,6 @@ final class guest_login_test extends \advanced_testcase {
      * removes that whole class of risk; this test pins down the most common
      * juggle vector.
      *
-     * @covers ::validation
      * @return void
      */
     public function test_validation_rejects_numeric_zero_against_real_password(): void {
@@ -119,7 +115,6 @@ final class guest_login_test extends \advanced_testcase {
      * An empty submitted password must be rejected even when the expected
      * password is a non-empty string.
      *
-     * @covers ::validation
      * @return void
      */
     public function test_validation_rejects_empty_password(): void {
@@ -135,7 +130,6 @@ final class guest_login_test extends \advanced_testcase {
      * A missing `password` key in the submitted data must be treated as empty
      * and rejected, never as a match.
      *
-     * @covers ::validation
      * @return void
      */
     public function test_validation_rejects_missing_password_key(): void {

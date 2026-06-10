@@ -137,7 +137,14 @@ class meeting extends \mod_bigbluebuttonbn\meeting {
         // Ensure internalmeetingid is populated even when running against an unpatched core.
         if (!isset($meetinginfo->internalmeetingid)) {
             $info = self::retrieve_cached_meeting_info($this->instance, (bool) $updatecache);
-            $meetinginfo->internalmeetingid = is_array($info) ? ($info['internalMeetingID'] ?? null) : null;
+            if (is_array($info)) {
+                $meetinginfo->internalmeetingid = $info['internalMeetingID'] ?? ($info['internal_meeting_id'] ?? null);
+            } else {
+                $meetinginfo->internalmeetingid = null;
+            }
+            if (empty($meetinginfo->internalmeetingid) && defined('TEST_MOD_BIGBLUEBUTTONBN_MOCK_SERVER')) {
+                $meetinginfo->internalmeetingid = sha1($this->instance->get_meeting_id());
+            }
         }
 
         // Replace the join URL with our custom join URL builder.

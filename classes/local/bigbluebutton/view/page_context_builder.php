@@ -342,7 +342,7 @@ class page_context_builder {
                 $this->instance->get_group_id()
             );
         } catch (\moodle_exception $e) {
-            debugging('BNX recordings fetch error: ' . $e->getMessage());
+            debugging('BNX recordings fetch error: ' . $e->getMessage(), DEBUG_DEVELOPER);
             return [];
         }
 

@@ -26,7 +26,7 @@ use bbbext_bnx\observer;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
  * @covers    \bbbext_bnx\event\state_changed
- * @covers    \bbbext_bnx\observer::config_log_created
+ * @covers    \bbbext_bnx\observer
  */
 final class state_changed_test extends \advanced_testcase {
     /**

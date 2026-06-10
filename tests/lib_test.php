@@ -29,7 +29,6 @@ final class lib_test extends \advanced_testcase {
      * Example of a unittest
      *
      * TODO change the 'covers' tag to the class or function in the plugin.
-     * @covers ::get_config
      */
     public function test_plugin_installed(): void {
         $this->assertNotEmpty(get_config('bbbext_bnx', 'version'));

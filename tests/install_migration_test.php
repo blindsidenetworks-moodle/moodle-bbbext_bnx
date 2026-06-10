@@ -19,16 +19,6 @@ namespace bbbext_bnx;
 /**
  * Tests for install/upgrade migration from BN Reminders.
  *
- * @covers ::bbbext_bnx_migrate_bnreminders_data
- * @covers ::bbbext_bnx_migrate_bnreminders_instance_settings
- * @covers ::bbbext_bnx_migrate_bnreminders_reminders
- * @covers ::bbbext_bnx_migrate_bnreminders_guest_reminders
- * @covers ::bbbext_bnx_migrate_bnreminders_admin_settings
- * @covers ::bbbext_bnx_migrate_bnreminders_user_preferences
- * @covers ::bbbext_bnx_migrate_core_locksettings_data
- * @covers ::bbbext_bnx_migrate_core_locksettings_admin_config
- * @covers ::bbbext_bnx_migrate_core_locksettings_instance_settings
- * @covers ::bbbext_bnx_sync_core_locksettings_data
  * @package   bbbext_bnx
  * @copyright 2026 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

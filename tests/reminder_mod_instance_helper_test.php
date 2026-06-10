@@ -28,15 +28,12 @@ use ReflectionClass;
  * @package   bbbext_bnx
  * @copyright 2025 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \bbbext_bnx\bigbluebuttonbn\mod_instance_helper
  */
 final class reminder_mod_instance_helper_test extends \advanced_testcase {
     /**
      * Test sync of reminder data (create/update/delete timespans).
      *
      * @return void
-     * @covers ::add_instance
-     * @covers ::update_instance
      */
     public function test_sync_reminder_data(): void {
         global $DB;
@@ -105,7 +102,6 @@ final class reminder_mod_instance_helper_test extends \advanced_testcase {
      * Test that reminder data is not processed when plugin is disabled.
      *
      * @return void
-     * @covers ::add_instance
      */
     public function test_sync_reminder_data_disabled(): void {
         global $DB;
@@ -150,7 +146,6 @@ final class reminder_mod_instance_helper_test extends \advanced_testcase {
      * Test existing reminders reset lastsent when opening time changes.
      *
      * @return void
-     * @covers ::update_instance
      */
     public function test_sync_reminder_data_resets_lastsent_on_openingtime_change(): void {
         global $DB;

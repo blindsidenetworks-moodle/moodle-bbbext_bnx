@@ -33,7 +33,7 @@ use mod_bigbluebuttonbn\test\testcase_helper_trait;
  * @copyright 2026 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
- * @coversDefaultClass \bbbext_bnx\external\get_meeting_info
+ * @covers    \bbbext_bnx\external\get_meeting_info
  */
 final class get_meeting_info_test extends \advanced_testcase {
     use testcase_helper_trait;
@@ -53,7 +53,6 @@ final class get_meeting_info_test extends \advanced_testcase {
      * If a future change drops any of these, both `validate_parameters()`
      * inside `execute()` and external clients would silently break.
      *
-     * @covers ::execute_parameters
      * @return void
      */
     public function test_execute_parameters_describes_expected_inputs(): void {
@@ -68,7 +67,6 @@ final class get_meeting_info_test extends \advanced_testcase {
      * `execute_returns()` must extend the parent structure with the BNX-only
      * `presentationtitle` key so the subclass response shape stays stable.
      *
-     * @covers ::execute_returns
      * @return void
      */
     public function test_execute_returns_includes_presentation_title(): void {
@@ -82,7 +80,6 @@ final class get_meeting_info_test extends \advanced_testcase {
      * BNX-only `presentationtitle` key populated. Exercises the full
      * `validate_parameters()` + `parent::execute()` + override pipeline.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_execute_returns_array_with_presentation_title(): void {

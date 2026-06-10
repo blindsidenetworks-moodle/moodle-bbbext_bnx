@@ -22,14 +22,12 @@ namespace bbbext_bnx;
  * @package   bbbext_bnx
  * @copyright 2025 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \bbbext_bnx\reminders_utils
  */
 final class reminders_utils_test extends \advanced_testcase {
     /**
      * Test timespan options are returned correctly.
      *
      * @return void
-     * @covers ::get_timespan_options
      */
     public function test_get_timespan_options(): void {
         $result = reminders_utils::get_timespan_options();
@@ -46,7 +44,6 @@ final class reminders_utils_test extends \advanced_testcase {
      * Test replace_vars_in_text replaces placeholders.
      *
      * @return void
-     * @covers ::replace_vars_in_text
      */
     public function test_replace_vars_in_text(): void {
         $text = 'Hello {$name}, your meeting is at {$date}.';
