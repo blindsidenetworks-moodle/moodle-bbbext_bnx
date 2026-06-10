@@ -26,6 +26,7 @@ use bbbext_bnx\local\services\bnx_service;
  * @copyright 2025 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Shamiso Jaravaza  (shamiso [dt] jaravaza [at] blindsidenetworks [dt] com)
+ * @covers    \bbbext_bnx\local\services\bnx_service
  */
 final class bnx_service_test extends advanced_testcase {
     /** @var bnx_service */
@@ -52,7 +53,6 @@ final class bnx_service_test extends advanced_testcase {
 
     /**
      * Test delete_bnx removes record.
-     * @covers \bbbext_bnx\local\services\bnx_service::delete_bnx
      */
     public function test_delete_bnx(): void {
         global $DB;

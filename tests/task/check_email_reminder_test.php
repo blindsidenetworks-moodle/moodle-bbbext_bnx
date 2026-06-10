@@ -29,7 +29,6 @@ use mod_bigbluebuttonbn\instance;
  * @package   bbbext_bnx
  * @copyright 2025 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \bbbext_bnx\task\check_emails_reminder
  */
 final class check_email_reminder_test extends \advanced_testcase {
     /** @var instance|null */
@@ -147,9 +146,8 @@ final class check_email_reminder_test extends \advanced_testcase {
      * @param array $expectedemails
      * @param array|null $nosubscriptions
      * @return void
-     * @dataProvider reminder_enabled_sent_provider
-     * @covers ::execute
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('reminder_enabled_sent_provider')]
     public function test_reminder_enabled_sent(
         string $reminderinterval,
         string $openingtimespan,
@@ -201,9 +199,8 @@ final class check_email_reminder_test extends \advanced_testcase {
      * @param array $expectedemails
      * @param array|null $nosubscriptions
      * @return void
-     * @dataProvider reminder_enabled_with_guest_sent_provider
-     * @covers ::execute
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('reminder_enabled_with_guest_sent_provider')]
     public function test_reminder_guest_sent(
         string $reminderinterval,
         string $openingtimespan,
@@ -262,7 +259,6 @@ final class check_email_reminder_test extends \advanced_testcase {
      * Test that no emails are sent when the plugin is disabled.
      *
      * @return void
-     * @covers ::execute
      */
     public function test_reminder_disabled_plugin(): void {
         global $DB;

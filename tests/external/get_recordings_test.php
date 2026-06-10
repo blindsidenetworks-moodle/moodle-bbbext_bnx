@@ -32,7 +32,6 @@ use mod_bigbluebuttonbn\test\testcase_helper_trait;
  * @copyright 2026 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
- * @coversDefaultClass \bbbext_bnx\external\get_recordings
  */
 final class get_recordings_test extends \core_external\tests\externallib_testcase {
     use testcase_helper_trait;
@@ -62,8 +61,6 @@ final class get_recordings_test extends \core_external\tests\externallib_testcas
      * Recording names rendered into the JSON table payload must not expose raw
      * HTML even though the outer envelope is declared as `PARAM_RAW`.
      *
-     * @covers ::execute
-     * @covers ::execute_returns
      * @return void
      */
     public function test_execute_sanitises_recording_name_inside_json_payload(): void {
@@ -106,7 +103,6 @@ final class get_recordings_test extends \core_external\tests\externallib_testcas
      * Users must not be able to request recordings for a group they cannot
      * access.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_execute_throws_for_restricted_group_access(): void {
@@ -128,5 +124,4 @@ final class get_recordings_test extends \core_external\tests\externallib_testcas
 
         $this->get_recordings($instance->get_instance_id(), null, $grouptwo->id);
     }
-
 }

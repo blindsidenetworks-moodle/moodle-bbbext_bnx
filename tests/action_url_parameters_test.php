@@ -51,7 +51,6 @@ final class action_url_parameters_test extends \advanced_testcase {
     /**
      * Test approval before join parameters.
      *
-     * @dataProvider approval_before_join_provider
      * @param bool $editable Whether teachers can override the admin setting
      * @param bool $default Admin-configured default value
      * @param bool|null $instancesetting Instance-specific setting
@@ -61,6 +60,7 @@ final class action_url_parameters_test extends \advanced_testcase {
      *
      * @return void
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('approval_before_join_provider')]
     public function test_approval_before_join_parameters(
         bool $editable,
         bool $default,

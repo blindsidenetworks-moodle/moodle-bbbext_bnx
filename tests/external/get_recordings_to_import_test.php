@@ -32,7 +32,7 @@ use mod_bigbluebuttonbn\test\testcase_helper_trait;
  * @copyright 2026 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
- * @coversDefaultClass \bbbext_bnx\external\get_recordings_to_import
+ * @covers    \bbbext_bnx\external\get_recordings_to_import
  */
 final class get_recordings_to_import_test extends \advanced_testcase {
     use testcase_helper_trait;
@@ -50,7 +50,6 @@ final class get_recordings_to_import_test extends \advanced_testcase {
      * `invalid_parameter_exception` from the null-guard, not a fatal
      * "method call on null" error.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_execute_throws_invalid_parameter_when_destination_missing(): void {
@@ -72,7 +71,6 @@ final class get_recordings_to_import_test extends \advanced_testcase {
      * A non-existent source instance id (when a destination is valid) must
      * throw `invalid_parameter_exception` from the null-guard.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_execute_throws_invalid_parameter_when_source_missing(): void {
@@ -101,7 +99,6 @@ final class get_recordings_to_import_test extends \advanced_testcase {
      * Documents that `normalise_parameters()` validates source-course existence
      * before any expensive recording lookup.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_execute_throws_when_source_course_missing(): void {
@@ -128,7 +125,6 @@ final class get_recordings_to_import_test extends \advanced_testcase {
      * `validate_parameters()` and null-guard rewrites have not regressed the
      * normal flow.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_execute_returns_envelope_for_valid_destination(): void {
@@ -156,7 +152,6 @@ final class get_recordings_to_import_test extends \advanced_testcase {
      * Users without the import capability must be denied before any recording
      * import data is returned.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_execute_throws_when_import_capability_is_missing(): void {

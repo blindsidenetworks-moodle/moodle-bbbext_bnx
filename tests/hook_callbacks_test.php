@@ -23,14 +23,12 @@ namespace bbbext_bnx;
  * @copyright 2026 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
- * @coversDefaultClass \bbbext_bnx\hook_callbacks
  */
 final class hook_callbacks_test extends \advanced_testcase {
     /**
      * Test the enablement helper reports enabled when BNX is active.
      *
      * @return void
-     * @covers ::is_enabled
      */
     public function test_is_enabled_returns_true_when_plugin_is_enabled(): void {
         $this->resetAfterTest(true);
@@ -50,7 +48,6 @@ final class hook_callbacks_test extends \advanced_testcase {
      * Test the enablement helper reports disabled when BNX is disabled.
      *
      * @return void
-     * @covers ::is_enabled
      */
     public function test_is_enabled_returns_false_when_plugin_is_disabled(): void {
         $this->resetAfterTest(true);

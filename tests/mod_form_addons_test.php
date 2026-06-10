@@ -35,7 +35,6 @@ use bbbext_bnx\local\services\bnx_settings_service;
  * @copyright 2025 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
- * @covers    \bbbext_bnx\bigbluebuttonbn\mod_form_addons
  */
 final class mod_form_addons_test extends \advanced_testcase {
     /** @var array<string, mixed> */

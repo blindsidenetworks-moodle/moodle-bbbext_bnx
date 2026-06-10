@@ -61,9 +61,11 @@ class mod_form_helper {
             get_string('approvalbeforejoin', 'bbbext_bnx')
         );
         self::insert_elements_above($mform, 'wait', [$approvalcheckbox]);
-        $mform->addHelpButton('approvalbeforejoin', 'approvalbeforejoin', 'bbbext_bnx');
-        $mform->setDefault('approvalbeforejoin', $featuredefault);
-        $mform->setType('approvalbeforejoin', PARAM_BOOL);
+        if ($mform->elementExists('approvalbeforejoin')) {
+            $mform->addHelpButton('approvalbeforejoin', 'approvalbeforejoin', 'bbbext_bnx');
+            $mform->setDefault('approvalbeforejoin', $featuredefault);
+            $mform->setType('approvalbeforejoin', PARAM_BOOL);
+        }
     }
 
     /**
