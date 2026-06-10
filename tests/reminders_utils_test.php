@@ -23,6 +23,7 @@ namespace bbbext_bnx;
  * @copyright 2025 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[\PHPUnit\Framework\Attributes\CoversClass(reminders_utils::class)]
 final class reminders_utils_test extends \advanced_testcase {
     /**
      * Test timespan options are returned correctly.

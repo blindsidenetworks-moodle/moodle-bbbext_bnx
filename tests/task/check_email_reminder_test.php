@@ -30,6 +30,7 @@ use mod_bigbluebuttonbn\instance;
  * @copyright 2025 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[\PHPUnit\Framework\Attributes\CoversClass(check_emails_reminder::class)]
 final class check_email_reminder_test extends \advanced_testcase {
     /** @var instance|null */
     private $bbbinstance = null;

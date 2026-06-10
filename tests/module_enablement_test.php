@@ -39,6 +39,8 @@ final class module_enablement_test extends \advanced_testcase {
     /**
      * BNX install must NOT enable the BigBlueButtonBN parent module.
      *
+     * @coversNothing
+     *
      * @return void
      */
     public function test_install_does_not_enable_bigbluebuttonbn_module(): void {
@@ -62,6 +64,8 @@ final class module_enablement_test extends \advanced_testcase {
      * The observer's only responsibility on enable is to trigger
      * `\bbbext_bnx\event\state_changed` (covered by state_changed_test).
      * It must not touch the parent module's `visible` flag.
+     *
+     * @covers \bbbext_bnx\observer
      *
      * @return void
      */
@@ -89,6 +93,8 @@ final class module_enablement_test extends \advanced_testcase {
     /**
      * BNX upgrade must NOT backfill BigBlueButtonBN enablement.
      *
+     * @coversNothing
+     *
      * @return void
      */
     public function test_upgrade_does_not_enable_bigbluebuttonbn_module(): void {
@@ -113,6 +119,8 @@ final class module_enablement_test extends \advanced_testcase {
      * BNX install must NOT disable an already-enabled BigBlueButtonBN module either.
      *
      * Belt-and-braces: the contract is "leave the parent alone", in both directions.
+     *
+     * @coversNothing
      *
      * @return void
      */

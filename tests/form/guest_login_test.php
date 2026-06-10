@@ -33,6 +33,7 @@ use mod_bigbluebuttonbn\instance;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
  */
+#[\PHPUnit\Framework\Attributes\CoversClass(guest_login::class)]
 final class guest_login_test extends \advanced_testcase {
     /**
      * Build a guest-login form instance bound to a freshly-created BBB activity.
