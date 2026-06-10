@@ -26,8 +26,8 @@ use bbbext_bnx\local\services\bnx_service;
  * @copyright 2025 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Shamiso Jaravaza  (shamiso [dt] jaravaza [at] blindsidenetworks [dt] com)
- * @covers    \bbbext_bnx\local\services\bnx_service
  */
+#[\PHPUnit\Framework\Attributes\CoversClass(bnx_service::class)]
 final class bnx_service_test extends advanced_testcase {
     /** @var bnx_service */
     private $service;

@@ -24,11 +24,10 @@ namespace bbbext_bnx;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
 final class lib_test extends \advanced_testcase {
     /**
-     * Example of a unittest
-     *
-     * TODO change the 'covers' tag to the class or function in the plugin.
+     * Plugin version should be available after installation.
      */
     public function test_plugin_installed(): void {
         $this->assertNotEmpty(get_config('bbbext_bnx', 'version'));

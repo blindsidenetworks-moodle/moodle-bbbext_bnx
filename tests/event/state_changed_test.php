@@ -25,9 +25,9 @@ use bbbext_bnx\observer;
  * @copyright 2026 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
- * @covers    \bbbext_bnx\event\state_changed
- * @covers    \bbbext_bnx\observer
  */
+#[\PHPUnit\Framework\Attributes\CoversClass(state_changed::class)]
+#[\PHPUnit\Framework\Attributes\CoversClass(observer::class)]
 final class state_changed_test extends \advanced_testcase {
     /**
      * Build a config_log_created event for the given plugin/value transition.

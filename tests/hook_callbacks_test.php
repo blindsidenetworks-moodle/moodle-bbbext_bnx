@@ -24,6 +24,7 @@ namespace bbbext_bnx;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
  */
+#[\PHPUnit\Framework\Attributes\CoversClass(hook_callbacks::class)]
 final class hook_callbacks_test extends \advanced_testcase {
     /**
      * Test the enablement helper reports enabled when BNX is active.

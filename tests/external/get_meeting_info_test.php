@@ -33,8 +33,8 @@ use mod_bigbluebuttonbn\test\testcase_helper_trait;
  * @copyright 2026 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
- * @covers    \bbbext_bnx\external\get_meeting_info
  */
+#[\PHPUnit\Framework\Attributes\CoversClass(get_meeting_info::class)]
 final class get_meeting_info_test extends \advanced_testcase {
     use testcase_helper_trait;
 

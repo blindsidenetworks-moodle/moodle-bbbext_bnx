@@ -31,11 +31,9 @@ use mod_bigbluebuttonbn\instance as core_instance;
  * through this single shim so the violation is isolated, audited, and
  * trivially removable.
  *
- * TODO MDL-99999: replace both methods with
- *   \mod_bigbluebuttonbn\instance::get_from_guestlinkuid($uid)
- * once the upstream API ships. The MDL-99999 placeholder will be replaced
- * with the real tracker id once the request is filed (see
- * .copilot/BNX_CODE_REVIEW_202605_PLAN.md §10 item 2).
+ * TODO MDL-85873: remove this BNX workaround once Moodle core guest-link
+ * handling includes the fix. At that point BNX should use the core guest-link
+ * implementation instead of duplicating it here.
  *
  * @package   bbbext_bnx
  * @copyright 2026 onwards, Blindside Networks Inc
@@ -52,7 +50,7 @@ class guestlink_lookup {
     public static function get_instance_from_uid(string $uid): ?core_instance {
         global $DB;
 
-        // TODO MDL-99999: replace with mod_bigbluebuttonbn\instance::get_from_guestlinkuid($uid).
+        // TODO MDL-85873: remove this workaround and use Moodle core guest-link handling.
         $bbid = $DB->get_field('bigbluebuttonbn', 'id', ['guestlinkuid' => trim($uid)]);
         if (empty($bbid)) {
             return null;
@@ -72,9 +70,7 @@ class guestlink_lookup {
     public static function get_uid_for_instance(int $instanceid): string {
         global $DB;
 
-        // TODO MDL-99999: replace with an accessor on \mod_bigbluebuttonbn\instance
-        // once the upstream API exposes guestlinkuid (currently the field is read
-        // straight from the bigbluebuttonbn table).
+        // TODO MDL-85873: remove this workaround and use Moodle core guest-link handling.
         $uid = $DB->get_field('bigbluebuttonbn', 'guestlinkuid', ['id' => $instanceid]);
 
         return (string) ($uid ?: '');

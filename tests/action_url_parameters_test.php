@@ -35,8 +35,8 @@ use bbbext_bnx\local\services\bnx_settings_service;
  * @copyright 2025 onwards, Blindside Networks Inc
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Shamiso Jaravaza (shamiso [dt] jaravaza [at] blindsidenetworks [dt] com)
- * @covers    \bbbext_bnx\local\bigbluebutton\action_url_parameters
  */
+#[\PHPUnit\Framework\Attributes\CoversClass(action_url_parameters::class)]
 final class action_url_parameters_test extends \advanced_testcase {
     /**
      * Setup test case.

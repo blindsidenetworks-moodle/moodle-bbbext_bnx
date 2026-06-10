@@ -34,6 +34,7 @@ use bbbext_bnx\local\services\bnx_settings_service_interface;
  *
  * @package   bbbext_bnx
  */
+#[\PHPUnit\Framework\Attributes\CoversClass(bnx_settings_service::class)]
 final class services_injection_test extends advanced_testcase {
     /**
      * Setup test case.

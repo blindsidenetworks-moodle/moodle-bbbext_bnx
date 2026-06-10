@@ -24,6 +24,7 @@ namespace bbbext_bnx;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
  */
+#[\PHPUnit\Framework\Attributes\CoversNothing]
 final class install_migration_test extends \advanced_testcase {
     protected function setUp(): void {
         parent::setUp();

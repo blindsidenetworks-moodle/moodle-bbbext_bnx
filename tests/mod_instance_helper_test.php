@@ -36,6 +36,7 @@ use bbbext_bnx\local\services\bnx_settings_service;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
  */
+#[\PHPUnit\Framework\Attributes\CoversClass(mod_instance_helper::class)]
 final class mod_instance_helper_test extends \advanced_testcase {
     /**
      * Setup test case.
