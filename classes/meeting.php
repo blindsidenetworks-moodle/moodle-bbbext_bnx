@@ -18,6 +18,7 @@ namespace bbbext_bnx;
 
 use stdClass;
 use mod_bigbluebuttonbn\instance;
+use mod_bigbluebuttonbn\logger;
 use mod_bigbluebuttonbn\local\exceptions\bigbluebutton_exception;
 use bbbext_bnx\recording;
 
