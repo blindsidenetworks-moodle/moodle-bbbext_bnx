@@ -67,7 +67,8 @@
 
               <div class="align-self-end">
                 {{#toggle}}
-                  <form action="{{url}}" method="get" onchange="this.submit();">
+                  <form action="{{url}}" method="post" onchange="this.submit();">
+                    <input type="hidden" name="sesskey" value="{{sesskey}}" />
                     <div class="custom-control custom-switch">
                       <input type="hidden" name="cmid" value="{{cmid}}" />
                       {{#subscribed}}
