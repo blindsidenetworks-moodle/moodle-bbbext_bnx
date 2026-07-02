@@ -72,6 +72,7 @@ class subscriptions implements renderable, templatable {
                             get_string('unsubscribed', 'bbbext_bnx'),
                         'checked' => $issubscribed,
                         'url' => new moodle_url('/mod/bigbluebuttonbn/extension/bnx/managesubscriptions.php'),
+                        'sesskey' => sesskey(),
                         'cmid' => $module->id,
                         'name' => 'state',
                         'value' => !$issubscribed,

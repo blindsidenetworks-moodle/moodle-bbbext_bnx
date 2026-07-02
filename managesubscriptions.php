@@ -40,6 +40,8 @@ $state = optional_param('state', null, PARAM_INT);
 
 // Handle subscription toggle if parameters are provided.
 if ($cmid !== null && $state !== null) {
+    // State-changing request: require a valid sesskey to prevent CSRF.
+    require_sesskey();
     $bbbinstance = instance::get_from_cmid($cmid);
     subscription_utils::change_reminder_subcription_user($state, $USER->id, $bbbinstance);
     $meetingname = $bbbinstance->get_meeting_name();
