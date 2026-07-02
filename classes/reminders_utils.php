@@ -89,13 +89,12 @@ class reminders_utils {
      * @return string
      */
     public static function replace_vars_in_text(array $vars, string $text): string {
+        $search = [];
+        $replace = [];
         foreach ($vars as $key => $value) {
             $search[] = '{$' . $key . '}';
             $replace[] = (string) $value;
-            if ($search) {
-                $text = str_replace($search, $replace, $text);
-            }
         }
-        return $text;
+        return str_replace($search, $replace, $text);
     }
 }
