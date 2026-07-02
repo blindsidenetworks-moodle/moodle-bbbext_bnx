@@ -93,10 +93,14 @@ function xmldb_bbbext_bnx_upgrade($oldversion) {
     }
 
     if ($oldversion < 2026050102) {
+        // Version bump only (no schema or data change); the savepoint is recorded
+        // so upgrades from earlier sites advance past this version cleanly.
         upgrade_plugin_savepoint(true, 2026050102, 'bbbext', 'bnx');
     }
 
     if ($oldversion < 2026050103) {
+        // Version bump only (no schema or data change); the savepoint is recorded
+        // so upgrades from earlier sites advance past this version cleanly.
         upgrade_plugin_savepoint(true, 2026050103, 'bbbext', 'bnx');
     }
 
