@@ -23,8 +23,6 @@
  * @author     Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * In place editable callback for BNX-managed recording fields.
  *
