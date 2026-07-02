@@ -93,14 +93,16 @@ function xmldb_bbbext_bnx_upgrade($oldversion) {
     }
 
     if ($oldversion < 2026050102) {
-        // Version bump only (no schema or data change); the savepoint is recorded
-        // so upgrades from earlier sites advance past this version cleanly.
+        // 1.1.1: release-only version bump. This shipped as a stable release with
+        // code fixes only, so there is no schema or data migration to execute.
+        // The explicit savepoint must remain for sites already upgraded to 1.1.1.
         upgrade_plugin_savepoint(true, 2026050102, 'bbbext', 'bnx');
     }
 
     if ($oldversion < 2026050103) {
-        // Version bump only (no schema or data change); the savepoint is recorded
-        // so upgrades from earlier sites advance past this version cleanly.
+        // 1.1.1.1: hotfix release-only version bump. This shipped with runtime
+        // fixes only, so there is no schema or data migration to execute.
+        // The explicit savepoint must remain for sites already upgraded to 1.1.1.1.
         upgrade_plugin_savepoint(true, 2026050103, 'bbbext', 'bnx');
     }
 
