@@ -49,6 +49,15 @@ class provider implements
             'bbbext_bnx_reminder',
             'privacy:metadata:preference:bbbext_bnx_reminder'
         );
+        $collection->add_database_table(
+            'bbbext_bnx_reminders_guests',
+            [
+                'email' => 'privacy:metadata:bbbext_bnx_reminders_guests:email',
+                'userfrom' => 'privacy:metadata:bbbext_bnx_reminders_guests:userfrom',
+                'isenabled' => 'privacy:metadata:bbbext_bnx_reminders_guests:isenabled',
+            ],
+            'privacy:metadata:bbbext_bnx_reminders_guests'
+        );
         return $collection;
     }
 
