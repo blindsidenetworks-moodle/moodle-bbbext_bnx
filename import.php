@@ -37,7 +37,12 @@ require_once(__DIR__ . '/../../../../config.php');
 $destbn = required_param('destbn', PARAM_INT);
 $sourcebn = optional_param('sourcebn', -1, PARAM_INT);
 $sourcecourseid = optional_param('sourcecourseid', -1, PARAM_INT);
-$originpage = optional_param('originpage', '', PARAM_TEXT);
+// Only allow known parent-plugin pages as the back-button target to avoid an open
+// redirect: PARAM_ALPHA strips slashes/dots and the value must be in the allow-list.
+$originpage = optional_param('originpage', 'view', PARAM_ALPHA);
+if (!in_array($originpage, ['view', 'index'], true)) {
+    $originpage = 'view';
+}
 parse_str(optional_param('originparams', '', PARAM_TEXT), $originparams);
 
 $destinationinstance = instance::get_from_instanceid($destbn);
