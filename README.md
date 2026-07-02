@@ -135,6 +135,19 @@ BNX also supports convention-based sidecar discovery for selected behaviors,
 such as presentation providers and room alerts, through
 [`sidecar_helper`](classes/local/helpers/sidecar_helper.php).
 
+### Reminder subscription changes
+
+Reminder subscription state can only be changed through authenticated requests:
+
+- The in-product subscription toggle posts to `managesubscriptions.php` and
+  requires a valid session key (`sesskey`); it is no longer submitted through a
+  GET request.
+- One-click unsubscribe links in reminder emails carry a per-row HMAC token.
+  `subscription.php` verifies the token before changing any subscription state,
+  so links cannot be forged or replayed for a different recipient. Links are
+  regenerated whenever a reminder email is sent, so previously delivered links
+  remain valid only while the signing secret is unchanged.
+
 ## Migrations and upgrade behavior
 
 BNX performs real upgrade-time migrations. Today that includes:
@@ -244,6 +257,8 @@ See:
 - [RELEASENOTES](RELEASENOTES) for administrator/customer-facing release notes
 - [docs/release-notes/1.2-beta.1.md](docs/release-notes/1.2-beta.1.md) for the
   detailed Open LMS remediation log for 1.2-beta.1
+- [docs/release-notes/1.2-beta.2.md](docs/release-notes/1.2-beta.2.md) for the
+  detailed Open LMS code review #2 remediation log for 1.2-beta.2
 
 ## Related plugins
 
