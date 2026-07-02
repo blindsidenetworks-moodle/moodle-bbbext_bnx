@@ -104,6 +104,42 @@ class subscription_utils {
         if ($userid) {
             $params['userid'] = $userid;
         }
+        // Sign the link so the recipient's request can be authenticated before any
+        // database write, without requiring them to log in (email links).
+        $params['t'] = self::get_unsubscribe_token($cmid, $email, $userid);
         return new moodle_url('/mod/bigbluebuttonbn/extension/bnx/subscription.php', $params);
+    }
+
+    /**
+     * Build the HMAC token that authenticates an unsubscribe link.
+     *
+     * @param int $cmid course module id
+     * @param string|null $email guest email (null for enrolled users)
+     * @param int|null $userid user id (null for guests)
+     * @return string
+     */
+    public static function get_unsubscribe_token(int $cmid, ?string $email = null, ?int $userid = null): string {
+        global $CFG;
+        $data = $cmid . '|' . ($email ?? '') . '|' . ($userid ?? '');
+        $secret = empty($CFG->passwordsaltmain) ? get_site_identifier() : $CFG->passwordsaltmain;
+        return hash_hmac('sha256', $data, $secret);
+    }
+
+    /**
+     * Verify that a token matches the expected signature for an unsubscribe link.
+     *
+     * @param string $token the token supplied in the request
+     * @param int $cmid course module id
+     * @param string|null $email guest email (null for enrolled users)
+     * @param int|null $userid user id (null for guests)
+     * @return bool
+     */
+    public static function verify_unsubscribe_token(
+        string $token,
+        int $cmid,
+        ?string $email = null,
+        ?int $userid = null
+    ): bool {
+        return hash_equals(self::get_unsubscribe_token($cmid, $email, $userid), $token);
     }
 }

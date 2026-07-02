@@ -33,6 +33,7 @@ $cmid = required_param('cmid', PARAM_INT);
 $email = optional_param('email', null, PARAM_EMAIL);
 $userid = optional_param('userid', null, PARAM_INT);
 $state = optional_param('state', null, PARAM_INT);
+$token = optional_param('t', '', PARAM_ALPHANUMEXT);
 
 if (!reminders_utils::is_reminders_enabled()) {
     throw new moodle_exception('activitynotfound', 'bbbext_bnx');
@@ -48,6 +49,10 @@ $PAGE->set_heading(get_string('unsubscribe:title:meeting', 'bbbext_bnx', $meetin
 
 // If state is explicitly set (from email link), handle directly.
 if ($state !== null && ($email || $userid)) {
+    // Authenticate the email link via its signed token before any database write.
+    if (!subscription_utils::verify_unsubscribe_token($token, $cmid, $email, $userid)) {
+        throw new moodle_exception('invalidrequest', 'error');
+    }
     if ($email) {
         subscription_utils::change_reminder_subcription_email((bool) $state, $email, $bbbinstance);
     }
