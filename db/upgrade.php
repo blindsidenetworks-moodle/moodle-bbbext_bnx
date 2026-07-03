@@ -106,17 +106,11 @@ function xmldb_bbbext_bnx_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026050103, 'bbbext', 'bnx');
     }
 
-    if ($oldversion < 2026060200) {
-        // 1.2-beta.1: Open LMS code-review remediation release. No schema or data
-        // migration is required; the savepoint is recorded so upgrades from earlier
-        // 1.1.x sites complete cleanly.
-        upgrade_plugin_savepoint(true, 2026060200, 'bbbext', 'bnx');
-    }
-
     if ($oldversion < 2026070200) {
-        // 1.2-beta.2: Open LMS code-review #2 remediation release. No schema or data
-        // migration is required; the savepoint is recorded so upgrades from
-        // 1.2-beta.1 sites complete cleanly.
+        // 1.2 beta stream: 2026060200 was only an internal beta marker and was not
+        // released, so its no-op savepoint is folded into this later no-op marker.
+        // Until the final release is cut, keep a single savepoint here for the whole
+        // unreleased beta line so upgrades from earlier 1.1.x sites complete cleanly.
         upgrade_plugin_savepoint(true, 2026070200, 'bbbext', 'bnx');
     }
 
