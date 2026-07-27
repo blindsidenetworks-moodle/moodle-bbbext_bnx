@@ -257,6 +257,55 @@ final class check_email_reminder_test extends \advanced_testcase {
     }
 
     /**
+     * Test guest reminder emails escape activity names substituted into HTML templates.
+     *
+     * @return void
+     */
+    public function test_guest_reminder_escapes_html_placeholders(): void {
+        global $DB;
+
+        $emailsink = $this->redirectEmails();
+        $guestemail = 'guest@example.com';
+        $payload = 'Meeting</a><img src="https://attacker.example/pixel.png"><a href="https://attacker.example">Join';
+        set_config('emailtemplate', '<p><strong>Trusted template markup</strong> {$name}</p>', 'bbbext_bnx');
+        set_config('emailfooter', '', 'bbbext_bnx');
+        $DB->set_field('bigbluebuttonbn', 'name', $payload, ['id' => $this->bbbinstance->get_instance_id()]);
+
+        $bnxgenerator = $this->getDataGenerator()->get_plugin_generator('bbbext_bnx');
+        $bnxgenerator->enable_reminder($this->bbbinstance->get_instance_id());
+        $bnxgenerator->enable_reminder_for_guest($this->bbbinstance->get_instance_id());
+        $bnxgenerator->add_guest([
+            'bigbluebuttonbnid' => $this->bbbinstance->get_instance_id(),
+            'email' => $guestemail,
+        ]);
+        $bnxgenerator->add_reminder([
+            'bigbluebuttonbnid' => $this->bbbinstance->get_instance_id(),
+            'timespan' => reminders_utils::ONE_HOUR,
+        ]);
+        $time = new DateTime('now', core_date::get_user_timezone_object());
+        $time->add(new DateInterval('PT1H'));
+        $DB->set_field(
+            'bigbluebuttonbn',
+            'openingtime',
+            $time->getTimestamp(),
+            ['id' => $this->bbbinstance->get_instance_id()]
+        );
+
+        $task = new check_emails_reminder();
+        $task->execute();
+        $this->runAdhocTasks();
+
+        $messages = $emailsink->get_messages();
+        $guestmessages = array_filter($messages, fn($message) => $message->to === $guestemail);
+        $this->assertCount(1, $guestmessages);
+        $guestmessage = reset($guestmessages);
+        $body = quoted_printable_decode($guestmessage->body);
+        $this->assertStringContainsString('<strong>Trusted template markup</strong>', $body);
+        $this->assertStringContainsString('&lt;img src=&quot;https://attacker.example/pixel.png&quot;&gt;', $body);
+        $this->assertStringNotContainsString('<img src="https://attacker.example/pixel.png">', $body);
+    }
+
+    /**
      * Test that no emails are sent when the plugin is disabled.
      *
      * @return void
