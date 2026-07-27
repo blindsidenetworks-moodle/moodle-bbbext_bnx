@@ -207,7 +207,7 @@ class check_emails_reminder extends scheduled_task {
      * @return string
      */
     protected function get_html_message(instance $instance): string {
-        return $this->get_email_content('emailtemplate', $instance);
+        return $this->get_email_content('emailtemplate', $instance, true);
     }
 
     /**
@@ -217,7 +217,7 @@ class check_emails_reminder extends scheduled_task {
      * @return string
      */
     protected function get_footer(instance $instance): string {
-        $htmlfooter = $this->get_email_content('emailfooter', $instance);
+        $htmlfooter = $this->get_email_content('emailfooter', $instance, true);
         if (!empty($htmlfooter)) {
             $htmlfooter = '<br>' . $htmlfooter;
         }
@@ -229,11 +229,15 @@ class check_emails_reminder extends scheduled_task {
      *
      * @param string $config The configuration setting key
      * @param instance $instance
+     * @param bool $escapevars Whether to escape substituted values for HTML output
      * @return string
      */
-    protected function get_email_content(string $config, instance $instance): string {
+    protected function get_email_content(string $config, instance $instance, bool $escapevars = false): string {
         $text = get_config('bbbext_bnx', $config);
         $vars = $this->get_string_vars($instance);
+        if ($escapevars) {
+            $vars = array_map('s', $vars);
+        }
         return reminders_utils::replace_vars_in_text($vars, $text);
     }
 }
