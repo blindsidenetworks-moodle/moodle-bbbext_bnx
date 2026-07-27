@@ -26,8 +26,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component    = 'bbbext_bnx';
-$plugin->release      = '1.2-beta.2';
-$plugin->version      = 2026070200;
+$plugin->release      = '1.2-rc.1';
+$plugin->version      = 2026072700;
 $plugin->requires     = 2025100600; // Moodle 5.1.0 minimum.
 $plugin->supported    = [501, 503];
-$plugin->maturity     = MATURITY_BETA;
+$plugin->maturity     = MATURITY_RC;

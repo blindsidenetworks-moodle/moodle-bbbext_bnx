@@ -1,3 +1,6 @@
+1.2-rc.1 (July 27, 2026)
+- chore: Promote the 1.2 release line from beta to release candidate (rc.1) with no additional schema or runtime changes beyond 1.2-beta.2.
+
 1.2-beta.2 (July 2, 2026)
 - fix: Keep lib.php unguarded because Moodle CodeSniffer flags MOODLE_INTERNAL as unnecessary in a callbacks-only file (OL2-3.1.1).
 - fix: Build the placeholder search/replace arrays before a single str_replace() so reminder substitutions cannot re-match earlier output (OL2-3.1.2).
