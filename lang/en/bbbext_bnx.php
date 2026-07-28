@@ -98,6 +98,7 @@ $string['pluginname'] = 'BigBlueButton BN Experience';
 $string['preview_toggle_label_close'] = 'Hide additional preview thumbnails';
 $string['preview_toggle_label_plural'] = 'Show {$a} more preview thumbnails';
 $string['preview_toggle_label_singular'] = 'Show one more preview thumbnail';
+$string['privacy:export:guestreminders'] = 'Guest reminder subscriptions';
 $string['privacy:metadata'] = 'The BigBlueButton BN Experience plugin stores user subscription preferences for email reminders.';
 $string['privacy:metadata:bbbext_bnx_reminders_guests'] = 'Guest email subscriptions used to send session reminders to non-enrolled participants.';
 $string['privacy:metadata:bbbext_bnx_reminders_guests:email'] = 'The email address of the guest who may receive session reminders.';
