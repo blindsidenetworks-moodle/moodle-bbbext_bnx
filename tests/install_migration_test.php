@@ -179,6 +179,58 @@ final class install_migration_test extends \advanced_testcase {
     }
 
     /**
+     * User preference migration should migrate multiple legacy reminder rows.
+     */
+    public function test_migrate_user_preferences_migrates_multiple_rows(): void {
+        global $DB;
+
+        $course = $this->getDataGenerator()->create_course();
+        $bbb1 = $this->getDataGenerator()->create_module('bigbluebuttonbn', ['course' => $course->id]);
+        $bbb2 = $this->getDataGenerator()->create_module('bigbluebuttonbn', ['course' => $course->id]);
+
+        $user1 = (int) $this->getDataGenerator()->create_user()->id;
+        $user2 = (int) $this->getDataGenerator()->create_user()->id;
+
+        $DB->insert_record('user_preferences', (object) [
+            'userid' => $user1,
+            'name' => 'bbbext_bnreminders_' . $bbb1->id,
+            'value' => '1',
+        ]);
+        $DB->insert_record('user_preferences', (object) [
+            'userid' => $user2,
+            'name' => 'bbbext_bnreminders_' . $bbb2->id,
+            'value' => '0',
+        ]);
+
+        bbbext_bnx_migrate_bnreminders_user_preferences();
+
+        $this->assertSame('1', (string) get_user_preferences('bbbext_bnx_reminder_' . $bbb1->id, null, $user1));
+        $this->assertSame('0', (string) get_user_preferences('bbbext_bnx_reminder_' . $bbb2->id, null, $user2));
+    }
+
+    /**
+     * User preference migration should not overwrite an existing BNX preference.
+     */
+    public function test_migrate_user_preferences_preserves_existing_new_preference(): void {
+        global $DB;
+
+        $course = $this->getDataGenerator()->create_course();
+        $bbb = $this->getDataGenerator()->create_module('bigbluebuttonbn', ['course' => $course->id]);
+        $userid = (int) $this->getDataGenerator()->create_user()->id;
+
+        $DB->insert_record('user_preferences', (object) [
+            'userid' => $userid,
+            'name' => 'bbbext_bnreminders_' . $bbb->id,
+            'value' => '1',
+        ]);
+        set_user_preference('bbbext_bnx_reminder_' . $bbb->id, '0', $userid);
+
+        bbbext_bnx_migrate_bnreminders_user_preferences();
+
+        $this->assertSame('0', (string) get_user_preferences('bbbext_bnx_reminder_' . $bbb->id, null, $userid));
+    }
+
+    /**
      * Core lock settings should migrate into BNX settings with proper inversion.
      */
     public function test_migrate_core_locksettings_with_inverted_logic(): void {

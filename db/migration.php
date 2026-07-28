@@ -483,22 +483,22 @@ function bbbext_bnx_migrate_bnreminders_admin_settings(): void {
 function bbbext_bnx_migrate_bnreminders_user_preferences(): void {
     global $DB;
 
-    $oldprefs = $DB->get_records_sql(
-        "SELECT * FROM {user_preferences} WHERE name LIKE ?",
+    $oldprefs = $DB->get_recordset_sql(
+        "SELECT userid, name, value
+           FROM {user_preferences}
+          WHERE name LIKE ?",
         ['bbbext_bnreminders_%']
     );
 
     foreach ($oldprefs as $pref) {
         $newname = str_replace('bbbext_bnreminders_', 'bbbext_bnx_reminder_', $pref->name);
 
-        if ($DB->record_exists('user_preferences', ['userid' => $pref->userid, 'name' => $newname])) {
+        if (get_user_preferences($newname, null, (int) $pref->userid) !== null) {
             continue;
         }
 
-        $DB->insert_record('user_preferences', (object) [
-            'userid' => $pref->userid,
-            'name' => $newname,
-            'value' => $pref->value,
-        ]);
+        set_user_preference($newname, (string) $pref->value, (int) $pref->userid);
     }
+
+    $oldprefs->close();
 }
