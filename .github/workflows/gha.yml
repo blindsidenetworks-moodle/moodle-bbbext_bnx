@@ -6,27 +6,6 @@ jobs:
   test:
     runs-on: ubuntu-22.04
 
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: 'postgres'
-          POSTGRES_HOST_AUTH_METHOD: 'trust'
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
-
-      mariadb:
-        image: mariadb:10
-        env:
-          MYSQL_USER: 'root'
-          MYSQL_ALLOW_EMPTY_PASSWORD: "true"
-          MYSQL_CHARACTER_SET_SERVER: "utf8mb4"
-          MYSQL_COLLATION_SERVER: "utf8mb4_unicode_ci"
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 3
-
     strategy:
       fail-fast: false
       matrix:
@@ -40,6 +19,49 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: plugin
+
+      - name: Start MariaDB
+        if: ${{ matrix.database == 'mariadb' }}
+        run: |
+          docker run --rm \
+            -e MARIADB_DATABASE=test \
+            -e MARIADB_USER=test \
+            -e MARIADB_PASSWORD=test \
+            -e MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=true \
+            -p 3306:3306 \
+            -d \
+            --tmpfs /var/lib/mysql:rw,noexec,nosuid,size=1024M \
+            mariadb:11 \
+              --character-set-server=utf8mb4 \
+              --collation-server=utf8mb4_unicode_ci
+
+      - name: Wait for MariaDB
+        if: ${{ matrix.database == 'mariadb' }}
+        run: |
+          container_id=$(docker ps -q --filter ancestor=mariadb:11 | head -n1)
+          until docker exec "$container_id" mariadb-admin ping -h127.0.0.1 -uroot --silent; do
+            sleep 2
+          done
+
+      - name: Start PostgreSQL
+        if: ${{ matrix.database == 'pgsql' }}
+        run: |
+          docker run --rm \
+            -e POSTGRES_DB=test \
+            -e POSTGRES_USER=postgres \
+            -e POSTGRES_HOST_AUTH_METHOD=trust \
+            -p 5432:5432 \
+            -d \
+            --tmpfs /var/lib/postgresql/data:rw,noexec,nosuid,size=1024M \
+            postgres:17
+
+      - name: Wait for PostgreSQL
+        if: ${{ matrix.database == 'pgsql' }}
+        run: |
+          container_id=$(docker ps -q --filter ancestor=postgres:17 | head -n1)
+          until docker exec "$container_id" pg_isready -U postgres; do
+            sleep 2
+          done
 
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
