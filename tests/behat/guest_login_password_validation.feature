@@ -35,6 +35,7 @@ Feature: Guest password validation on the BNX guest login page
     And I set the field "username" to "Wrong Password Tester"
     And I set the field "password" to "definitely-not-the-password"
     And I click on "Join meeting" "button"
+    And I switch to "bigbluebutton_conference" window
     Then I should see "Incorrect password"
 
   Scenario: The numeric string "0" is rejected against a real guest password
@@ -44,6 +45,7 @@ Feature: Guest password validation on the BNX guest login page
     And I set the field "username" to "Zero String Tester"
     And I set the field "password" to "0"
     And I click on "Join meeting" "button"
+    And I switch to "bigbluebutton_conference" window
     Then I should see "Incorrect password"
 
   Scenario: An empty guest password is rejected by client-side validation
