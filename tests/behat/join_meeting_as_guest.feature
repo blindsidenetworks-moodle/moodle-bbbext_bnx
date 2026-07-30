@@ -34,7 +34,7 @@ Feature: Guest users can join meetings via BNX guest flow
     And I switch to the main window
     And I log out
     And I close all opened windows
-    And I am on the "Room recordings" "bbbext_bnx > BigblueButtonBN Guest" page
+    And I open the BNX guest page for "Room recordings"
     Then I should see "Guest username"
     And I should see "Password"
     And I set the field "username" to "Test Guest User"

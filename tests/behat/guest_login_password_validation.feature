@@ -29,7 +29,7 @@ Feature: Guest password validation on the BNX guest login page
       | guestallowed | 1                   |
 
   Scenario: An obviously-wrong guest password is rejected with the standard error
-    When I am on the "BNX guest room" "bbbext_bnx > BNX Guest without password" page
+    When I open the BNX guest page without a password for "BNX guest room"
     Then I should see "Guest username"
     And I should see "Password"
     And I set the field "username" to "Wrong Password Tester"
@@ -40,14 +40,14 @@ Feature: Guest password validation on the BNX guest login page
   Scenario: The numeric string "0" is rejected against a real guest password
     # OL-3.2.6 canonical type-juggling vector: the form must NOT accept "0" as a
     # match against a non-empty expected password.
-    When I am on the "BNX guest room" "bbbext_bnx > BNX Guest without password" page
+    When I open the BNX guest page without a password for "BNX guest room"
     And I set the field "username" to "Zero String Tester"
     And I set the field "password" to "0"
     And I click on "Join meeting" "button"
     Then I should see "Incorrect password"
 
   Scenario: An empty guest password is rejected by client-side validation
-    When I am on the "BNX guest room" "bbbext_bnx > BNX Guest without password" page
+    When I open the BNX guest page without a password for "BNX guest room"
     And I set the field "username" to "Empty Password Tester"
     And I click on "Join meeting" "button"
     Then I should see "Required"

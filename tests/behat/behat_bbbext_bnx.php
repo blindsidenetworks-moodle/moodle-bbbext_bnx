@@ -65,7 +65,7 @@ class behat_bbbext_bnx extends behat_base {
     /**
      * Navigate to BNX guest page for a BigBlueButton activity.
      *
-     * @Given /^I am on the "(?P<identifier_string>(?:[^"\\]|\\.)*)" "bbbext_bnx > BigblueButtonBN Guest" page$/
+     * @Given /^I open the BNX guest page for "(?P<identifier_string>(?:[^"\\]|\\.)*)"$/
      * @param string $identifier activity name identifier
      * @return void
      */
@@ -83,7 +83,7 @@ class behat_bbbext_bnx extends behat_base {
      * the password. Use this variant when the scenario needs to exercise the
      * `guest_login::validation()` password compare (OL-3.2.6) with arbitrary input.
      *
-     * @Given /^I am on the "(?P<identifier_string>(?:[^"\\]|\\.)*)" "bbbext_bnx > BNX Guest without password" page$/
+     * @Given /^I open the BNX guest page without a password for "(?P<identifier_string>(?:[^"\\]|\\.)*)"$/
      * @param string $identifier activity name identifier
      * @return void
      */
