@@ -363,11 +363,6 @@ class recording extends base_recording {
         $selects = [];
         $params = [];
         if ($groupmode) {
-            if ($groupid === 0) {
-                $selects[] = 'groupid = :groupid';
-                $params['groupid'] = 0;
-                return [implode(' AND ', $selects), $params];
-            }
             $accessallgroups = has_capability('moodle/site:accessallgroups', $context) || $groupmode == VISIBLEGROUPS;
             if ($accessallgroups) {
                 if ($context instanceof \context_module) {
