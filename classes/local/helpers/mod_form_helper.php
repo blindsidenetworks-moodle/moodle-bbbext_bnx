@@ -18,6 +18,7 @@ namespace bbbext_bnx\local\helpers;
 
 use bbbext_bnx\bigbluebuttonbn\mod_instance_helper;
 use bbbext_bnx\reminders_utils;
+use mod_bigbluebuttonbn\instance;
 use pix_icon;
 
 /**
@@ -159,6 +160,7 @@ class mod_form_helper {
      */
     public static function add_lock_settings_fields(\MoodleQuickForm &$mform): void {
         $mform->addElement('header', 'bnxlocksettings', get_string('mod_form_locksettings', 'bbbext_bnx'));
+        $mform->hideIf('bnxlocksettings', 'type', 'eq', instance::TYPE_RECORDING_ONLY);
         $mform->addElement('static', 'bnxlocksettings_desc', '', get_string('mod_form_locksettings_desc', 'bbbext_bnx'));
 
         foreach (mod_instance_helper::LOCK_FEATURE_DEFINITIONS as $feature => $definition) {
