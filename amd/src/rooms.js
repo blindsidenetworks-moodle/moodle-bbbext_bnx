@@ -58,6 +58,7 @@ export const init = (bigbluebuttonbnid, pollInterval) => {
     document.addEventListener('click', e => {
         const joinButton = e.target.closest('[data-action="join"]');
         if (joinButton) {
+            window.open('', 'bigbluebutton_conference');
             window.open(joinButton.href, 'bigbluebutton_conference');
             e.preventDefault();
             // Gives the user a bit of time to go into the meeting before polling the room.
