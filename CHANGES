@@ -1,3 +1,9 @@
+1.2-rc.2 (August 11, 2026)
+- fix: Hide lock settings for Recording Only activities so the form reflects the supported configuration.
+- fix: Restore visible-group recording results and preserve the recording table sorting contract used by Moodle and BNX.
+- fix: Stabilize the meeting-role Behat flow with a deterministic JavaScript response for the named conference window.
+- chore: Complete a BNX hardening pass and add a plugin-side workaround for Moodle Behat coverage affected by BNX's intentional parent-plugin view override.
+
 1.2-rc.1 (July 27, 2026)
 - chore: Promote the 1.2 release line from beta to release candidate (rc.1) with no additional schema or runtime changes beyond 1.2-beta.2.
 
