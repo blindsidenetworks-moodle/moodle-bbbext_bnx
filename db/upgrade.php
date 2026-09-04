@@ -106,13 +106,13 @@ function xmldb_bbbext_bnx_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026050103, 'bbbext', 'bnx');
     }
 
-    if ($oldversion < 2026081000) {
-        // 1.2 release line: 2026060200, 2026070200 and 2026072700 were internal dev
-        // markers and were not released externally, so no standalone savepoints are kept.
-        // Until the final 1.2 release is cut, keep a single savepoint here for
-        // the pre-final line; 1.2-rc.2 is marker-only (no schema/data migration)
-        // and keeps upgrades from earlier 1.1.x sites clean.
-        upgrade_plugin_savepoint(true, 2026081000, 'bbbext', 'bnx');
+    if ($oldversion < 2026090400) {
+        // 1.2 final release line: the 2026060200, 2026070200 and 2026072700
+        // checkpoints were internal development markers and were not released
+        // externally, so no standalone savepoints are kept. This final release
+        // remains a marker-only upgrade (no schema/data migration) to keep
+        // upgrades from earlier 1.1.x sites clean.
+        upgrade_plugin_savepoint(true, 2026090400, 'bbbext', 'bnx');
     }
 
     return true;
