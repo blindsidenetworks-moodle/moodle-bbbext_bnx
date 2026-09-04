@@ -1,5 +1,5 @@
 1.2 (September 4, 2026)
-- feat: Finalize the BNX 1.2 release line with support for Moodle 5.1–5.3 and a stable maturity designation.
+- feat: Finalize the BNX 1.2 release line with support for Moodle 5.1–5.2 and a stable maturity designation.
 - fix: Harden the guest flow, reminder handling, recordings UX, and lock-settings behavior across the release line.
 - fix: Close the remaining security and compatibility issues identified during the 1.2 beta/RC review cycle.
 - chore: Stabilize Behat and plugin integration behavior and complete the final release readiness pass for BNX.
