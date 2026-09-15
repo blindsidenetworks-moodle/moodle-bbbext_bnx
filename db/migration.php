@@ -57,7 +57,7 @@ function bbbext_bnx_migrate_bnreminders_data(): void {
 }
 
 /**
- * Migrate legacy BNX lock settings admin config into BNX and disable the sidecar.
+ * Migrate legacy BNX lock settings admin config into BNX.
  *
  * @return void
  */
@@ -91,15 +91,6 @@ function bbbext_bnx_migrate_bnx_locksettings_data(): void {
         }
 
         set_config($configname, $oldvalue, 'bbbext_bnx');
-    }
-
-    $oldvalue = get_config($component, 'disabled');
-    if (empty($oldvalue)) {
-        set_config('disabled', 1, $component);
-        if (function_exists('add_to_config_log')) {
-            add_to_config_log('disabled', $oldvalue, 1, $component);
-        }
-        \core_plugin_manager::reset_caches();
     }
 }
 
@@ -377,10 +368,15 @@ function bbbext_bnx_has_pending_bnreminders_migration(): bool {
     }
 
     foreach ($DB->get_records(bbbext_bnx_legacy_bnreminders_table('_rem')) as $legacy) {
-        if (!$DB->record_exists('bbbext_bnx_reminders', [
-            'bigbluebuttonbnid' => $legacy->bigbluebuttonbnid,
-            'timespan' => $legacy->timespan,
-        ])) {
+        if (
+            !$DB->record_exists(
+                'bbbext_bnx_reminders',
+                [
+                    'bigbluebuttonbnid' => $legacy->bigbluebuttonbnid,
+                    'timespan' => $legacy->timespan,
+                ]
+            )
+        ) {
             return true;
         }
     }
@@ -391,11 +387,16 @@ function bbbext_bnx_has_pending_bnreminders_migration(): bool {
         }
 
         foreach ($DB->get_records(bbbext_bnx_legacy_bnreminders_table('_guests')) as $legacy) {
-            if (!$DB->record_exists('bbbext_bnx_reminders_guests', [
-                'bigbluebuttonbnid' => $legacy->bigbluebuttonbnid,
-                'email' => $legacy->email,
-                'userfrom' => $legacy->userfrom,
-            ])) {
+            if (
+                !$DB->record_exists(
+                    'bbbext_bnx_reminders_guests',
+                    [
+                        'bigbluebuttonbnid' => $legacy->bigbluebuttonbnid,
+                        'email' => $legacy->email,
+                        'userfrom' => $legacy->userfrom,
+                    ]
+                )
+            ) {
                 return true;
             }
         }

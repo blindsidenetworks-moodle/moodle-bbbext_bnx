@@ -52,7 +52,7 @@ class bnreminders_conflict extends check {
      */
     public function get_action_link(): ?\action_link {
         return new \action_link(
-            new \moodle_url('/admin/plugins.php'),
+            new \moodle_url('/mod/bigbluebuttonbn/adminmanageplugins.php'),
             get_string('check_bnreminders_conflict_action', 'bbbext_bnx')
         );
     }

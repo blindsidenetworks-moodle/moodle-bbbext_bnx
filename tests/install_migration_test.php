@@ -278,6 +278,23 @@ final class install_migration_test extends \advanced_testcase {
     }
 
     /**
+     * Legacy lock-settings migration must not disable the sibling plugin.
+     *
+     * @covers ::bbbext_bnx_migrate_bnx_locksettings_data
+     */
+    public function test_legacy_locksettings_migration_does_not_mutate_sibling_enablement(): void {
+        set_config('version', '2026050100', 'bbbext_bnx_locksettings');
+        set_config('disabled', 0, 'bbbext_bnx_locksettings');
+        set_config('cam_default', 1, 'bbbext_bnx_locksettings');
+        unset_config('cam_default', 'bbbext_bnx');
+
+        bbbext_bnx_migrate_bnx_locksettings_data();
+
+        $this->assertSame('1', (string)get_config('bbbext_bnx', 'cam_default'));
+        $this->assertSame('0', (string)get_config('bbbext_bnx_locksettings', 'disabled'));
+    }
+
+    /**
      * Core lock migration should overwrite initial BNX defaults on first run.
      *
      * @return void
