@@ -37,8 +37,8 @@ function xmldb_bbbext_bnx_install() {
     // administrators are responsible for enabling mod_bigbluebuttonbn explicitly.
     set_config('enabled', 1, 'bbbext_bnx');
 
-    // Migrate legacy BN Reminders data/settings and disable bnreminders if present.
-    bbbext_bnx_migrate_bnreminders_data();
+    // Fresh installs have no legacy data; only protect against a concurrent sidecar.
+    bbbext_bnx_disable_if_bnreminders_present();
 
     // One-time migration from core lock settings into BNX lock settings.
     bbbext_bnx_migrate_core_locksettings_data();

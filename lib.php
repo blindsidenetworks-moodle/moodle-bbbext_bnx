@@ -52,6 +52,18 @@ function bbbext_bnx_get_fontawesome_icon_map() {
 }
 
 /**
+ * Return BNX administrator status checks.
+ *
+ * @return \core\check\check[]
+ */
+function bbbext_bnx_status_checks(): array {
+    return [
+        new \bbbext_bnx\check\bnreminders_conflict(),
+        new \bbbext_bnx\check\bnreminders_migration_pending(),
+    ];
+}
+
+/**
  * Serves attached files for email reminders.
  *
  * @param mixed $course course or id of the course

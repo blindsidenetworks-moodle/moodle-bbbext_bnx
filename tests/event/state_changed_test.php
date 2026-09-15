@@ -62,6 +62,8 @@ final class state_changed_test extends \advanced_testcase {
      */
     public function test_enable_transition_triggers_event_with_enabled_true(): void {
         $this->resetAfterTest(true);
+        set_config('disabled', 1, 'bbbext_bnreminders');
+        \core_plugin_manager::reset_caches();
 
         $sink = $this->redirectEvents();
         observer::config_log_created($this->build_config_event('bbbext_bnx', 'disabled', '0', '1'));
@@ -75,6 +77,27 @@ final class state_changed_test extends \advanced_testcase {
 
         $this->assertCount(1, $matching, 'Exactly one state_changed event should be triggered');
         $this->assertTrue($matching[0]->other['enabled']);
+    }
+
+    /**
+     * Enabling BNX with active BN Reminders must queue a visible error.
+     *
+     * @return void
+     */
+    public function test_conflicting_enablement_queues_error_notification(): void {
+        $this->resetAfterTest(true);
+
+        set_config('version', '2025100700', 'bbbext_bnreminders');
+        set_config('disabled', 0, 'bbbext_bnreminders');
+        unset_config('disabled', 'bbbext_bnx');
+        \core_plugin_manager::reset_caches();
+
+        observer::config_log_created($this->build_config_event('bbbext_bnx', 'disabled', '0', '1'));
+
+        $notifications = \core\notification::fetch();
+        $this->assertCount(1, $notifications);
+        $this->assertSame('1', (string)get_config('bbbext_bnx', 'disabled'));
+        $this->assertSame('0', (string)get_config('bbbext_bnreminders', 'disabled'));
     }
 
     /**

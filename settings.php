@@ -28,6 +28,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once(__DIR__ . '/classes/check/bnreminders_migration_pending.php');
+
 // Hide the setup description if BigBlueButton is already configured via config.php.
 // Check if BigBlueButton is pre-configured via $CFG->bigbluebuttonbn array.
 global $CFG;
@@ -50,6 +52,36 @@ if (
 }
 
 if ($ADMIN->fulltree) {
+    global $OUTPUT;
+
+    $bnxchecks = [
+        new \bbbext_bnx\check\bnreminders_conflict(),
+        new \bbbext_bnx\check\bnreminders_migration_pending(),
+    ];
+    foreach ($bnxchecks as $bnxcheck) {
+        $checkresult = $bnxcheck->get_result();
+        if ($checkresult->get_status() === \core\check\result::OK) {
+            continue;
+        }
+        $noticebody = html_writer::tag('strong', $checkresult->get_summary());
+        $details = $checkresult->get_details();
+        if ($details !== '') {
+            $noticebody .= html_writer::div($details);
+        }
+        $actionlink = $bnxcheck->get_action_link();
+        if ($actionlink !== null) {
+            $noticebody .= html_writer::div($OUTPUT->render($actionlink));
+        }
+        $notificationtype = $bnxcheck->get_ref() === 'bbbext_bnx_bnreminders_conflict'
+            ? \core\output\notification::NOTIFY_ERROR
+            : \core\output\notification::NOTIFY_WARNING;
+        $settings->add(new admin_setting_description(
+            'bbbext_bnx/notice_' . $bnxcheck->get_ref(),
+            '',
+            $OUTPUT->notification($noticebody, $notificationtype)
+        ));
+    }
+
     $featuresbysection = [
         'waitingroom' => [
             'approvalbeforejoin',

@@ -41,8 +41,6 @@ function bbbext_bnx_legacy_bnreminders_table(string $suffix = ''): string {
  * @return void
  */
 function bbbext_bnx_migrate_bnreminders_data(): void {
-    global $DB;
-
     if (!bbbext_bnx_has_legacy_bnreminders_data()) {
         return;
     }
@@ -55,15 +53,7 @@ function bbbext_bnx_migrate_bnreminders_data(): void {
     bbbext_bnx_migrate_bnreminders_admin_settings();
     bbbext_bnx_migrate_bnreminders_user_preferences();
 
-    // Disable bnreminders once migration has completed.
-    $oldvalue = get_config('bbbext_bnreminders', 'disabled');
-    if (empty($oldvalue)) {
-        set_config('disabled', 1, 'bbbext_bnreminders');
-        if (function_exists('add_to_config_log')) {
-            add_to_config_log('disabled', $oldvalue, 1, 'bbbext_bnreminders');
-        }
-        \core_plugin_manager::reset_caches();
-    }
+    bbbext_bnx_disable_if_bnreminders_present();
 }
 
 /**
@@ -322,6 +312,130 @@ function bbbext_bnx_has_legacy_bnreminders_data(): bool {
     return $dbman->table_exists(new xmldb_table(bbbext_bnx_legacy_bnreminders_table()))
         || $dbman->table_exists(new xmldb_table(bbbext_bnx_legacy_bnreminders_table('_rem')))
         || $dbman->table_exists(new xmldb_table(bbbext_bnx_legacy_bnreminders_table('_guests')));
+}
+
+/**
+ * Return whether the legacy BN Reminders sidecar is installed and enabled.
+ *
+ * @return bool
+ */
+function bbbext_bnx_has_bnreminders_conflict(): bool {
+    $installed = \core_plugin_manager::instance()->get_installed_plugins('bbbext');
+
+    // Standalone BNX test installs may omit the optional legacy sidecar's code.
+    // Its persisted version still represents a legacy installation to migrate.
+    if (!isset($installed['bnreminders']) && get_config('bbbext_bnreminders', 'version') === false) {
+        return false;
+    }
+
+    return empty(get_config('bbbext_bnreminders', 'disabled'));
+}
+
+/**
+ * Return whether legacy BN Reminders records still need to be migrated.
+ *
+ * This check is purely observational. It intentionally compares only records
+ * that BNX migrates and never changes configuration or database state.
+ *
+ * @return bool
+ */
+function bbbext_bnx_has_pending_bnreminders_migration(): bool {
+    global $DB;
+
+    $dbman = $DB->get_manager();
+    $legacysettings = new xmldb_table(bbbext_bnx_legacy_bnreminders_table());
+    $legacyreminders = new xmldb_table(bbbext_bnx_legacy_bnreminders_table('_rem'));
+    $legacyguests = new xmldb_table(bbbext_bnx_legacy_bnreminders_table('_guests'));
+    $targetbnx = new xmldb_table('bbbext_bnx');
+    $targetsettings = new xmldb_table('bbbext_bnx_settings');
+    $targetreminders = new xmldb_table('bbbext_bnx_reminders');
+    $targetguests = new xmldb_table('bbbext_bnx_reminders_guests');
+
+    if (
+        !$dbman->table_exists($legacysettings)
+        || !$dbman->table_exists($legacyreminders)
+        || !$dbman->table_exists($targetbnx)
+        || !$dbman->table_exists($targetsettings)
+        || !$dbman->table_exists($targetreminders)
+    ) {
+        return false;
+    }
+
+    $haslegacyguests = $dbman->table_exists($legacyguests);
+    $hastargetguests = $dbman->table_exists($targetguests);
+
+    foreach ($DB->get_records(bbbext_bnx_legacy_bnreminders_table()) as $legacy) {
+        $bnx = $DB->get_record('bbbext_bnx', ['bigbluebuttonbnid' => $legacy->bigbluebuttonbnid], 'id');
+        if (!$bnx) {
+            return true;
+        }
+        foreach (['reminderenabled', 'remindertoguestsenabled'] as $name) {
+            if (!$DB->record_exists('bbbext_bnx_settings', ['bnxid' => $bnx->id, 'name' => $name])) {
+                return true;
+            }
+        }
+    }
+
+    foreach ($DB->get_records(bbbext_bnx_legacy_bnreminders_table('_rem')) as $legacy) {
+        if (!$DB->record_exists('bbbext_bnx_reminders', [
+            'bigbluebuttonbnid' => $legacy->bigbluebuttonbnid,
+            'timespan' => $legacy->timespan,
+        ])) {
+            return true;
+        }
+    }
+
+    if ($haslegacyguests) {
+        if (!$hastargetguests) {
+            return true;
+        }
+
+        foreach ($DB->get_records(bbbext_bnx_legacy_bnreminders_table('_guests')) as $legacy) {
+            if (!$DB->record_exists('bbbext_bnx_reminders_guests', [
+                'bigbluebuttonbnid' => $legacy->bigbluebuttonbnid,
+                'email' => $legacy->email,
+                'userfrom' => $legacy->userfrom,
+            ])) {
+                return true;
+            }
+        }
+    }
+
+    foreach (['emailsubject', 'emailtemplate', 'emailfooter', 'emailcontent'] as $name) {
+        if (get_config('bbbext_bnreminders', $name) !== false && get_config('bbbext_bnx', $name) === false) {
+            return true;
+        }
+    }
+
+    $preferences = $DB->get_records_sql(
+        "SELECT userid, name FROM {user_preferences} WHERE name LIKE ?",
+        ['bbbext_bnreminders_%']
+    );
+    foreach ($preferences as $preference) {
+        $name = str_replace('bbbext_bnreminders_', 'bbbext_bnx_reminder_', $preference->name);
+        if (!$DB->record_exists('user_preferences', ['userid' => $preference->userid, 'name' => $name])) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Self-disable BNX while legacy BN Reminders remains enabled.
+ *
+ * @return void
+ */
+function bbbext_bnx_disable_if_bnreminders_present(): void {
+    if (!bbbext_bnx_has_bnreminders_conflict() || !empty(get_config('bbbext_bnx', 'disabled'))) {
+        return;
+    }
+
+    set_config('disabled', 1, 'bbbext_bnx');
+    if (function_exists('add_to_config_log')) {
+        add_to_config_log('disabled', 0, 1, 'bbbext_bnx');
+    }
+    \core_plugin_manager::reset_caches();
 }
 
 /**

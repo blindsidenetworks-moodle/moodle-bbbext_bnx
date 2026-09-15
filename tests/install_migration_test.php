@@ -35,9 +35,9 @@ final class install_migration_test extends \advanced_testcase {
     }
 
     /**
-     * BN reminders settings/data should be migrated and plugin disabled.
+     * BN Reminders settings/data should be migrated without changing its state.
      */
-    public function test_migrate_bnreminders_data_and_disable_plugin(): void {
+    public function test_migrate_bnreminders_data_without_disabling_plugin(): void {
         global $DB;
 
         $this->create_legacy_bnreminders_tables();
@@ -87,8 +87,10 @@ final class install_migration_test extends \advanced_testcase {
             'value' => '1',
         ]);
 
+        set_config('disabled', 0, 'bbbext_bnreminders');
         \core_plugin_manager::reset_caches();
 
+        $this->assertTrue(bbbext_bnx_has_pending_bnreminders_migration());
         bbbext_bnx_migrate_bnreminders_data();
 
         $reminderenabled = $DB->get_record('bbbext_bnx_settings', [
@@ -125,7 +127,8 @@ final class install_migration_test extends \advanced_testcase {
         ], '*', MUST_EXIST);
         $this->assertSame('1', (string) $newpreference->value);
 
-        $this->assertSame('1', get_config('bbbext_bnreminders', 'disabled'));
+        $this->assertFalse((bool)get_config('bbbext_bnreminders', 'disabled'));
+        $this->assertFalse(bbbext_bnx_has_pending_bnreminders_migration());
     }
 
     /**
@@ -176,6 +179,44 @@ final class install_migration_test extends \advanced_testcase {
             'bigbluebuttonbnid' => $bbb->id,
             'timespan' => 'P1D',
         ]));
+        $this->assertFalse((bool)get_config('bbbext_bnreminders', 'disabled'));
+    }
+
+    /**
+     * The conflict detector requires an installed and enabled legacy sidecar.
+     */
+    public function test_bnreminders_conflict_tracks_legacy_plugin_state(): void {
+        set_config('version', '2025100700', 'bbbext_bnreminders');
+        set_config('disabled', 0, 'bbbext_bnreminders');
+        \core_plugin_manager::reset_caches();
+
+        $this->assertTrue(bbbext_bnx_has_bnreminders_conflict());
+
+        set_config('disabled', 1, 'bbbext_bnreminders');
+        \core_plugin_manager::reset_caches();
+
+        $this->assertFalse(bbbext_bnx_has_bnreminders_conflict());
+    }
+
+    /**
+     * BNX self-disables while the legacy sidecar remains enabled.
+     */
+    public function test_bnreminders_conflict_self_disables_bnx(): void {
+        set_config('disabled', 1, 'bbbext_bnx');
+        set_config('version', '2025100700', 'bbbext_bnreminders');
+        set_config('disabled', 0, 'bbbext_bnreminders');
+        \core_plugin_manager::reset_caches();
+
+        bbbext_bnx_disable_if_bnreminders_present();
+        $this->assertSame('0', (string)get_config('bbbext_bnreminders', 'disabled'));
+        $this->assertSame('1', (string)get_config('bbbext_bnx', 'disabled'));
+
+        set_config('disabled', 1, 'bbbext_bnreminders');
+        unset_config('disabled', 'bbbext_bnx');
+        \core_plugin_manager::reset_caches();
+
+        bbbext_bnx_disable_if_bnreminders_present();
+        $this->assertFalse(get_config('bbbext_bnx', 'disabled'));
     }
 
     /**

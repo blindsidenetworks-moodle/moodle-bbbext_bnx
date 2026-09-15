@@ -153,13 +153,21 @@ Reminder subscription state can only be changed through authenticated requests:
 BNX performs real upgrade-time migrations. Today that includes:
 
 - migrating legacy BN Reminders data and settings into BNX
-- disabling the legacy `bbbext_bnreminders` plugin after successful migration
 - migrating core BigBlueButton lock settings into BNX-managed lock settings
 - syncing those migrated lock settings again when BNX is enabled
 
-This means BNX is not a pure "read only" sidecar with respect to other plugin
-state. The current implementation intentionally preserves customer migration
-behavior, even though some certification reviews may prefer looser coupling.
+BNX and legacy `bbbext_bnreminders` must not run concurrently. BNX never changes
+the legacy plugin's configuration. When BN Reminders is installed and enabled,
+BNX self-disables and shows an error on both its settings page and the
+BigBlueButton extension manager. Pending-migration warnings appear only while
+legacy data has not yet been copied.
+
+To retire BN Reminders safely, run the migration from the Moodle root, then
+disable or remove BN Reminders in Plugins overview before enabling BNX:
+
+```bash
+php public/mod/bigbluebuttonbn/extension/bnx/cli/migrate_bnreminders.php
+```
 
 ## Known limitations and design constraints
 
@@ -177,8 +185,8 @@ behavior, even though some certification reviews may prefer looser coupling.
 
 ## Testing and CLI
 
-BNX does not ship custom CLI commands of its own. Maintenance and validation use
-standard Moodle tooling.
+BNX provides the BN Reminders migration command shown above. Maintenance and
+validation otherwise use standard Moodle tooling.
 
 Typical commands:
 

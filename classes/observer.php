@@ -51,8 +51,13 @@ class observer {
         $enabled = (int)($other['value'] ?? 0) !== 1;
 
         if ($enabled) {
-            // Refresh BNX-owned lock settings from core on every enable.
             require_once(__DIR__ . '/../db/migration.php');
+            bbbext_bnx_disable_if_bnreminders_present();
+            if (!empty(get_config('bbbext_bnx', 'disabled'))) {
+                \core\notification::error(get_string('check_bnreminders_conflict_enable_error', 'bbbext_bnx'));
+                return;
+            }
+            // Refresh BNX-owned lock settings from core on every enable.
             bbbext_bnx_sync_core_locksettings_data();
         }
 
