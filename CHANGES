@@ -1,13 +1,13 @@
-1.2-rc.2 (August 11, 2026)
+1.2 (September 4, 2026)
+- feat: Finalize the BNX 1.2 release line with support for Moodle 5.1–5.3 and a stable maturity designation.
+- fix: Harden the guest flow, reminder handling, recordings UX, and lock-settings behavior across the release line.
+- fix: Close the remaining security and compatibility issues identified during the 1.2 beta/RC review cycle.
+- chore: Stabilize Behat and plugin integration behavior and complete the final release readiness pass for BNX.
 - fix: Hide lock settings for Recording Only activities so the form reflects the supported configuration.
 - fix: Restore visible-group recording results and preserve the recording table sorting contract used by Moodle and BNX.
 - fix: Stabilize the meeting-role Behat flow with a deterministic JavaScript response for the named conference window.
 - chore: Complete a BNX hardening pass and add a plugin-side workaround for Moodle Behat coverage affected by BNX's intentional parent-plugin view override.
-
-1.2-rc.1 (July 27, 2026)
 - chore: Promote the 1.2 release line from beta to release candidate (rc.1) with no additional schema or runtime changes beyond 1.2-beta.2.
-
-1.2-beta.2 (July 2, 2026)
 - fix: Keep lib.php unguarded because Moodle CodeSniffer flags MOODLE_INTERNAL as unnecessary in a callbacks-only file (OL2-3.1.1).
 - fix: Build the placeholder search/replace arrays before a single str_replace() so reminder substitutions cannot re-match earlier output (OL2-3.1.2).
 - fix: Import mod_bigbluebuttonbn\logger so the meeting::join_meeting() default origin resolves at runtime (OL2-3.1.3).
@@ -17,8 +17,6 @@
 - fix: Read originpage with PARAM_ALPHA and validate it against an allow-list to prevent an open redirect from import.php (OL2-3.2.3).
 - chore: Annotate the previously empty db/upgrade.php savepoints so every version bump is justified (OL2-4.1.1).
 - chore: See docs/release-notes/1.2-beta.2.md for the per-finding Open LMS code review #2 remediation log.
-
-1.2-beta.1 (June 5, 2026)
 - fix: Harden security and authorization across external services and guest/import entry points to address Open LMS code review findings (OL-3.2.1, OL-3.2.2, OL-3.2.3, OL-3.2.5, OL-3.2.6, OL-3.2.7, OL-3.2.10, OL-3.1.5).
 - fix: Enforce explicit capability checks in external APIs and the import flow, and deny restricted context access by throwing exceptions.
 - fix: Apply stricter input cleaning for guest and external parameters, and add explicit external parameter validation in the BNX meeting info service.
@@ -36,28 +34,3 @@
 - chore: Add PHPUnit tests for the guest-login password compare, external null guards, and external parameter validation (OL-3.2.6, OL-3.1.6, OL-3.2.10), and Behat scenarios for guest-login password validation and the BNX recordings table (OL-4.1.6).
 - chore: Sync the db/install.xml schema VERSION with version.php on each release (OL-3.1.2).
 - chore: Consolidate db/events.php to a single config_log_created observer; the second observer was removed together with sidecar_state_manager (OL-4.1.5).
-
-1.1.1.1 (June 5, 2026)
-- fix: Hotfix release for the BNX 1.1.1 branch.
-
-1.1.1 (June 1, 2026)
-- fix: Avoid forcing guest=true for moderator joins so moderator access is not misclassified as guest access (MD-109).
-- fix: Fix missing recording row creation when BigBlueButton create calls fail in specific error paths (MDL-88775).
-
-1.1 (May 1, 2026)
-- feat: Migrate BN Reminders functionality and reminder data into BNX, consolidating reminder settings and email customization into the core BNX experience (MD-90, MD-104).
-- feat: Migrate lock settings controls from bnx_locksettings into BNX and absorb the legacy sidecar configuration into BNX defaults (MD-107).
-- chore: Refactor mod form header label overrides into a reusable helper to simplify BNX-driven form customizations (MD-100).
-- feat: Add a shared developer debug helper for BNX sidecars.
-
-1.0.1 (April 1, 2026)
-- feat: Add a BNX-specific guest access endpoint (guest.php) with its own join form, URL builder, and logout redirect flow, replacing the core guest page in BNX contexts (GIT-1).
-- fix: Hide BBB server setup instructions in the activity settings when credentials are pre-configured (MD-98).
-- feat: Improve recordings table UX (MD-94).
-- feat: Support auto-set default settings decoupled from sidecars (MD-95, MD-97).
-
-1.0 (March 11, 2026)
-- feat: First stable open-source release of bbbext_bnx.
-- feat: Introduce the BNX Framework: BigBlueButton BN Experience is a foundational UX enhancement extension for BigBlueButton in Moodle, featuring moderator approval workflows and shared capabilities that power the BNX extension family.
-- feat: Add PreSession lobby access which replaces Wait for Moderator.
-- feat: Deliver an enhanced recording experience by improving the room recordings table and ensuring recording features work end-to-end.
