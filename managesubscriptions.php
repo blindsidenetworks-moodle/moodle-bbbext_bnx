@@ -43,6 +43,12 @@ if ($cmid !== null && $state !== null) {
     // State-changing request: require a valid sesskey to prevent CSRF.
     require_sesskey();
     $bbbinstance = instance::get_from_cmid($cmid);
+    if ($bbbinstance === null) {
+        throw new moodle_exception('invalidcoursemodule', 'error');
+    }
+    require_login($bbbinstance->get_course(), false, $bbbinstance->get_cm());
+    require_capability('mod/bigbluebuttonbn:view', $bbbinstance->get_context());
+
     subscription_utils::change_reminder_subcription_user($state, $USER->id, $bbbinstance);
     $meetingname = $bbbinstance->get_meeting_name();
     if ($state) {
