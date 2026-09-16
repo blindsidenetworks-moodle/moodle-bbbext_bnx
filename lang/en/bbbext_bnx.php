@@ -155,6 +155,7 @@ $string['section_earlyaccess_desc'] = 'Allow authorised users to enter a room be
 $string['section_earlyaccess_heading'] = 'Early Access';
 $string['section_preuploads_desc'] = 'Configure multiple presentation files for BigBlueButton activities.';
 $string['section_preuploads_heading'] = 'Presentations';
+$string['selectfiles'] = 'Select presentation files';
 $string['section_reminders_desc'] = 'Send email reminders to participants before a session starts.';
 $string['section_reminders_heading'] = 'Email Reminders';
 $string['section_waitingroom_desc'] = 'Require moderator approval before participants can join a session.';

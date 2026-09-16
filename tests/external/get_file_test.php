@@ -111,6 +111,32 @@ final class get_file_test extends \advanced_testcase {
     }
 
     /**
+     * Test BigBlueButton receives a token-protected URL for each presentation.
+     *
+     * @return void
+     */
+    public function test_presentation_urls_use_the_temporary_file_service(): void {
+        global $DB;
+
+        [$bnxid, $file] = $this->create_presentation();
+        $presentation = presentation_helper::get_presentation_by_fileid($file->get_id());
+        $urls = presentation_helper::get_presentations_for_ws((int)$presentation->bigbluebuttonbnid);
+
+        $this->assertCount(1, $urls);
+        $this->assertSame('presentation.pdf', $urls[0]['name']);
+
+        parse_str((string)parse_url($urls[0]['url'], PHP_URL_QUERY), $params);
+        $this->assertSame(presentation_token_helper::SERVICE_NAME, $params['wsfunction']);
+        $this->assertSame((string)$file->get_id(), $params['fileid']);
+        $this->assertNotEmpty($params['wstoken']);
+
+        $coretoken = (new \webservice())->get_user_ws_token($params['wstoken']);
+        $limit = $DB->get_record(presentation_token_helper::TOKENS_TABLE, ['tokenid' => $coretoken->id], '*', MUST_EXIST);
+        $this->assertSame($bnxid, (int)$limit->bnxid);
+        $this->assertSame(2, (int)$limit->remaininguses);
+    }
+
+    /**
      * Create one BNX presentation record and its stored file.
      *
      * @return array{int, \stored_file}
@@ -122,11 +148,12 @@ final class get_file_test extends \advanced_testcase {
         $activity = $this->getDataGenerator()->create_module('bigbluebuttonbn', ['course' => $course->id]);
         $cm = get_coursemodule_from_instance('bigbluebuttonbn', $activity->id, $course->id, false, MUST_EXIST);
         $now = time();
-        $bnxid = $DB->insert_record('bbbext_bnx', (object) [
+        $bnx = $DB->get_record('bbbext_bnx', ['bigbluebuttonbnid' => $activity->id], 'id', IGNORE_MISSING);
+        $bnxid = $bnx === false ? $DB->insert_record('bbbext_bnx', (object) [
             'bigbluebuttonbnid' => $activity->id,
             'timecreated' => $now,
             'timemodified' => $now,
-        ]);
+        ]) : (int)$bnx->id;
         $file = get_file_storage()->create_file_from_string([
             'contextid' => \context_module::instance($cm->id)->id,
             'component' => 'bbbext_bnx',

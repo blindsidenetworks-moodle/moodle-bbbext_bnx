@@ -25,6 +25,7 @@
 
 namespace bbbext_bnx\bigbluebuttonbn;
 
+use bbbext_bnx\local\helpers\presentation_helper;
 use bbbext_bnx\local\services\bnx_service;
 use bbbext_bnx\local\services\bnx_service_interface;
 use bbbext_bnx\local\services\bnx_settings_service;
@@ -173,6 +174,7 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
         if ($bnxid !== null) {
             $this->persist_settings($bnxid, $bigbluebuttonbn);
         }
+        $this->save_presentations($bigbluebuttonbn);
         $this->sync_reminder_data($bigbluebuttonbn);
     }
 
@@ -187,6 +189,7 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
         if ($bnxid !== null) {
             $this->persist_settings($bnxid, $bigbluebuttonbn);
         }
+        $this->save_presentations($bigbluebuttonbn);
         $this->sync_reminder_data($bigbluebuttonbn);
     }
 
@@ -204,6 +207,7 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
             return;
         }
 
+        presentation_helper::delete_presentations($bnxid);
         $this->bnxservice->delete_bnx($moduleid);
         $this->service->delete_settings($bnxid);
 
@@ -295,6 +299,30 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
                 ]);
             }
         }
+    }
+
+    /**
+     * Save the submitted presentation draft files for an activity.
+     *
+     * @param stdClass $data Module data payload.
+     * @return void
+     */
+    private function save_presentations(stdClass $data): void {
+        $moduleid = $this->resolve_module_id($data);
+        if ($moduleid === null || empty($data->bnx_presentation)) {
+            return;
+        }
+
+        $cm = get_coursemodule_from_instance('bigbluebuttonbn', $moduleid);
+        if ($cm === false) {
+            return;
+        }
+
+        presentation_helper::save_files(
+            $moduleid,
+            (int)$data->bnx_presentation,
+            \context_module::instance($cm->id)->id
+        );
     }
 
     /**

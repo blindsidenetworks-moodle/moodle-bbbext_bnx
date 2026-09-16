@@ -95,7 +95,6 @@ class meeting extends \mod_bigbluebuttonbn\meeting {
      * @return array
      */
     public function create_meeting() {
-        // Get presentations from sidecar plugins via the discovered presentation provider.
         $presentations = $this->get_presentations_for_ws();
         if (empty($presentations)) {
             return parent::create_meeting();
@@ -151,7 +150,6 @@ class meeting extends \mod_bigbluebuttonbn\meeting {
         // Replace the join URL with our custom join URL builder.
         $meetinginfo->joinurl = \bbbext_bnx\local\helpers\joinurl_helper::build_join_url($this->instance)->out(false);
 
-        // Get presentations from sidecar plugins.
         $presentations = $this->get_presentations();
         if (!empty($presentations)) {
             $meetinginfo->presentations = $presentations;
@@ -163,32 +161,20 @@ class meeting extends \mod_bigbluebuttonbn\meeting {
     }
 
     /**
-     * Get presentations for webservice consumption from sidecar plugins.
-     *
-     * Resolves the first enabled bnx_ sidecar whose presentation_helper exposes
-     * get_presentations_for_ws(). Returns an empty array if no provider is enabled.
+     * Get presentations for BigBlueButton meeting creation.
      *
      * @return array
      */
     protected function get_presentations_for_ws(): array {
-        return local\helpers\sidecar_helper::get_presentations_from_provider(
-            $this->instance->get_instance_id(),
-            'get_presentations_for_ws'
-        );
+        return local\helpers\presentation_helper::get_presentations_for_ws($this->instance->get_instance_id());
     }
 
     /**
-     * Get presentations from sidecar plugins for display.
-     *
-     * Resolves the first enabled bnx_ sidecar whose presentation_helper exposes
-     * get_presentations(). Returns an empty array if no provider is enabled.
+     * Get presentations for display in meeting information.
      *
      * @return array
      */
     protected function get_presentations(): array {
-        return local\helpers\sidecar_helper::get_presentations_from_provider(
-            $this->instance->get_instance_id(),
-            'get_presentations'
-        );
+        return local\helpers\presentation_helper::get_presentations($this->instance->get_instance_id());
     }
 }

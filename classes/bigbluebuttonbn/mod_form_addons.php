@@ -27,6 +27,7 @@ namespace bbbext_bnx\bigbluebuttonbn;
 
 use bbbext_bnx\local\helpers\joinurl_helper;
 use bbbext_bnx\local\helpers\mod_form_helper;
+use bbbext_bnx\local\helpers\presentation_helper;
 use bbbext_bnx\reminders_utils;
 use bbbext_bnx\local\services\bnx_settings_service;
 use bbbext_bnx\local\services\bnx_settings_service_interface;
@@ -123,6 +124,22 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
         if (isset($settings['remindertoguestsenabled'])) {
             $defaultvalues['bnx_remindertoguestsenabled'] = (int)$settings['remindertoguestsenabled'];
         }
+
+        $cm = get_coursemodule_from_instance('bigbluebuttonbn', (int)$defaultvalues['id']);
+        if ($cm === false) {
+            return;
+        }
+
+        $draftitemid = file_get_submitted_draft_itemid('bnx_presentation');
+        file_prepare_draft_area(
+            $draftitemid,
+            \context_module::instance($cm->id)->id,
+            'bbbext_bnx',
+            presentation_helper::FILEAREA,
+            0,
+            ['subdirs' => 0]
+        );
+        $defaultvalues['bnx_presentation'] = $draftitemid;
     }
 
     /**
@@ -141,6 +158,7 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
      */
     public function definition_after_data(): void {
         mod_form_helper::remove_lock_settings_elements($this->mform);
+        $this->remove_core_presentation_settings();
 
         if (!reminders_utils::is_reminders_enabled()) {
             return;
@@ -174,6 +192,35 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
             $this->mform->setType('earlyaccess', PARAM_BOOL);
             $this->mform->setDefault('earlyaccess', mod_form_helper::get_feature_default('earlyaccess'));
             $this->mform->disabledIf('earlyaccess', 'openingtime[enabled]', 'notchecked', 0);
+        }
+
+        $options = \mod_bigbluebuttonbn\local\config::get_options();
+        $bigbluebuttonbn = get_config('mod_bigbluebuttonbn');
+        if ($options['preuploadpresentation_editable'] || !empty($bigbluebuttonbn->showpresentation_editable)) {
+            $this->mform->addElement('header', 'bnx_preuploadpresentation', get_string('section_preuploads_heading', 'bbbext_bnx'));
+            if ($options['preuploadpresentation_editable']) {
+                $this->mform->addElement(
+                    'filemanager',
+                    'bnx_presentation',
+                    get_string('selectfiles', 'bbbext_bnx'),
+                    null,
+                    [
+                        'accepted_types' => '*',
+                        'maxbytes' => 0,
+                        'subdirs' => 0,
+                        'maxfiles' => (int)get_config('bbbext_bnx', 'maxfiles'),
+                    ]
+                );
+            }
+
+            if (!empty($bigbluebuttonbn->showpresentation_editable)) {
+                $this->mform->addElement(
+                    'advcheckbox',
+                    'showpresentation',
+                    get_string('mod_form_field_showpresentation', 'bigbluebuttonbn')
+                );
+                $this->mform->setDefault('showpresentation', $bigbluebuttonbn->showpresentation_default ?? 0);
+            }
         }
 
         // Add the approval before join checkbox when editable.
@@ -228,5 +275,20 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
         unset($files);
 
         return $errors;
+    }
+
+    /**
+     * Remove the legacy single-presentation controls when BNX is active.
+     *
+     * @return void
+     */
+    private function remove_core_presentation_settings(): void {
+        if (!$this->mform->elementExists('preuploadpresentation')) {
+            return;
+        }
+
+        $this->mform->removeElement('preuploadpresentation');
+        $this->mform->removeElement('presentation');
+        $this->mform->removeElement('showpresentation');
     }
 }

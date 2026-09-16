@@ -26,6 +26,7 @@
 namespace bbbext_bnx;
 
 use bbbext_bnx\bigbluebuttonbn\mod_instance_helper;
+use bbbext_bnx\local\helpers\presentation_helper;
 use bbbext_bnx\local\services\bnx_settings_service;
 
 /**
@@ -99,6 +100,40 @@ final class mod_instance_helper_test extends \advanced_testcase {
     }
 
     /**
+     * Test add_instance saves presentation draft files and creates BNX links.
+     *
+     * @return void
+     */
+    public function test_add_instance_saves_presentation_draft(): void {
+        global $DB, $USER;
+
+        $this->setAdminUser();
+        $module = $this->create_bigbluebutton_activity();
+        $draftitemid = file_get_unused_draft_itemid();
+        get_file_storage()->create_file_from_string([
+            'contextid' => \context_user::instance($USER->id)->id,
+            'component' => 'user',
+            'filearea' => 'draft',
+            'itemid' => $draftitemid,
+            'filepath' => '/',
+            'filename' => 'slides.pdf',
+        ], 'Presentation content');
+
+        (new mod_instance_helper())->add_instance((object) [
+            'id' => $module->id,
+            'bnx_presentation' => $draftitemid,
+        ]);
+
+        $bnxid = $this->ensure_bnx_record($module->id);
+        $record = $DB->get_record(presentation_helper::PRESENTATIONS_TABLE, ['bnxid' => $bnxid], '*', MUST_EXIST);
+        $file = presentation_helper::get_file_by_id((int)$record->fileid);
+
+        $this->assertSame('slides.pdf', $record->filename);
+        $this->assertNotFalse($file);
+        $this->assertSame('Presentation content', $file->get_content());
+    }
+
+    /**
      * Test delete_instance.
      *
      * @return void
@@ -109,6 +144,20 @@ final class mod_instance_helper_test extends \advanced_testcase {
         $module = $this->create_bigbluebutton_activity();
         $helper = new mod_instance_helper();
         $bnxid = $this->ensure_bnx_record($module->id);
+        $cm = get_coursemodule_from_instance('bigbluebuttonbn', $module->id, 0, false, MUST_EXIST);
+        $file = get_file_storage()->create_file_from_string([
+            'contextid' => \context_module::instance($cm->id)->id,
+            'component' => 'bbbext_bnx',
+            'filearea' => presentation_helper::FILEAREA,
+            'itemid' => 0,
+            'filepath' => '/',
+            'filename' => 'slides.pdf',
+        ], 'Presentation content');
+        $DB->insert_record(presentation_helper::PRESENTATIONS_TABLE, (object) [
+            'bnxid' => $bnxid,
+            'fileid' => $file->get_id(),
+            'filename' => $file->get_filename(),
+        ]);
 
         $DB->insert_record('bbbext_bnx_settings', (object) [
             'bnxid' => $bnxid,
@@ -122,6 +171,8 @@ final class mod_instance_helper_test extends \advanced_testcase {
 
         $this->assertFalse($DB->record_exists('bbbext_bnx', ['bigbluebuttonbnid' => $module->id]));
         $this->assertFalse($DB->record_exists('bbbext_bnx_settings', ['bnxid' => $bnxid]));
+        $this->assertFalse($DB->record_exists(presentation_helper::PRESENTATIONS_TABLE, ['bnxid' => $bnxid]));
+        $this->assertFalse(get_file_storage()->get_file_by_id($file->get_id()));
     }
 
     /**

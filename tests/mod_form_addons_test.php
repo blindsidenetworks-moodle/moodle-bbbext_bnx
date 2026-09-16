@@ -90,6 +90,7 @@ final class mod_form_addons_test extends \advanced_testcase {
     public function test_data_preprocessing_populates_defaults_from_settings(): void {
         global $CFG;
 
+        $this->setAdminUser();
         require_once($CFG->libdir . '/formslib.php');
         $form = new \MoodleQuickForm('bnxform', 'post', '');
         $addons = new mod_form_addons($form);
@@ -110,6 +111,8 @@ final class mod_form_addons_test extends \advanced_testcase {
         $this->assertSame(1, $defaults['approvalbeforejoin']);
         $this->assertSame(1, $defaults['earlyaccess']);
         $this->assertSame(0, $defaults['enablecam']);
+        $this->assertArrayHasKey('bnx_presentation', $defaults);
+        $this->assertIsInt($defaults['bnx_presentation']);
     }
 
     /**
@@ -213,6 +216,48 @@ final class mod_form_addons_test extends \advanced_testcase {
 
         $this->assertTrue($form->elementExists('bnx_earlyaccess'));
         $this->assertTrue($form->elementExists('earlyaccess'));
+    }
+
+    /**
+     * Test BNX adds a multi-file presentation manager when uploads are editable.
+     *
+     * @return void
+     */
+    public function test_add_fields_adds_presentation_filemanager(): void {
+        global $CFG;
+
+        require_once($CFG->libdir . '/formslib.php');
+
+        set_config('bigbluebuttonbn_preuploadpresentation_editable', 1);
+        set_config('maxfiles', 3, 'bbbext_bnx');
+
+        $form = new \MoodleQuickForm('bnxform', 'post', '');
+        (new mod_form_addons($form))->add_fields();
+
+        $this->assertTrue($form->elementExists('bnx_preuploadpresentation'));
+        $this->assertTrue($form->elementExists('bnx_presentation'));
+    }
+
+    /**
+     * Test BNX removes the legacy single-presentation controls.
+     *
+     * @return void
+     */
+    public function test_definition_after_data_removes_core_presentation_controls(): void {
+        global $CFG;
+
+        require_once($CFG->libdir . '/formslib.php');
+
+        $form = new \MoodleQuickForm('bnxform', 'post', '');
+        $form->addElement('header', 'preuploadpresentation', 'Presentation');
+        $form->addElement('filemanager', 'presentation', 'Select presentation');
+        $form->addElement('advcheckbox', 'showpresentation', 'Show presentation');
+
+        (new mod_form_addons($form))->definition_after_data();
+
+        $this->assertFalse($form->elementExists('preuploadpresentation'));
+        $this->assertFalse($form->elementExists('presentation'));
+        $this->assertFalse($form->elementExists('showpresentation'));
     }
 
     /**
