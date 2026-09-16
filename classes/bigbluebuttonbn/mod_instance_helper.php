@@ -126,6 +126,7 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
      */
     public const FEATURE_FIELD_MAP = [
         'approvalbeforejoin' => 'approvalbeforejoin',
+        'earlyaccess' => 'bnx_earlyaccess_enable_access',
         'enablecam' => 'enablecam',
         'enablemic' => 'enablemic',
         'enableprivatechat' => 'enableprivatechat',

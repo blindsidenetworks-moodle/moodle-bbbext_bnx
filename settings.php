@@ -98,6 +98,13 @@ if ($ADMIN->fulltree) {
         'reminders' => [
             'reminder',
         ],
+        'earlyaccess' => [
+            'earlyaccess',
+        ],
+    ];
+
+    $featuredefaults = [
+        'earlyaccess' => '0',
     ];
 
     // Deferred translation: only resolve these strings if the admin actually loads this page (OL-3.1.10).
@@ -118,7 +125,7 @@ if ($ADMIN->fulltree) {
                 "bbbext_bnx/{$feature}_default",
                 new lang_string("{$feature}_default", 'bbbext_bnx'),
                 new lang_string("{$feature}_default_desc", 'bbbext_bnx'),
-                '1',
+                $featuredefaults[$feature] ?? '1',
                 $options
             ));
 

@@ -100,6 +100,7 @@ final class mod_form_addons_test extends \advanced_testcase {
         $service = bnx_settings_service::get_service();
         $service->set_settings($bnxid, [
             'approvalbeforejoin' => 1,
+            'bnx_earlyaccess_enable_access' => 1,
             'enablecam' => 0,
         ]);
 
@@ -107,6 +108,7 @@ final class mod_form_addons_test extends \advanced_testcase {
         $addons->data_preprocessing($defaults);
 
         $this->assertSame(1, $defaults['approvalbeforejoin']);
+        $this->assertSame(1, $defaults['earlyaccess']);
         $this->assertSame(0, $defaults['enablecam']);
     }
 
@@ -190,6 +192,27 @@ final class mod_form_addons_test extends \advanced_testcase {
         $addons->add_fields();
 
         $this->assertTrue($form->elementExists('bnx_reminders'));
+    }
+
+    /**
+     * Test Early Access field is added when the feature is editable.
+     *
+     * @return void
+     */
+    public function test_add_fields_adds_earlyaccess_when_editable(): void {
+        global $CFG;
+
+        require_once($CFG->libdir . '/formslib.php');
+
+        set_config('earlyaccess_editable', 1, 'bbbext_bnx');
+        set_config('earlyaccess_default', 0, 'bbbext_bnx');
+
+        $form = new \MoodleQuickForm('bnxform', 'post', '');
+        $addons = new mod_form_addons($form);
+        $addons->add_fields();
+
+        $this->assertTrue($form->elementExists('bnx_earlyaccess'));
+        $this->assertTrue($form->elementExists('earlyaccess'));
     }
 
     /**

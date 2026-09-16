@@ -25,7 +25,7 @@ use bbbext_bnx\recording;
 /**
  * Class to describe a BBB Meeting with BNX extensions support.
  *
- * This class extends the core meeting to support features provided by BNX sidecar plugins.
+ * This class extends the core meeting to support BNX features.
  *
  * @package   bbbext_bnx
  * @copyright 2025 onwards, Blindside Networks Inc
@@ -157,8 +157,7 @@ class meeting extends \mod_bigbluebuttonbn\meeting {
             $meetinginfo->presentations = $presentations;
             $meetinginfo->showpresentations = $this->instance->should_show_presentation();
         }
-        // Apply room adjustments from sidecars.
-        $meetinginfo = local\helpers\sidecar_helper::apply_room_adjustments($this->instance, $meetinginfo);
+        $meetinginfo = local\helpers\earlyaccess_helper::adjust_meeting_data($this->instance, $meetinginfo);
 
         return $meetinginfo;
     }

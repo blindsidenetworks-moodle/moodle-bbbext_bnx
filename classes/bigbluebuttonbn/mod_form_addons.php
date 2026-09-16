@@ -168,6 +168,14 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
             }
         }
 
+        if (mod_form_helper::is_feature_editable('earlyaccess')) {
+            $this->mform->addElement('header', 'bnx_earlyaccess', get_string('mod_form_earlyaccess_header', 'bbbext_bnx'));
+            $this->mform->addElement('advcheckbox', 'earlyaccess', get_string('mod_form_earlyaccess', 'bbbext_bnx'));
+            $this->mform->setType('earlyaccess', PARAM_BOOL);
+            $this->mform->setDefault('earlyaccess', mod_form_helper::get_feature_default('earlyaccess'));
+            $this->mform->disabledIf('earlyaccess', 'openingtime[enabled]', 'notchecked', 0);
+        }
+
         // Add the approval before join checkbox when editable.
         if (mod_form_helper::is_feature_editable('approvalbeforejoin')) {
             mod_form_helper::add_approval_before_join_checkbox(
