@@ -115,5 +115,36 @@ function xmldb_bbbext_bnx_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026090400, 'bbbext', 'bnx');
     }
 
+    if ($oldversion < 2026091601) {
+        $table = new xmldb_table('bbbext_bnx_presentations');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+        $table->add_field('bnxid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+        $table->add_field('fileid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+        $table->add_field('filename', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('bnxid_fk', XMLDB_KEY_FOREIGN, ['bnxid'], 'bbbext_bnx', ['id']);
+        $table->add_key('fileid_uk', XMLDB_KEY_UNIQUE, ['fileid']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        $table = new xmldb_table('bbbext_bnx_presentation_tokens');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+        $table->add_field('tokenid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+        $table->add_field('bnxid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+        $table->add_field('remaininguses', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('validuntil', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('revoked', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('tokenid_uk', XMLDB_KEY_UNIQUE, ['tokenid']);
+        $table->add_key('bnxid_fk', XMLDB_KEY_FOREIGN, ['bnxid'], 'bbbext_bnx', ['id']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_plugin_savepoint(true, 2026091601, 'bbbext', 'bnx');
+    }
+
     return true;
 }

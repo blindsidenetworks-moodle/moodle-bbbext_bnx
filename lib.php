@@ -64,7 +64,7 @@ function bbbext_bnx_status_checks(): array {
 }
 
 /**
- * Serves attached files for email reminders.
+ * Serves attached files for BNX features.
  *
  * @param mixed $course course or id of the course
  * @param mixed $cm course module or id of the course module
@@ -84,7 +84,7 @@ function bbbext_bnx_pluginfile(
     $forcedownload,
     array $options = []
 ) {
-    if ($context->contextlevel != CONTEXT_MODULE) {
+    if ($context->contextlevel !== CONTEXT_MODULE) {
         return false;
     }
 
@@ -99,8 +99,12 @@ function bbbext_bnx_pluginfile(
         return false;
     }
 
-    $itemid = (int) array_shift($args);
-    if ($itemid != 0) {
+    if (empty($args)) {
+        return false;
+    }
+
+    $itemid = (int)array_shift($args);
+    if ($itemid !== 0) {
         return false;
     }
 
@@ -112,6 +116,14 @@ function bbbext_bnx_pluginfile(
     if (!$file || $file->is_directory()) {
         return false;
     }
+
+    if (
+        $filearea === \bbbext_bnx\local\helpers\presentation_helper::FILEAREA
+        && !\bbbext_bnx\local\helpers\presentation_helper::belongs_to_module($file->get_id(), (int)$cm->instance)
+    ) {
+        return false;
+    }
+
     send_stored_file($file, 0, 0, $forcedownload, $options);
 }
 

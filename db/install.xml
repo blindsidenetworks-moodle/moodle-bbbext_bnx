@@ -31,6 +31,35 @@
                 <KEY NAME="bnx_setting_unique" TYPE="unique" FIELDS="bnxid, name"/>
             </KEYS>
         </TABLE>
+        <TABLE NAME="bbbext_bnx_presentations" COMMENT="Links presentation files to BNX instances.">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Primary key"/>
+                <FIELD NAME="bnxid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign key to bbbext_bnx.id"/>
+                <FIELD NAME="fileid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Stored file identifier"/>
+                <FIELD NAME="filename" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Presentation filename"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="bnxid_fk" TYPE="foreign" FIELDS="bnxid" REFTABLE="bbbext_bnx" REFFIELDS="id"/>
+                <KEY NAME="fileid_uk" TYPE="unique" FIELDS="fileid"/>
+            </KEYS>
+        </TABLE>
+        <TABLE NAME="bbbext_bnx_presentation_tokens" COMMENT="Use limits for temporary presentation file tokens.">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="Primary key"/>
+                <FIELD NAME="tokenid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Core external token identifier"/>
+                <FIELD NAME="bnxid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Owning BNX instance"/>
+                <FIELD NAME="remaininguses" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Remaining file requests"/>
+                <FIELD NAME="validuntil" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Token expiry timestamp"/>
+                <FIELD NAME="revoked" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether the token is revoked"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Creation timestamp"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="tokenid_uk" TYPE="unique" FIELDS="tokenid"/>
+                <KEY NAME="bnxid_fk" TYPE="foreign" FIELDS="bnxid" REFTABLE="bbbext_bnx" REFFIELDS="id"/>
+            </KEYS>
+        </TABLE>
         <TABLE NAME="bbbext_bnx_reminders" COMMENT="Stores individual reminder timespans for a BigBlueButton instance">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>

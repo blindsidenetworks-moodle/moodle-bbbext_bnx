@@ -138,6 +138,19 @@ if ($ADMIN->fulltree) {
         }
     }
 
+    $settings->add(new admin_setting_heading(
+        'bbbext_bnx/section_preuploads',
+        new lang_string('section_preuploads_heading', 'bbbext_bnx'),
+        new lang_string('section_preuploads_desc', 'bbbext_bnx')
+    ));
+    $settings->add(new admin_setting_configtext(
+        'bbbext_bnx/maxfiles',
+        new lang_string('maxfiles', 'bbbext_bnx'),
+        new lang_string('maxfiles_desc', 'bbbext_bnx'),
+        10,
+        PARAM_INT
+    ));
+
     // Email customisation settings for reminders.
     $settings->add(new admin_setting_heading(
         'bbbext_bnx/emailcontent',

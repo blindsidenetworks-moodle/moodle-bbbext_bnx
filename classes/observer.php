@@ -59,6 +59,7 @@ class observer {
             }
             // Refresh BNX-owned lock settings from core on every enable.
             bbbext_bnx_sync_core_locksettings_data();
+            set_config('bigbluebuttonbn_preuploadpresentation_editable', 1);
         }
 
         // Publish the public state change event. Sidecars own their own reaction.

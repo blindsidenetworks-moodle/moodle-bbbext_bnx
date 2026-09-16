@@ -42,4 +42,10 @@ function xmldb_bbbext_bnx_install() {
 
     // One-time migration from core lock settings into BNX lock settings.
     bbbext_bnx_migrate_core_locksettings_data();
+
+    \bbbext_bnx\local\helpers\presentation_user_helper::get_or_create_user();
+    if (get_config('bbbext_bnx', 'maxfiles') === false) {
+        set_config('maxfiles', 10, 'bbbext_bnx');
+    }
+    set_config('bigbluebuttonbn_preuploadpresentation_editable', 1);
 }

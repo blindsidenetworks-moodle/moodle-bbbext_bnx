@@ -55,4 +55,20 @@ $functions = [
         'capabilities' => 'mod/bigbluebuttonbn:importrecordings',
         'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
     ],
+    'bbbext_bnx_get_file' => [
+        'classname' => 'bbbext_bnx\\external\\get_file',
+        'methodname' => 'execute',
+        'description' => 'Serves a temporary BigBlueButton presentation file.',
+        'type' => 'read',
+        'ajax' => false,
+    ],
+];
+
+$services = [
+    'bbbext_bnx_get_file' => [
+        'functions' => ['bbbext_bnx_get_file'],
+        'restrictedusers' => 0,
+        'enabled' => 1,
+        'shortname' => 'bbbext_bnx_get_file',
+    ],
 ];
