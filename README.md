@@ -14,7 +14,10 @@ shared runtime contract used by sibling `bbbext_bnx_*` sidecars.
 - BNX-managed lock-settings overlay for selected BigBlueButton join controls
 - Reminder scheduling, guest reminder subscriptions, and reminder email
   customization
-- Shared sidecar discovery and room-adjustment helpers
+- Early Access for authorised teachers before an activity opening time
+- Multiple pre-uploaded presentation files per activity
+- Temporary, activity-bound presentation delivery for BigBlueButton meeting
+  creation
 - A public BNX enable/disable event contract for sidecars
 
 BNX is a `bbbext` subplugin. It does not replace `mod_bigbluebuttonbn`; it
@@ -25,7 +28,7 @@ already exposes.
 
 - Moodle: 5.1 to 5.3 (`$plugin->supported = [501, 503]`)
 - Minimum Moodle requirement: 5.1 (`$plugin->requires = 2025100600`)
-- Plugin maturity: stable (`MATURITY_STABLE`)
+- Plugin maturity: alpha (`MATURITY_ALPHA`)
 - BigBlueButton server: no BNX-specific server-version gate is enforced; BNX
   follows the BigBlueButton API and server compatibility of the installed
   `mod_bigbluebuttonbn` release
@@ -77,6 +80,8 @@ BNX currently groups settings into these areas:
 
 - Waiting room
 - Lock settings
+- Early Access
+- Presentations
 - Reminders
 - Reminder email subject/template/footer
 
@@ -91,6 +96,8 @@ on site configuration, teachers may see:
 
 - moderator approval before join
 - BNX-managed lock settings
+- Early Access, when the activity has an opening time
+- a multi-file presentation manager, when enabled in BNX settings
 - reminder enablement, guest reminders, and reminder timespans
 - BNX guest join URL
 
@@ -131,9 +138,9 @@ BNX no longer auto-manages sibling plugin enablement. The supported contract is:
 - sidecars may subscribe to that event if they want to react to BNX state
 - sidecars remain responsible for their own configuration and enablement
 
-BNX also supports convention-based sidecar discovery for selected behaviors,
-such as presentation providers and room alerts, through
-[`sidecar_helper`](classes/local/helpers/sidecar_helper.php).
+BNX retains convention-based sidecar discovery only for generic alert and UI
+string providers through [`sidecar_helper`](classes/local/helpers/sidecar_helper.php).
+Presentation and Early Access behavior are implemented directly by BNX.
 
 ### Reminder subscription changes
 
@@ -156,6 +163,19 @@ BNX performs real upgrade-time migrations. Today that includes:
 - migrating core BigBlueButton lock settings into BNX-managed lock settings
 - syncing those migrated lock settings again when BNX is enabled
 
+### BNX 1.3 clean-install behavior
+
+BNX 1.3 integrates the previously separate Early Access and pre-uploaded
+presentation features. Neither `bbbext_bnx_earlyaccess` nor
+`bbbext_bnx_preuploads` has been shipped, so this release intentionally does
+not migrate data or settings from either sidecar. Install or upgrade BNX without
+either sidecar enabled.
+
+Presentation files are stored as BNX activity content. When a meeting is
+created, BNX provides BigBlueButton with URLs from its `bbbext_bnx_get_file`
+web service. Each URL uses a short-lived token restricted to the activity and a
+limited number of file requests.
+
 BNX and legacy `bbbext_bnreminders` must not run concurrently. BNX never changes
 the legacy plugin's configuration. When BN Reminders is installed and enabled,
 BNX self-disables and shows an error on both its settings page and the
@@ -172,7 +192,9 @@ php public/mod/bigbluebuttonbn/extension/bnx/cli/migrate_bnreminders.php
 ## Known limitations and design constraints
 
 - Guest-link lookup still relies on a documented BNX shim because the parent
-  module does not yet expose a public `get_from_guestlinkuid()` API.
+  module does not yet expose a public `get_from_guestlinkuid()` API
+  (MDL-85873). Remove the shim only after Moodle core supplies the supported
+  replacement API.
 - BNX still contains some cross-component migration behavior because legacy
   functionality was consolidated into BNX.
 - The enhanced recordings front end largely moved to event-based module
@@ -206,9 +228,10 @@ Current automated coverage includes:
 
 - PHPUnit coverage for meeting info, import-recording service paths, guest
   password validation, module enablement boundaries, state-change events,
-  reminders, form helpers, and migrations
+  Early Access, presentation file delivery, backup/restore, reminders, form
+  helpers, and migrations
 - Behat coverage for basic BNX flows, guest login validation, guest meeting
-  joins, and recordings listing/editing
+  joins, Early Access, presentation uploads, and recordings listing/editing
 
 ## Troubleshooting
 
@@ -251,7 +274,8 @@ plugin configuration/tables at install or upgrade time. Review:
 ## Developer notes
 
 - Do not assume BNX can freely mutate parent or sibling plugin settings.
-- Do not reintroduce hard-coded sibling class dependencies.
+- Do not reintroduce the merged `bbbext_bnx_earlyaccess` or
+  `bbbext_bnx_preuploads` runtime dependencies.
 - Prefer the existing sidecar helper and event contract over ad hoc sidecar
   wiring.
 - Treat the guest-link shim as temporary until the parent plugin exposes a
@@ -267,19 +291,21 @@ See:
   detailed Open LMS remediation log for 1.2-beta.1
 - [docs/release-notes/1.2-beta.2.md](docs/release-notes/1.2-beta.2.md) for the
   detailed Open LMS code review #2 remediation log for 1.2-beta.2
+- [docs/release-notes/1.3-alpha.1.md](docs/release-notes/1.3-alpha.1.md) for
+  BNX 1.3 alpha implementation and compatibility notes
 
 ## Related plugins
 
 - `mod_bigbluebuttonbn` — parent module
 - `bbbext_bnx_datahub` — analytics/reporting sidecar
 - `bbbext_bnx_insights` — in-session student-insight sidecar
-- `bbbext_bnx_preuploads` — presentation-provider sidecar
-- `bbbext_bnx_earlyaccess` — early teacher-access sidecar
 
 Legacy plugins whose functionality has been migrated into BNX:
 
 - `bbbext_bnreminders`
 - `bbbext_bnx_locksettings`
+- `bbbext_bnx_earlyaccess` (unshipped; no data migration)
+- `bbbext_bnx_preuploads` (unshipped; no data migration)
 
 ## Credits
 
