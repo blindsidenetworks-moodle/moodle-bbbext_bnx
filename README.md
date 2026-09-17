@@ -26,8 +26,7 @@ already exposes.
 
 ## Supported platform
 
-- Moodle: 5.1 to 5.3 (`$plugin->supported = [501, 503]`)
-- Minimum Moodle requirement: 5.1 (`$plugin->requires = 2025100600`)
+- Moodle: 5.3 (Build 20260714) and later (`$plugin->requires = 2026071400`)
 - Plugin maturity: alpha (`MATURITY_ALPHA`)
 - BigBlueButton server: no BNX-specific server-version gate is enforced; BNX
   follows the BigBlueButton API and server compatibility of the installed
@@ -192,9 +191,10 @@ php public/mod/bigbluebuttonbn/extension/bnx/cli/migrate_bnreminders.php
 ## Known limitations and design constraints
 
 - Guest-link lookup still relies on a documented BNX shim because the parent
-  module does not yet expose a public `get_from_guestlinkuid()` API
-  (MDL-85873). Remove the shim only after Moodle core supplies the supported
-  replacement API.
+  module does not expose a public `get_from_guestlinkuid()` API. Moodle
+  MDL-85873 is included in the required 5.3 baseline, but it only corrects
+  guest-name handling and does not replace this API. Remove the shim only after
+  Moodle core supplies the supported replacement.
 - BNX still contains some cross-component migration behavior because legacy
   functionality was consolidated into BNX.
 - The enhanced recordings front end largely moved to event-based module

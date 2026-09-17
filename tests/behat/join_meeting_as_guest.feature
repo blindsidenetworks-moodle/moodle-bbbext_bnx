@@ -14,6 +14,7 @@ Feature: Guest users can join meetings via BNX guest flow
       | username | firstname | lastname | email                 |
       | traverst | Terry     | Travers  | t.travers@example.com |
       | teacher  | Teacher   | Teacher  | t.eacher@example.com  |
+      | outsider | Outside   | User     | o.user@example.com    |
     And the following "course enrolments" exist:
       | user     | course | role           |
       | traverst | C1     | student        |
@@ -42,3 +43,8 @@ Feature: Guest users can join meetings via BNX guest flow
     And I switch to "bigbluebutton_conference" window
     And I wait until the page is ready
     And I should see "Test Guest User"
+
+  Scenario: Non-enrolled authenticated users can edit their guest username
+    Given I am logged in as "outsider"
+    When I open the BNX guest page for "Room recordings"
+    Then the field "username" matches value "Outside User"
