@@ -51,7 +51,7 @@ class presentation_user_helper {
             'mnethostid' => $CFG->mnet_localhost_id,
             'password' => hash_internal_user_password(bin2hex(random_bytes(16))),
         ];
-        $user->id = user_create_user($user, false, false);
+        $user->id = \core\user::create_user($user, false, false);
 
         return $user;
     }

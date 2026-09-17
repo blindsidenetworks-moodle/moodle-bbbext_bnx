@@ -94,7 +94,6 @@ final class action_url_parameters_test extends \advanced_testcase {
             $resultcreate,
             'Create action parameters mismatch'
         );
-
     }
 
     /**

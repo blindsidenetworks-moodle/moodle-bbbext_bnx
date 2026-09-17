@@ -41,5 +41,4 @@ class joinurl_helper {
             'bn' => $instance->get_instance_id(),
         ]);
     }
-
 }

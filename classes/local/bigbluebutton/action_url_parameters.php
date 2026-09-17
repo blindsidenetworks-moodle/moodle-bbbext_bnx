@@ -137,5 +137,4 @@ class action_url_parameters {
         $default = get_config('bbbext_bnx', 'approvalbeforejoin_default');
         return (bool) $default;
     }
-
 }

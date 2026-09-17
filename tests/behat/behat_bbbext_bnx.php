@@ -58,5 +58,4 @@ class behat_bbbext_bnx extends behat_base {
         set_config('disabled', 1, 'bbbext_' . $pluginname);
         \core_plugin_manager::reset_caches();
     }
-
 }
