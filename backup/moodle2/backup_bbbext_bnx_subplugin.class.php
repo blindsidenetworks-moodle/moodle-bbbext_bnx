@@ -43,9 +43,18 @@ class backup_bbbext_bnx_subplugin extends backup_subplugin {
             'timemodified',
         ]);
 
+        $presentations = new backup_nested_element('bbbext_bnx_presentations');
+        $presentation = new backup_nested_element('bbbext_bnx_presentation_file', ['id'], [
+            'bnxid',
+            'fileid',
+            'filename',
+        ]);
+
         $subplugin->add_child($wrapper);
         $wrapper->add_child($bnxelement);
         $bnxelement->add_child($settings);
+        $bnxelement->add_child($presentations);
+        $presentations->add_child($presentation);
 
         $bnxelement->set_source_table('bbbext_bnx', [
             'bigbluebuttonbnid' => backup::VAR_PARENTID,
@@ -54,6 +63,11 @@ class backup_bbbext_bnx_subplugin extends backup_subplugin {
         $settings->set_source_table('bbbext_bnx_settings', [
             'bnxid' => backup::VAR_PARENTID,
         ]);
+
+        $presentation->set_source_table('bbbext_bnx_presentations', [
+            'bnxid' => backup::VAR_PARENTID,
+        ]);
+        $presentation->annotate_files('bbbext_bnx', 'presentation', null);
 
         // Reminder timespan table.
         $remindersrem = new backup_nested_element(

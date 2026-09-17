@@ -42,6 +42,11 @@ class restore_bbbext_bnx_subplugin extends restore_subplugin {
         );
 
         $paths[] = new restore_path_element(
+            $this->get_namefor('presentation'),
+            $this->get_pathfor('/bbbext_bnx/bbbext_bnx_presentations/bbbext_bnx_presentation_file')
+        );
+
+        $paths[] = new restore_path_element(
             $this->get_namefor('reminder'),
             $this->get_pathfor('/bbbext_bnx_reminders')
         );
@@ -100,6 +105,28 @@ class restore_bbbext_bnx_subplugin extends restore_subplugin {
     }
 
     /**
+     * Restore one presentation record for the mapped BNX activity.
+     *
+     * @param array $data
+     * @return void
+     */
+    public function process_bbbext_bnx_presentation($data): void {
+        global $DB;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+        $data->bnxid = $this->get_new_parentid('bbbext_bnx');
+        if (empty($data->bnxid)) {
+            return;
+        }
+
+        // Stored file IDs are global and remain occupied by the source activity during restore.
+        $data->fileid = -(int)$data->fileid;
+        $newid = $DB->insert_record('bbbext_bnx_presentations', $data);
+        $this->set_mapping('bbbext_bnx_presentation', $oldid, $newid);
+    }
+
+    /**
      * Restore a reminder timespan record.
      *
      * @param array $data
@@ -128,5 +155,44 @@ class restore_bbbext_bnx_subplugin extends restore_subplugin {
         $data->timemodified = $this->apply_date_offset($data->timemodified);
         $newitemid = $DB->insert_record('bbbext_bnx_reminders_guests', $data);
         $this->set_mapping('bbbext_bnx_reminders_guests', $data->id, $newitemid);
+    }
+
+    /**
+     * Restore presentation files and update their stored-file identifiers.
+     *
+     * @return void
+     */
+    public function after_execute_bigbluebuttonbn(): void {
+        global $DB;
+
+        $this->add_related_files('bbbext_bnx', 'presentation', null);
+
+        $bnxid = $this->get_new_parentid('bbbext_bnx');
+        $moduleid = $this->get_new_parentid('bigbluebuttonbn');
+        $cm = empty($moduleid) ? false : get_coursemodule_from_instance('bigbluebuttonbn', $moduleid);
+        if (empty($bnxid) || $cm === false) {
+            return;
+        }
+
+        $files = get_file_storage()->get_area_files(
+            \context_module::instance($cm->id)->id,
+            'bbbext_bnx',
+            'presentation',
+            0,
+            'itemid, filepath, filename',
+            false
+        );
+        $filesbyname = [];
+        foreach ($files as $file) {
+            $filesbyname[$file->get_filename()] = $file;
+        }
+
+        foreach ($DB->get_records('bbbext_bnx_presentations', ['bnxid' => $bnxid]) as $presentation) {
+            if (!isset($filesbyname[$presentation->filename])) {
+                continue;
+            }
+            $presentation->fileid = $filesbyname[$presentation->filename]->get_id();
+            $DB->update_record('bbbext_bnx_presentations', $presentation);
+        }
     }
 }
