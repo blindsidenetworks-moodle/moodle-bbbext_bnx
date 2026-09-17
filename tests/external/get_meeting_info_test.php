@@ -99,4 +99,33 @@ final class get_meeting_info_test extends \advanced_testcase {
         $this->assertArrayHasKey('presentationtitle', $result);
         $this->assertNotSame('', $result['presentationtitle']);
     }
+
+    /**
+     * Guest links must remain owned by the parent module.
+     *
+     * @return void
+     */
+    public function test_execute_returns_the_core_guest_link(): void {
+        global $CFG;
+
+        $this->setAdminUser();
+        $CFG->bigbluebuttonbn['guestaccess_enabled'] = 1;
+
+        $course = $this->getDataGenerator()->create_course();
+        $bbbgenerator = $this->getDataGenerator()->get_plugin_generator('mod_bigbluebuttonbn');
+        $activity = $bbbgenerator->create_instance([
+            'course' => $course->id,
+            'guestallowed' => 1,
+        ]);
+
+        $result = get_meeting_info::execute(
+            bigbluebuttonbnid: (int) $activity->id,
+            groupid: 0,
+            updatecache: false
+        );
+
+        $this->assertArrayHasKey('guestjoinurl', $result);
+        $this->assertStringContainsString('/mod/bigbluebuttonbn/guest.php', $result['guestjoinurl']);
+        $this->assertStringNotContainsString('/extension/bnx/', $result['guestjoinurl']);
+    }
 }

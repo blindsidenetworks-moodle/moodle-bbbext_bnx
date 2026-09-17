@@ -25,13 +25,11 @@
 
 namespace bbbext_bnx\bigbluebuttonbn;
 
-use bbbext_bnx\local\helpers\joinurl_helper;
 use bbbext_bnx\local\helpers\mod_form_helper;
 use bbbext_bnx\local\helpers\presentation_helper;
 use bbbext_bnx\reminders_utils;
 use bbbext_bnx\local\services\bnx_settings_service;
 use bbbext_bnx\local\services\bnx_settings_service_interface;
-use mod_bigbluebuttonbn\instance;
 use stdClass;
 
 /**
@@ -176,15 +174,6 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
         // A nav label override is handled globally via hook_callbacks::before_footer().
 
         mod_form_helper::apply_header_overrides($this->mform, self::HEADER_STRING_OVERRIDES);
-
-        if (!empty($this->bigbluebuttonbndata->id) && $this->mform->elementExists('guestjoinurl')) {
-            $instance = instance::get_from_instanceid((int)$this->bigbluebuttonbndata->id);
-            // Only set the default when we resolved a real instance; otherwise leave the
-            // field untouched so the form does not crash for an orphaned id.
-            if ($instance !== null) {
-                $this->mform->setDefault('guestjoinurl', joinurl_helper::build_guest_join_url($instance)->out(false));
-            }
-        }
 
         if (mod_form_helper::is_feature_editable('earlyaccess')) {
             $this->mform->addElement('header', 'bnx_earlyaccess', get_string('mod_form_earlyaccess_header', 'bbbext_bnx'));

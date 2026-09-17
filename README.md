@@ -190,11 +190,6 @@ php public/mod/bigbluebuttonbn/extension/bnx/cli/migrate_bnreminders.php
 
 ## Known limitations and design constraints
 
-- Guest-link lookup still relies on a documented BNX shim because the parent
-  module does not expose a public `get_from_guestlinkuid()` API. Moodle
-  MDL-85873 is included in the required 5.3 baseline, but it only corrects
-  guest-name handling and does not replace this API. Remove the shim only after
-  Moodle core supplies the supported replacement.
 - BNX still contains some cross-component migration behavior because legacy
   functionality was consolidated into BNX.
 - The enhanced recordings front end largely moved to event-based module
@@ -217,7 +212,6 @@ Typical commands:
 php public/admin/tool/phpunit/cli/init.php
 
 # Run targeted BNX PHPUnit tests.
-php vendor/bin/phpunit -c phpunit.xml public/mod/bigbluebuttonbn/extension/bnx/tests/form/guest_login_test.php
 php vendor/bin/phpunit -c phpunit.xml public/mod/bigbluebuttonbn/extension/bnx/tests/module_enablement_test.php
 
 # List BNX Behat coverage files.
@@ -226,12 +220,12 @@ find public/mod/bigbluebuttonbn/extension/bnx/tests/behat -maxdepth 1 -type f | 
 
 Current automated coverage includes:
 
-- PHPUnit coverage for meeting info, import-recording service paths, guest
-  password validation, module enablement boundaries, state-change events,
+- PHPUnit coverage for meeting info, import-recording service paths, module
+  enablement boundaries, state-change events,
   Early Access, presentation file delivery, backup/restore, reminders, form
   helpers, and migrations
-- Behat coverage for basic BNX flows, guest login validation, guest meeting
-  joins, Early Access, presentation uploads, and recordings listing/editing
+- Behat coverage for basic BNX flows, Early Access, presentation uploads, and
+  recordings listing/editing
 
 ## Troubleshooting
 
@@ -256,12 +250,6 @@ Example:
 
 - `bbbext_bnx_datahub` depends on `meetingevents_enabled` in the parent module
   and surfaces that dependency through its own status check
-
-### Guest links stop working after parent changes
-
-BNX guest links currently depend on the parent module's `guestlinkuid` field
-through the documented `guestlink_lookup` shim. If upstream parent APIs change,
-the guest-link path may need to be updated accordingly.
 
 ### Reminder data did not migrate as expected
 

@@ -1,12 +1,12 @@
 1.3-alpha.1 (September 17, 2026)
-- refactor: Remove BNX's copied guest-login form definition and inherit the
-	Moodle 5.3 MDL-85873 implementation while retaining BNX's hardened
-	guest-password validation.
+- refactor: Delegate guest access entirely to Moodle after MDL-85873, removing
+  BNX's guest endpoint, form, guest-link lookup, popup handling, logout URL
+  override, and join-time guest parameter mutation.
 - feat: Add native Early Access configuration, activity persistence, capability checks, meeting-data concealment, PHPUnit coverage, and Behat coverage to BNX.
 - feat: Add BNX-owned presentation records, temporary-token limits, the `bbbext_bnx_get_file` service, secure file checks, multi-file form handling, and BigBlueButton presentation payload generation.
 - feat: Add BNX presentation backup and restore, including restored stored-file ID reconciliation and a full Moodle backup/restore integration test.
 - refactor: Remove merged Early Access and pre-upload presentation provider discovery from the BNX runtime while retaining generic alert/UI extension contracts for unrelated sidecars.
-- compat: Require Moodle 5.3, retain alpha maturity, and delegate all guest access handling to the parent BigBlueButton module.
+- compat: Require Moodle 5.3 and retain alpha maturity.
 
 1.2.1 (September 25, 2026)
 - fix: Finish BNX migration and conflict handling (SP-1).

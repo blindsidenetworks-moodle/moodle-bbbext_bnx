@@ -42,26 +42,4 @@ class joinurl_helper {
         ]);
     }
 
-    /**
-     * Build a moodle_url pointing to the subplugin guest handler.
-     *
-     * @param core_instance $instance
-     * @return moodle_url
-     */
-    public static function build_guest_join_url(core_instance $instance): moodle_url {
-        // Ensure credentials exist before reading the UID from the instance record.
-        $instance->get_guest_access_url();
-
-        // Parent-module table access is isolated in guestlink_lookup pending an
-        // upstream get_from_guestlinkuid() / guestlinkuid accessor.
-        $guestlinkuid = guestlink_lookup::get_uid_for_instance($instance->get_instance_id());
-
-        if ($guestlinkuid === '') {
-            return $instance->get_guest_access_url();
-        }
-
-        return new moodle_url('/mod/bigbluebuttonbn/extension/bnx/guest.php', [
-            'uid' => $guestlinkuid,
-        ]);
-    }
 }

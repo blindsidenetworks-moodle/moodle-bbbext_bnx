@@ -16,9 +16,7 @@
 
 namespace bbbext_bnx\bigbluebuttonbn;
 
-use bbbext_bnx\local\helpers\joinurl_helper;
 use bbbext_bnx\local\bigbluebutton\action_url_parameters;
-use mod_bigbluebuttonbn\instance;
 
 /**
  * Class action_url_addons
@@ -39,7 +37,7 @@ class action_url_addons extends \mod_bigbluebuttonbn\local\extension\action_url_
      * 'metadata' keys)
      */
     public function execute(string $action = '', array $data = [], array $metadata = [], ?int $instanceid = null): array {
-        unset($metadata);
+        unset($data, $metadata);
 
         // Per extension contract: return ONLY the parameters this addon adds, not the full input.
         // This prevents later addons from overwriting our additions when core merges results.
@@ -47,17 +45,7 @@ class action_url_addons extends \mod_bigbluebuttonbn\local\extension\action_url_
             return ['data' => [], 'metadata' => []];
         }
 
-        $additionaldata = action_url_parameters::get_parameters($action, $instanceid, $data);
-
-        // Keep guest users inside the BNX guest entrypoint after the BBB session ends.
-        if ($action === 'join' && isset($data['guest']) && $data['guest'] === 'true') {
-            $instance = instance::get_from_instanceid($instanceid);
-            // If the activity has been deleted between request scheduling and execution,
-            // skip the logoutURL override gracefully rather than fatalling on a null call.
-            if ($instance !== null) {
-                $additionaldata['logoutURL'] = joinurl_helper::build_guest_join_url($instance)->out(false);
-            }
-        }
+        $additionaldata = action_url_parameters::get_parameters($action, $instanceid);
 
         return ['data' => $additionaldata, 'metadata' => []];
     }

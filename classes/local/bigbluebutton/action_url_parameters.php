@@ -45,25 +45,17 @@ class action_url_parameters {
      *
      * @param string $action the action being performed
      * @param int $instanceid the BBB instance ID
-     * @param array $data action payload data
      * @return array<string, mixed> parameters keyed by name
      */
-    public static function get_parameters(string $action, int $instanceid, array $data = []): array {
+    public static function get_parameters(string $action, int $instanceid): array {
         $parameters = [];
 
         if ($action === 'create') {
             $parameters = array_merge($parameters, self::get_lock_settings_parameters($instanceid));
         }
 
-        if (self::is_approval_before_join_enabled($instanceid)) {
-            if ($action === 'create') {
-                $parameters['guestPolicy'] = 'ASK_MODERATOR';
-            }
-            if ($action === 'join') {
-                if (array_key_exists('guest', $data)) {
-                    $parameters['guest'] = self::is_guest_join_value($data['guest']) ? 'true' : null;
-                }
-            }
+        if ($action === 'create' && self::is_approval_before_join_enabled($instanceid)) {
+            $parameters['guestPolicy'] = 'ASK_MODERATOR';
         }
 
         return $parameters;
@@ -146,17 +138,4 @@ class action_url_parameters {
         return (bool) $default;
     }
 
-    /**
-     * Determine whether the provided guest value represents a guest join.
-     *
-     * @param mixed $guest action payload guest value
-     * @return bool
-     */
-    private static function is_guest_join_value($guest): bool {
-        if (is_string($guest)) {
-            return strtolower($guest) === 'true' || $guest === '1';
-        }
-
-        return $guest === true || $guest === 1;
-    }
 }
