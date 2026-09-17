@@ -16,11 +16,6 @@
 
 namespace bbbext_bnx\form;
 
-defined('MOODLE_INTERNAL') || die;
-
-global $CFG;
-require_once($CFG->libdir . '/formslib.php');
-
 /**
  * Class guest_login
  *
@@ -29,69 +24,7 @@ require_once($CFG->libdir . '/formslib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)
  */
-class guest_login extends \moodleform {
-    /**
-     * Form definition.
-     *
-     * @return void
-     */
-    protected function definition() {
-        global $USER;
-
-        $mform = $this->_form;
-        $instance = $this->_customdata['instance'];
-        $coursecontext = \context_course::instance($instance->get_course()->id);
-        $shouldfreezeusername = isloggedin()
-            && !isguestuser()
-            && is_enrolled($coursecontext, $USER, '', true);
-        $mform->addElement(
-            'text',
-            'username',
-            get_string('guestaccess_username', 'mod_bigbluebuttonbn')
-        );
-        $mform->setType('username', PARAM_NOTAGS);
-
-        if ($shouldfreezeusername) {
-            $mform->setConstant('username', fullname($USER));
-            $mform->freeze('username');
-        } else {
-            if (isloggedin() && !isguestuser()) {
-                $mform->setDefault('username', fullname($USER));
-            }
-            $mform->addRule(
-                'username',
-                get_string('required'),
-                'required',
-                null,
-                'client',
-            );
-        }
-
-        $mform->addElement(
-            'password',
-            'password',
-            get_string('guestaccess_password', 'mod_bigbluebuttonbn')
-        );
-        // PARAM_RAW_TRIMMED preserves all printable characters allowed in a guest password
-        // while trimming surrounding whitespace; the value is compared with hash_equals()
-        // in validation() and never echoed back to the page.
-        $mform->setType('password', PARAM_RAW_TRIMMED);
-        $mform->addRule(
-            'password',
-            get_string('required'),
-            'required',
-            null,
-            'client'
-        );
-        $mform->addElement('hidden', 'uid', $this->_customdata['uid']);
-        $mform->setType('uid', PARAM_ALPHANUMEXT);
-
-        $this->add_action_buttons(
-            false,
-            get_string('guestaccess_join_meeting', 'mod_bigbluebuttonbn')
-        );
-    }
-
+class guest_login extends \mod_bigbluebuttonbn\form\guest_login {
     /**
      * Validate form.
      *
@@ -101,7 +34,7 @@ class guest_login extends \moodleform {
      * @throws \coding_exception
      */
     public function validation($data, $files): array {
-        $errors = parent::validation($data, $files);
+        $errors = [];
         $instance = $this->_customdata['instance'];
         $submitted = isset($data['password']) ? (string) $data['password'] : '';
         $expected = (string) $instance->get_guest_access_password();
