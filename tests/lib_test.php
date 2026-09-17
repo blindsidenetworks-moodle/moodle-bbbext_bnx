@@ -32,4 +32,69 @@ final class lib_test extends \advanced_testcase {
     public function test_plugin_installed(): void {
         $this->assertNotEmpty(get_config('bbbext_bnx', 'version'));
     }
+
+    /**
+     * Guest users must not access BNX presentation files.
+     *
+     * @return void
+     */
+    public function test_pluginfile_rejects_guest_user(): void {
+        $this->resetAfterTest();
+        [$course, $cm, $context] = $this->create_activity();
+        $this->setGuestUser();
+
+        $this->expectException(\core\exception\moodle_exception::class);
+        bbbext_bnx_pluginfile($course, $cm, $context, 'presentation', [0, 'presentation.pdf'], false);
+    }
+
+    /**
+     * A presentation record for another activity must not authorize a file.
+     *
+     * @return void
+     */
+    public function test_pluginfile_rejects_presentation_linked_to_another_activity(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        [, $firstcm] = $this->create_activity();
+        [$secondcourse, $secondcm, $secondcontext] = $this->create_activity();
+        $this->setAdminUser();
+
+        $file = get_file_storage()->create_file_from_string([
+            'contextid' => $secondcontext->id,
+            'component' => 'bbbext_bnx',
+            'filearea' => 'presentation',
+            'itemid' => 0,
+            'filepath' => '/',
+            'filename' => 'presentation.pdf',
+        ], 'Presentation content');
+        $now = time();
+        $bnxid = $DB->insert_record('bbbext_bnx', (object) [
+            'bigbluebuttonbnid' => $firstcm->instance,
+            'timecreated' => $now,
+            'timemodified' => $now,
+        ]);
+        $DB->insert_record('bbbext_bnx_presentations', (object) [
+            'bnxid' => $bnxid,
+            'fileid' => $file->get_id(),
+            'filename' => $file->get_filename(),
+        ]);
+
+        $this->assertFalse(
+            bbbext_bnx_pluginfile($secondcourse, $secondcm, $secondcontext, 'presentation', [0, 'presentation.pdf'], false)
+        );
+    }
+
+    /**
+     * Create a BigBlueButton activity and return its course module and context.
+     *
+     * @return array{\stdClass, \stdClass, \context_module}
+     */
+    private function create_activity(): array {
+        $course = $this->getDataGenerator()->create_course();
+        $activity = $this->getDataGenerator()->create_module('bigbluebuttonbn', ['course' => $course->id]);
+        $cm = get_coursemodule_from_instance('bigbluebuttonbn', $activity->id, $course->id, false, MUST_EXIST);
+
+        return [$course, $cm, \context_module::instance($cm->id)];
+    }
 }
