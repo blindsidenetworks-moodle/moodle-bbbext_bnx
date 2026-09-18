@@ -1,5 +1,13 @@
 # BigBlueButton BN Experience
 
+## Documentation
+
+| Document | Audience | Description |
+| --- | --- | --- |
+| [docs/ADMIN_GUIDE.md](docs/ADMIN_GUIDE.md) | Administrators | Installation, configuration, operation, and troubleshooting |
+| [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) | Developers | Moodle `bbbext` plugin model, BNX contracts, extension points, and testing |
+| [docs/SECURITY_AND_OPERATIONS.md](docs/SECURITY_AND_OPERATIONS.md) | Administrators and developers | Access control, presentation delivery, privacy, migrations, and operational boundaries |
+
 `bbbext_bnx` is the foundation of the BNX extension family for
 `mod_bigbluebuttonbn`. It ships end-user features of its own and provides the
 shared runtime contract used by sibling `bbbext_bnx_*` sidecars.
@@ -10,7 +18,7 @@ shared runtime contract used by sibling `bbbext_bnx_*` sidecars.
   optional per-activity override
 - Enhanced recordings UX with search, sorting, pagination, in-place editing,
   and recording import
-- BNX-specific guest entry flow and logout redirect handling
+- Delegation of guest entry, join, and logout handling to `mod_bigbluebuttonbn`
 - BNX-managed lock-settings overlay for selected BigBlueButton join controls
 - Reminder scheduling, guest reminder subscriptions, and reminder email
   customization
@@ -98,10 +106,6 @@ on site configuration, teachers may see:
 - Early Access, when the activity has an opening time
 - a multi-file presentation manager, when enabled in BNX settings
 - reminder enablement, guest reminders, and reminder timespans
-- BNX guest join URL
-
-For join URL handling, BNX preserves `['guest' => 'true']` only when the
-incoming join is already a guest join.
 
 If a feature is not editable at site level, BNX persists the site default and
 hides the editable control from the activity form.
@@ -175,11 +179,10 @@ created, BNX provides BigBlueButton with URLs from its `bbbext_bnx_get_file`
 web service. Each URL uses a short-lived token restricted to the activity and a
 limited number of file requests.
 
-BNX and legacy `bbbext_bnreminders` must not run concurrently. BNX never changes
-the legacy plugin's configuration. When BN Reminders is installed and enabled,
-BNX self-disables and shows an error on both its settings page and the
-BigBlueButton extension manager. Pending-migration warnings appear only while
-legacy data has not yet been copied.
+BNX and legacy `bbbext_bnreminders` must not run concurrently. When BN Reminders
+data is migrated successfully, BNX disables the legacy plugin to prevent two
+reminder engines from sending duplicate messages. Pending-migration warnings
+appear only while legacy data has not yet been copied.
 
 To retire BN Reminders safely, run the migration from the Moodle root, then
 disable or remove BN Reminders in Plugins overview before enabling BNX:
@@ -266,8 +269,8 @@ plugin configuration/tables at install or upgrade time. Review:
   `bbbext_bnx_preuploads` runtime dependencies.
 - Prefer the existing sidecar helper and event contract over ad hoc sidecar
   wiring.
-- Treat the guest-link shim as temporary until the parent plugin exposes a
-  proper API.
+- Do not add guest-flow overrides: guest links, login, join, and logout are
+  owned by `mod_bigbluebuttonbn`.
 
 ## Change history
 
