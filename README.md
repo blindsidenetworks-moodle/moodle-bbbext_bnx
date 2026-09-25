@@ -25,7 +25,7 @@ already exposes.
 
 - Moodle: 5.1 to 5.3 (`$plugin->supported = [501, 503]`)
 - Minimum Moodle requirement: 5.1 (`$plugin->requires = 2025100600`)
-- Plugin maturity: beta (`MATURITY_BETA`)
+- Plugin maturity: stable (`MATURITY_STABLE`)
 - BigBlueButton server: no BNX-specific server-version gate is enforced; BNX
   follows the BigBlueButton API and server compatibility of the installed
   `mod_bigbluebuttonbn` release

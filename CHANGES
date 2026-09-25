@@ -1,7 +1,8 @@
-1.2.1-beta.1 (September 25, 2026)
-- feat: Add support for Moodle 5.3 (`$plugin->supported = [501, 503]`).
+1.2.1 (September 25, 2026)
 - fix: Finish BNX migration and conflict handling (SP-1).
 - fix: Fix BNX migration ownership and conflict navigation (SP-2).
+- feat: Add support for Moodle 5.3 (`$plugin->supported = [501, 503]`).
+- chore: Promote the 1.2.1 release line to stable (`MATURITY_STABLE`).
 
 1.2 (September 4, 2026)
 - feat: Finalize the BNX 1.2 release line with support for Moodle 5.1–5.2 and a stable maturity designation.
