@@ -146,5 +146,10 @@ function xmldb_bbbext_bnx_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026091601, 'bbbext', 'bnx');
     }
 
+    if ($oldversion < 2026091607) {
+        // Marker-only upgrade to register the presentation helper class.
+        upgrade_plugin_savepoint(true, 2026091607, 'bbbext', 'bnx');
+    }
+
     return true;
 }
