@@ -65,6 +65,63 @@
     cursor: pointer;
 }
 
+#paginationControls {
+    gap: 0.25rem;
+}
+
+/* Small screens: render each recording as a stacked card instead of a wide table row. */
+@media (max-width: 767px) {
+    .bnx-recordings-table,
+    .bnx-recordings-table tbody,
+    .bnx-recordings-table tr,
+    .bnx-recordings-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .bnx-recordings-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+
+    .bnx-recordings-table tr {
+        margin-bottom: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+    }
+
+    .bnx-recordings-table td,
+    .bnx-recordings-table .bnx-col-playback,
+    .bnx-recordings-table .bnx-col-duration,
+    .bnx-recordings-table .bnx-col-date,
+    .bnx-recordings-table .bnx-col-actionbar,
+    .bnx-recordings-table .bnx-col-preview {
+        width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        border-top: 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .bnx-recordings-table td:last-child {
+        border-bottom: 0;
+    }
+
+    .bnx-recordings-table td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        font-weight: bold;
+        margin-bottom: 0.25rem;
+    }
+
+    .bnx-recordings-table .bnx-actionbar .d-flex {
+        flex-wrap: wrap;
+    }
+}
+
 /* Compact actionbar — only active toggle icons are rendered. */
 .bnx-actionbar .d-flex {
     gap: 0.15rem;
