@@ -118,6 +118,29 @@ final class mod_instance_helper_test extends \advanced_testcase {
     }
 
     /**
+     * Disabling Waiting Room leaves the core wait setting and BNX setting untouched.
+     *
+     * @return void
+     */
+    public function test_add_instance_does_not_override_core_wait_when_waiting_room_is_disabled(): void {
+        global $DB;
+
+        $module = $this->create_bigbluebutton_activity();
+        $bnxid = $this->ensure_bnx_record($module->id);
+        $service = bnx_settings_service::get_service();
+        $service->set_settings($bnxid, ['approvalbeforejoin' => 0]);
+        set_config('approvalbeforejoin_enabled', 0, 'bbbext_bnx');
+        set_config('approvalbeforejoin_editable', 1, 'bbbext_bnx');
+        set_config('approvalbeforejoin_default', 1, 'bbbext_bnx');
+        $DB->set_field('bigbluebuttonbn', 'wait', 1, ['id' => $module->id]);
+
+        (new mod_instance_helper())->add_instance((object) ['id' => $module->id, 'approvalbeforejoin' => 1]);
+
+        $this->assertSame(1, (int)$DB->get_field('bigbluebuttonbn', 'wait', ['id' => $module->id]));
+        $this->assertSame('0', $service->get_setting_for_module($module->id, 'approvalbeforejoin'));
+    }
+
+    /**
      * Programmatic creation applies reminder defaults without overwriting supplied schedules.
      *
      * @param int $editable Whether the reminder setting is editable.

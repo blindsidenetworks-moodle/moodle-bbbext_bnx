@@ -25,6 +25,7 @@
 
 namespace bbbext_bnx\bigbluebuttonbn;
 
+use bbbext_bnx\local\helpers\mod_form_helper;
 use bbbext_bnx\local\helpers\presentation_helper;
 use bbbext_bnx\local\services\bnx_service;
 use bbbext_bnx\local\services\bnx_service_interface;
@@ -191,7 +192,11 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
         global $DB;
 
         if (empty($data->bnx_form_submitted)) {
-            if (get_config('bbbext_bnx', 'approvalbeforejoin_editable') && !property_exists($data, 'approvalbeforejoin')) {
+            if (
+                mod_form_helper::is_feature_enabled('approvalbeforejoin')
+                && get_config('bbbext_bnx', 'approvalbeforejoin_editable')
+                && !property_exists($data, 'approvalbeforejoin')
+            ) {
                 $data->approvalbeforejoin = (int) !empty(get_config('bbbext_bnx', 'approvalbeforejoin_default'));
                 // The BNX form removes the parent wait control when approval is editable.
                 $moduleid = $this->resolve_module_id($data);
@@ -417,6 +422,10 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
     private function collect_feature_values(stdClass $data): array {
         $values = [];
         foreach (self::FEATURE_FIELD_MAP as $field => $setting) {
+            if ($field === 'approvalbeforejoin' && !mod_form_helper::is_feature_enabled($field)) {
+                continue;
+            }
+
             if (!property_exists($data, $field)) {
                 continue;
             }

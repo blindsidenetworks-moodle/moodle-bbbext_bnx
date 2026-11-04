@@ -52,7 +52,7 @@ if (
 }
 
 if ($ADMIN->fulltree) {
-    global $OUTPUT;
+    global $OUTPUT, $PAGE;
 
     $bnxchecks = [
         new \bbbext_bnx\check\bnreminders_conflict(),
@@ -121,6 +121,15 @@ if ($ADMIN->fulltree) {
         ));
 
         foreach ($features as $feature) {
+            if ($feature === 'approvalbeforejoin') {
+                $settings->add(new admin_setting_configcheckbox(
+                    'bbbext_bnx/approvalbeforejoin_enabled',
+                    new lang_string('approvalbeforejoin_enabled', 'bbbext_bnx'),
+                    new lang_string('approvalbeforejoin_enabled_desc', 'bbbext_bnx'),
+                    1
+                ));
+            }
+
             $settings->add(new admin_setting_configselect(
                 "bbbext_bnx/{$feature}_default",
                 new lang_string("{$feature}_default", 'bbbext_bnx'),
@@ -137,6 +146,8 @@ if ($ADMIN->fulltree) {
             ));
         }
     }
+
+    $PAGE->requires->js_call_amd('bbbext_bnx/waiting_room_settings', 'init');
 
     $settings->add(new admin_setting_heading(
         'bbbext_bnx/section_preuploads',

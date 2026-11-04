@@ -205,7 +205,24 @@ class mod_form_helper {
      * @return bool
      */
     public static function is_feature_editable(string $feature): bool {
-        return (bool)get_config('bbbext_bnx', $feature . '_editable');
+        return self::is_feature_enabled($feature) && (bool)get_config('bbbext_bnx', $feature . '_editable');
+    }
+
+    /**
+     * Determine whether a feature is enabled site-wide.
+     *
+     * Features without an explicit site-wide setting are always enabled.
+     *
+     * @param string $feature Feature key
+     * @return bool
+     */
+    public static function is_feature_enabled(string $feature): bool {
+        if ($feature !== 'approvalbeforejoin') {
+            return true;
+        }
+
+        $enabled = get_config('bbbext_bnx', 'approvalbeforejoin_enabled');
+        return $enabled === false || (bool)$enabled;
     }
 
     /**

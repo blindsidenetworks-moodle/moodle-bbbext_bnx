@@ -51,6 +51,7 @@ final class action_url_parameters_test extends \advanced_testcase {
     /**
      * Test approval before join parameters.
      *
+    * @param bool $enabled Whether BNX Waiting Room behaviour is enabled
      * @param bool $editable Whether teachers can override the admin setting
      * @param bool $default Admin-configured default value
      * @param bool|null $instancesetting Instance-specific setting
@@ -60,12 +61,14 @@ final class action_url_parameters_test extends \advanced_testcase {
      */
     #[\PHPUnit\Framework\Attributes\DataProvider('approval_before_join_provider')]
     public function test_approval_before_join_parameters(
+        bool $enabled,
         bool $editable,
         bool $default,
         ?bool $instancesetting,
         array $expectedcreate,
     ): void {
         // Configure admin settings.
+        set_config('approvalbeforejoin_enabled', $enabled, 'bbbext_bnx');
         set_config('approvalbeforejoin_editable', $editable, 'bbbext_bnx');
         set_config('approvalbeforejoin_default', $default, 'bbbext_bnx');
 
@@ -99,6 +102,7 @@ final class action_url_parameters_test extends \advanced_testcase {
         return [
             // Admin default enabled, not editable.
             'default_enabled_not_editable' => [
+                'enabled' => true,
                 'editable' => false,
                 'default' => true,
                 'instancesetting' => true,
@@ -106,6 +110,7 @@ final class action_url_parameters_test extends \advanced_testcase {
             ],
             // Editable enabled, default disabled.
             'editable_enabled_default_disabled_instance_enabled' => [
+                'enabled' => true,
                 'editable' => true,
                 'default' => false,
                 'instancesetting' => true,
@@ -113,9 +118,18 @@ final class action_url_parameters_test extends \advanced_testcase {
             ],
             // Admin default disabled, not editable.
             'default_disabled_not_editable' => [
+                'enabled' => true,
                 'editable' => false,
                 'default' => false,
                 'instancesetting' => null,
+                'expectedcreate' => [],
+            ],
+            // Disabled BNX Waiting Room leaves the core guest policy unchanged.
+            'feature_disabled' => [
+                'enabled' => false,
+                'editable' => true,
+                'default' => true,
+                'instancesetting' => true,
                 'expectedcreate' => [],
             ],
         ];
