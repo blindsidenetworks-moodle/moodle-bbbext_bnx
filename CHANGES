@@ -1,3 +1,7 @@
+1.2.2 (November 4, 2026)
+- fix: Apply BNX activity defaults during programmatic BigBlueButton activity creation (BNX-GIT-1).
+- fix: Preserve reminder settings and schedules when updating activities with hidden reminder controls.
+
 1.2.1 (September 25, 2026)
 - fix: Finish BNX migration and conflict handling (SP-1).
 - fix: Fix BNX migration ownership and conflict navigation (SP-2).
