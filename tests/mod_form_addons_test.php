@@ -103,6 +103,7 @@ final class mod_form_addons_test extends \advanced_testcase {
             'approvalbeforejoin' => 1,
             'bnx_earlyaccess_enable_access' => 1,
             'enablecam' => 0,
+            'logodisplay' => 0,
         ]);
 
         $defaults = ['id' => $module->id];
@@ -111,6 +112,7 @@ final class mod_form_addons_test extends \advanced_testcase {
         $this->assertSame(1, $defaults['approvalbeforejoin']);
         $this->assertSame(1, $defaults['earlyaccess']);
         $this->assertSame(0, $defaults['enablecam']);
+        $this->assertSame(0, $defaults['bnx_logodisplay']);
         $this->assertArrayHasKey('bnx_presentation', $defaults);
         $this->assertIsInt($defaults['bnx_presentation']);
     }
@@ -216,6 +218,60 @@ final class mod_form_addons_test extends \advanced_testcase {
 
         $this->assertTrue($form->elementExists('bnx_earlyaccess'));
         $this->assertTrue($form->elementExists('earlyaccess'));
+    }
+
+    /**
+     * The activity logo control is shown only when a source is selected and editing is allowed.
+     */
+    public function test_logo_activity_control(): void {
+        global $CFG;
+
+        require_once($CFG->libdir . '/formslib.php');
+        foreach ([['site_logo', 1, true], ['compact_logo', 1, true], ['none', 1, false], ['site_logo', 0, false]] as $case) {
+            [$source, $editable, $expected] = $case;
+            set_config('logo_source', $source, 'bbbext_bnx');
+            set_config('logo_editable', $editable, 'bbbext_bnx');
+            set_config('approvalbeforejoin_editable', 1, 'bbbext_bnx');
+            $form = new \MoodleQuickForm('bnxform', 'post', '');
+            $form->addElement('header', 'room', 'Room');
+            $form->addElement('checkbox', 'wait', 'Wait');
+            $form->addElement('checkbox', 'record', 'The session may be recorded');
+            $form->addElement('checkbox', 'recordallfromstart', 'Record from start');
+            $form->addElement('checkbox', 'recordhidebutton', 'Hide recording button');
+            $form->addElement('checkbox', 'muteonstart', 'Mute on start');
+            $form->addElement('header', 'recordings', 'Recordings');
+            (new mod_form_addons($form))->add_fields();
+            $this->assertSame($expected, $form->elementExists('bnx_logodisplay'));
+            $this->assertTrue($form->elementExists('approvalbeforejoin'));
+            foreach (['record', 'recordallfromstart', 'recordhidebutton'] as $fieldname) {
+                $this->assertSame($fieldname, $form->getElement($fieldname)->getName());
+            }
+            $this->assertLessThan($form->_elementIndex['record'], $form->_elementIndex['muteonstart']);
+            $this->assertLessThan($form->_elementIndex['recordallfromstart'], $form->_elementIndex['record']);
+            $this->assertLessThan($form->_elementIndex['recordhidebutton'], $form->_elementIndex['recordallfromstart']);
+            $this->assertLessThan($form->_elementIndex['recordings'], $form->_elementIndex['recordhidebutton']);
+            if ($expected) {
+                $this->assertGreaterThan($form->_elementIndex['room'], $form->_elementIndex['bnx_logodisplay']);
+                $this->assertLessThan($form->_elementIndex['record'], $form->_elementIndex['bnx_logodisplay']);
+                $this->assertSame(
+                    get_string('mod_form_logodisplay', 'bbbext_bnx'),
+                    $form->getElement('bnx_logodisplay')->getLabel()
+                );
+                $this->assertStringContainsString(
+                    get_string('mod_form_logodisplay_help', 'bbbext_bnx'),
+                    $form->getElement('bnx_logodisplay')->getHelpButton()
+                );
+            }
+        }
+
+        set_config('logo_source', 'site_logo', 'bbbext_bnx');
+        set_config('logo_editable', 1, 'bbbext_bnx');
+        $form = new \MoodleQuickForm('bnxform', 'post', '');
+        $form->addElement('header', 'permissions', 'Participants');
+        (new mod_form_addons($form))->add_fields();
+        $this->assertTrue($form->elementExists('room'));
+        $this->assertLessThan($form->_elementIndex['bnx_logodisplay'], $form->_elementIndex['room']);
+        $this->assertLessThan($form->_elementIndex['permissions'], $form->_elementIndex['bnx_logodisplay']);
     }
 
     /**

@@ -129,6 +129,7 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
     public const FEATURE_FIELD_MAP = [
         'approvalbeforejoin' => 'approvalbeforejoin',
         'earlyaccess' => 'bnx_earlyaccess_enable_access',
+        'bnx_logodisplay' => 'logodisplay',
         'enablecam' => 'enablecam',
         'enablemic' => 'enablemic',
         'enableprivatechat' => 'enableprivatechat',
@@ -192,6 +193,10 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
         global $DB;
 
         if (empty($data->bnx_form_submitted)) {
+            if (get_config('bbbext_bnx', 'logo_editable') && !property_exists($data, 'bnx_logodisplay')) {
+                $default = get_config('bbbext_bnx', 'logo_default');
+                $data->bnx_logodisplay = (int)($default === false || !empty($default));
+            }
             if (
                 mod_form_helper::is_feature_enabled('approvalbeforejoin')
                 && get_config('bbbext_bnx', 'approvalbeforejoin_editable')
@@ -433,6 +438,9 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
                 continue;
             }
 
+            if ($field === 'bnx_logodisplay' && !get_config('bbbext_bnx', 'logo_editable')) {
+                continue;
+            }
             if (!property_exists($data, $field)) {
                 continue;
             }

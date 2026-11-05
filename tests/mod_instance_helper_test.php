@@ -50,6 +50,32 @@ final class mod_instance_helper_test extends \advanced_testcase {
     }
 
     /**
+     * Activity logo choices use creation defaults and survive hidden controls.
+     */
+    public function test_logo_activity_setting_persistence(): void {
+        set_config('logo_editable', 1, 'bbbext_bnx');
+        set_config('logo_default', 1, 'bbbext_bnx');
+        $module = $this->create_bigbluebutton_activity();
+        $helper = new mod_instance_helper();
+        $service = bnx_settings_service::get_service();
+
+        $helper->add_instance((object)['id' => $module->id]);
+        $this->assertSame('1', $service->get_setting_for_module($module->id, 'logodisplay'));
+        $helper->add_instance((object)['id' => $module->id, 'bnx_logodisplay' => 0]);
+        $this->assertSame('0', $service->get_setting_for_module($module->id, 'logodisplay'));
+        $helper->update_instance((object)['id' => $module->id, 'bnx_logodisplay' => 1]);
+        $this->assertSame('1', $service->get_setting_for_module($module->id, 'logodisplay'));
+        $helper->update_instance((object)['id' => $module->id, 'bnx_logodisplay' => 0]);
+        $this->assertSame('0', $service->get_setting_for_module($module->id, 'logodisplay'));
+        set_config('logo_editable', 0, 'bbbext_bnx');
+        $helper->update_instance((object)['id' => $module->id, 'bnx_logodisplay' => 1]);
+        $this->assertSame('0', $service->get_setting_for_module($module->id, 'logodisplay'));
+        set_config('logo_editable', 1, 'bbbext_bnx');
+        $helper->update_instance((object)['id' => $module->id]);
+        $this->assertSame('0', $service->get_setting_for_module($module->id, 'logodisplay'));
+    }
+
+    /**
      * Test add_instance persists settings.
      *
      * @return void

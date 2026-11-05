@@ -53,6 +53,10 @@ class action_url_parameters {
 
         if ($action === 'create' && mod_form_helper::is_feature_enabled('locksettings')) {
             $parameters = array_merge($parameters, self::get_lock_settings_parameters($instanceid));
+            $logourl = self::get_logo_url($instanceid);
+            if ($logourl !== '') {
+                $parameters['logo'] = $logourl;
+            }
         }
 
         if ($action === 'create' && self::is_approval_before_join_enabled($instanceid)) {
@@ -60,6 +64,38 @@ class action_url_parameters {
         }
 
         return $parameters;
+    }
+
+    /**
+     * Resolve the configured logo for a meeting.
+     *
+     * @param int $instanceid the BigBlueButton module instance ID
+     * @return string the logo URL, or an empty string when disabled or unavailable
+     */
+    private static function get_logo_url(int $instanceid): string {
+        global $OUTPUT;
+
+        $source = get_config('bbbext_bnx', 'logo_source');
+        if (!in_array($source, ['site_logo', 'compact_logo'], true)) {
+            return '';
+        }
+
+        $enabled = get_config('bbbext_bnx', 'logo_default');
+        if ($enabled === false) {
+            $enabled = 1;
+        }
+        if (get_config('bbbext_bnx', 'logo_editable')) {
+            $value = bnx_settings_service::get_service()->get_setting_for_module($instanceid, 'logodisplay');
+            if ($value !== null) {
+                $enabled = $value;
+            }
+        }
+        if (empty($enabled)) {
+            return '';
+        }
+
+        $url = $source === 'site_logo' ? $OUTPUT->get_logo_url() : $OUTPUT->get_compact_logo_url();
+        return $url ? $url->out(false) : '';
     }
 
     /**

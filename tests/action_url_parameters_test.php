@@ -49,6 +49,51 @@ final class action_url_parameters_test extends \advanced_testcase {
     }
 
     /**
+     * The selected logo is sent only for create requests when it is available and enabled.
+     */
+    public function test_logo_parameters(): void {
+        global $OUTPUT;
+
+        $course = $this->getDataGenerator()->create_course();
+        $bbb = $this->getDataGenerator()->create_module('bigbluebuttonbn', ['course' => $course->id]);
+        set_config('logo_source', 'site_logo', 'bbbext_bnx');
+        set_config('logo_default', 1, 'bbbext_bnx');
+        set_config('logo_editable', 0, 'bbbext_bnx');
+        unset_config('logo', 'core_admin');
+        $this->assertArrayNotHasKey('logo', action_url_parameters::get_parameters('create', $bbb->id));
+
+        set_config('logo', 'testlogo.png', 'core_admin');
+        $this->assertSame($OUTPUT->get_logo_url()->out(false), action_url_parameters::get_parameters('create', $bbb->id)['logo']);
+        $this->assertArrayNotHasKey('logo', action_url_parameters::get_parameters('join', $bbb->id));
+        set_config('logo_source', 'none', 'bbbext_bnx');
+        $this->assertArrayNotHasKey('logo', action_url_parameters::get_parameters('create', $bbb->id));
+
+        set_config('logo_source', 'compact_logo', 'bbbext_bnx');
+        unset_config('logocompact', 'core_admin');
+        $this->assertArrayNotHasKey('logo', action_url_parameters::get_parameters('create', $bbb->id));
+        set_config('logocompact', 'testcompactlogo.png', 'core_admin');
+        $this->assertSame(
+            $OUTPUT->get_compact_logo_url()->out(false),
+            action_url_parameters::get_parameters('create', $bbb->id)['logo']
+        );
+
+        $bnxid = $this->ensure_bnx_record($bbb->id);
+        $service = bnx_settings_service::get_service();
+        $service->set_settings($bnxid, ['logodisplay' => 0]);
+        set_config('logo_editable', 1, 'bbbext_bnx');
+        $this->assertArrayNotHasKey('logo', action_url_parameters::get_parameters('create', $bbb->id));
+        $service->set_settings($bnxid, ['logodisplay' => 1]);
+        set_config('logo_default', 0, 'bbbext_bnx');
+        $this->assertArrayHasKey('logo', action_url_parameters::get_parameters('create', $bbb->id));
+        set_config('logo_editable', 0, 'bbbext_bnx');
+        $this->assertArrayNotHasKey('logo', action_url_parameters::get_parameters('create', $bbb->id));
+        set_config('logo_default', 1, 'bbbext_bnx');
+        $service->delete_setting($bnxid, 'logodisplay');
+        set_config('logo_editable', 1, 'bbbext_bnx');
+        $this->assertArrayHasKey('logo', action_url_parameters::get_parameters('create', $bbb->id));
+    }
+
+    /**
      * Test approval before join parameters.
      *
     * @param bool $enabled Whether BNX Waiting Room behaviour is enabled
