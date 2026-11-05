@@ -31,6 +31,7 @@ them in an individual BigBlueButton activity. The main configuration areas are:
 - lock settings for camera, microphone, chat, notes, user list, and viewer
   cursor;
 - Early Access before an activity opening time;
+- site or compact logo display in sessions;
 - multi-presentation uploads and the maximum number of files; and
 - reminders, guest reminder subscriptions, and email content.
 
@@ -51,6 +52,14 @@ BNX does not duplicate its server configuration or substitute for it.
 Guest access is owned by the parent module. BNX does not provide a guest URL
 endpoint, guest password form, custom guest join URL, or logout redirect. Use
 the parent module's guest-access configuration and support documentation.
+
+## Logo
+
+Upload a site or compact logo in Site administration > Appearance > Logos, then
+select it in BNX's Logo settings. Choose the default display state and whether
+teachers can change it per activity. Selecting None disables BNX logo display.
+The BigBlueButton server must be able to access the Moodle logo URL. Disable the
+BN Logo extension when using BNX logo support to avoid conflicting settings.
 
 ## Presentations
 

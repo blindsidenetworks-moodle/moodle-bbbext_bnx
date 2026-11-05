@@ -185,6 +185,47 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
 
         mod_form_helper::apply_header_overrides($this->mform, self::HEADER_STRING_OVERRIDES);
 
+        $roomend = null;
+        foreach (['recordings', 'lock', 'preuploadpresentation', 'permissions'] as $nextsection) {
+            if ($this->mform->elementExists($nextsection)) {
+                $roomend = $nextsection;
+                break;
+            }
+        }
+
+        if (
+            mod_form_helper::is_feature_editable('logo') &&
+            in_array(get_config('bbbext_bnx', 'logo_source'), ['site_logo', 'compact_logo'], true)
+        ) {
+            $createroom = !$this->mform->elementExists('room');
+            if ($createroom) {
+                $this->mform->addElement('header', 'room', get_string('mod_form_block_room', 'bbbext_bnx'));
+            }
+            $this->mform->addElement('advcheckbox', 'bnx_logodisplay', get_string('mod_form_logodisplay', 'bbbext_bnx'));
+            if ($roomend !== null) {
+                if ($createroom) {
+                    $roomheader = $this->mform->removeElement('room', false);
+                    $this->mform->insertElementBefore($roomheader, $roomend);
+                }
+                $logocheckbox = $this->mform->removeElement('bnx_logodisplay', false);
+                $this->mform->insertElementBefore($logocheckbox, $roomend);
+            }
+            $this->mform->addHelpButton('bnx_logodisplay', 'mod_form_logodisplay', 'bbbext_bnx');
+            $this->mform->setType('bnx_logodisplay', PARAM_BOOL);
+            $default = get_config('bbbext_bnx', 'logo_default');
+            $this->mform->setDefault('bnx_logodisplay', (int)($default === false || !empty($default)));
+        }
+
+        if ($roomend !== null && $this->mform->elementExists('room')) {
+            foreach (['record', 'recordallfromstart', 'recordhidebutton'] as $fieldname) {
+                if ($this->mform->elementExists($fieldname)) {
+                    $field = $this->mform->removeElement($fieldname, false);
+                    $this->mform->insertElementBefore($field, $roomend);
+                    unset($field);
+                }
+            }
+        }
+
         if (mod_form_helper::is_feature_editable('earlyaccess')) {
             $this->mform->addElement('header', 'bnx_earlyaccess', get_string('mod_form_earlyaccess_header', 'bbbext_bnx'));
             $this->mform->addElement('advcheckbox', 'earlyaccess', get_string('mod_form_earlyaccess', 'bbbext_bnx'));

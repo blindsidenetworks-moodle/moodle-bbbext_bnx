@@ -101,6 +101,9 @@ if ($ADMIN->fulltree) {
         'earlyaccess' => [
             'earlyaccess',
         ],
+        'logo' => [
+            'logo',
+        ],
     ];
 
     $featuredefaults = [
@@ -126,6 +129,20 @@ if ($ADMIN->fulltree) {
                 new lang_string('locksettings_enabled', 'bbbext_bnx'),
                 new lang_string('locksettings_enabled_desc', 'bbbext_bnx'),
                 1
+            ));
+        }
+
+        if ($section === 'logo') {
+            $settings->add(new admin_setting_configselect(
+                'bbbext_bnx/logo_source',
+                new lang_string('logo_source', 'bbbext_bnx'),
+                new lang_string('logo_source_desc', 'bbbext_bnx'),
+                'none',
+                [
+                    'none' => new lang_string('none'),
+                    'site_logo' => new lang_string('logo_site', 'bbbext_bnx'),
+                    'compact_logo' => new lang_string('logo_compact', 'bbbext_bnx'),
+                ]
             ));
         }
 
