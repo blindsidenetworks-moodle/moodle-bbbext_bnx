@@ -1,3 +1,8 @@
+1.3-beta.1 (November 5, 2026)
+- chore: Promote the BNX 1.3 release line to beta (MATURITY_BETA).
+- feat: Add independent administrator controls for BNX Waiting Room and Lock Settings overrides, preserving Moodle's core settings when an override is disabled (MD-111).
+- feat: Add configurable site or compact logo display in BigBlueButton sessions, with per-activity controls and create-request parameters independent of Lock Settings (MD-112).
+
 1.3-alpha.1 (September 17, 2026)
 - refactor: Delegate guest access entirely to Moodle after MDL-85873, removing
   BNX's guest endpoint, form, guest-link lookup, popup handling, logout URL

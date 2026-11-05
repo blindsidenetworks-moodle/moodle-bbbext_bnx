@@ -1,3 +1,8 @@
+1.3-beta.1 (November 5, 2026)
+- chore: Promote BNX 1.3 to beta for Moodle 5.3.
+- feat: Allow administrators to independently disable BNX Waiting Room and Lock Settings overrides and use Moodle's core settings instead (MD-111).
+- feat: Display the Moodle site or compact logo in BigBlueButton sessions, with administrator defaults and optional per-activity controls (MD-112).
+
 1.3-alpha.1 (September 17, 2026)
 - feat: Integrate Early Access into BNX. Teachers with the `bbbext/bnx:earlyjoinaccess` capability can prepare a room before its opening time when the feature is enabled for the activity; other participants cannot infer that a pre-opening room is running.
 - feat: Integrate multi-file presentation management into BNX. Editors can manage presentation files in the activity form, and BNX includes them when it creates the BigBlueButton meeting.
