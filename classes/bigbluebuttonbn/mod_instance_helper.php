@@ -25,6 +25,7 @@
 
 namespace bbbext_bnx\bigbluebuttonbn;
 
+use bbbext_bnx\local\helpers\mod_form_helper;
 use bbbext_bnx\local\helpers\presentation_helper;
 use bbbext_bnx\local\services\bnx_service;
 use bbbext_bnx\local\services\bnx_service_interface;
@@ -191,7 +192,11 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
         global $DB;
 
         if (empty($data->bnx_form_submitted)) {
-            if (get_config('bbbext_bnx', 'approvalbeforejoin_editable') && !property_exists($data, 'approvalbeforejoin')) {
+            if (
+                mod_form_helper::is_feature_enabled('approvalbeforejoin')
+                && get_config('bbbext_bnx', 'approvalbeforejoin_editable')
+                && !property_exists($data, 'approvalbeforejoin')
+            ) {
                 $data->approvalbeforejoin = (int) !empty(get_config('bbbext_bnx', 'approvalbeforejoin_default'));
                 // The BNX form removes the parent wait control when approval is editable.
                 $moduleid = $this->resolve_module_id($data);
@@ -201,11 +206,13 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
                 }
             }
 
-            foreach (self::LOCK_FEATURE_DEFINITIONS as $feature => $definition) {
-                $field = $definition['field'];
-                if (!property_exists($data, $field)) {
-                    $value = get_config('bbbext_bnx', $feature . '_default');
-                    $data->{$field} = (int) ($value === false ? $definition['default'] : !empty($value));
+            if (mod_form_helper::is_feature_enabled('locksettings')) {
+                foreach (self::LOCK_FEATURE_DEFINITIONS as $feature => $definition) {
+                    $field = $definition['field'];
+                    if (!property_exists($data, $field)) {
+                        $value = get_config('bbbext_bnx', $feature . '_default');
+                        $data->{$field} = (int) ($value === false ? $definition['default'] : !empty($value));
+                    }
                 }
             }
         } else if (get_config('bbbext_bnx', 'reminder_editable')) {
@@ -416,7 +423,16 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
      */
     private function collect_feature_values(stdClass $data): array {
         $values = [];
+        $lockfields = array_column(self::LOCK_FEATURE_DEFINITIONS, 'field');
         foreach (self::FEATURE_FIELD_MAP as $field => $setting) {
+            if ($field === 'approvalbeforejoin' && !mod_form_helper::is_feature_enabled($field)) {
+                continue;
+            }
+
+            if (in_array($field, $lockfields, true) && !mod_form_helper::is_feature_enabled('locksettings')) {
+                continue;
+            }
+
             if (!property_exists($data, $field)) {
                 continue;
             }

@@ -26,6 +26,7 @@
 namespace bbbext_bnx\local\bigbluebutton;
 
 use bbbext_bnx\bigbluebuttonbn\mod_instance_helper;
+use bbbext_bnx\local\helpers\mod_form_helper;
 use bbbext_bnx\local\services\bnx_settings_service;
 
 /**
@@ -50,7 +51,7 @@ class action_url_parameters {
     public static function get_parameters(string $action, int $instanceid): array {
         $parameters = [];
 
-        if ($action === 'create') {
+        if ($action === 'create' && mod_form_helper::is_feature_enabled('locksettings')) {
             $parameters = array_merge($parameters, self::get_lock_settings_parameters($instanceid));
         }
 
@@ -129,6 +130,10 @@ class action_url_parameters {
      * @return bool true if approval before join is enabled
      */
     private static function is_approval_before_join_enabled(int $instanceid): bool {
+        if (!mod_form_helper::is_feature_enabled('approvalbeforejoin')) {
+            return false;
+        }
+
         if (get_config('bbbext_bnx', 'approvalbeforejoin_editable')) {
             $service = bnx_settings_service::get_service();
             $value = $service->get_setting_for_module($instanceid, 'approvalbeforejoin');
