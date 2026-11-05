@@ -368,6 +368,30 @@ final class mod_form_addons_test extends \advanced_testcase {
     }
 
     /**
+     * Disabled BNX lock settings leave the core controls in place.
+     *
+     * @return void
+     */
+    public function test_disabled_lock_settings_preserve_core_fields(): void {
+        global $CFG;
+
+        require_once($CFG->libdir . '/formslib.php');
+        set_config('locksettings_enabled', 0, 'bbbext_bnx');
+        $form = new \MoodleQuickForm('bnxform', 'post', '');
+        $form->addElement('header', 'lock', 'Lock');
+        $form->addElement('checkbox', 'disablecam', 'Disable webcam');
+
+        $addons = new mod_form_addons($form);
+        $addons->definition_after_data();
+        $addons->add_fields();
+
+        $this->assertTrue($form->elementExists('lock'));
+        $this->assertTrue($form->elementExists('disablecam'));
+        $this->assertFalse($form->elementExists('bnxlocksettings'));
+        $this->assertFalse($form->elementExists('enablecam'));
+    }
+
+    /**
      * Helper to create a BigBlueButton activity for tests.
      *
      * @return \stdClass

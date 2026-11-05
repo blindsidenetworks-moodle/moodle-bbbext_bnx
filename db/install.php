@@ -47,5 +47,11 @@ function xmldb_bbbext_bnx_install() {
     if (get_config('bbbext_bnx', 'maxfiles') === false) {
         set_config('maxfiles', 10, 'bbbext_bnx');
     }
+    if (get_config('bbbext_bnx', 'locksettings_enabled') === false) {
+        set_config('locksettings_enabled', 1, 'bbbext_bnx');
+    }
+    if (get_config('bbbext_bnx', 'approvalbeforejoin_enabled') === false) {
+        set_config('approvalbeforejoin_enabled', 1, 'bbbext_bnx');
+    }
     set_config('bigbluebuttonbn_preuploadpresentation_editable', 1);
 }

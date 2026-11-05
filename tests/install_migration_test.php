@@ -35,6 +35,47 @@ final class install_migration_test extends \advanced_testcase {
     }
 
     /**
+     * Upgrades enable overrides only when no choice has been saved.
+     *
+     * @param string $setting Setting to test.
+     * @param int|null $existing Previously saved value, or null when unset.
+     * @param string $expected Expected value after upgrade.
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('override_settings_upgrade_provider')]
+    public function test_upgrade_initialises_override_settings(string $setting, ?int $existing, string $expected): void {
+        global $CFG;
+
+        require_once($CFG->libdir . '/upgradelib.php');
+        require_once(__DIR__ . '/../db/upgrade.php');
+        set_config('version', 2026091607, 'bbbext_bnx');
+        if ($existing === null) {
+            unset_config($setting, 'bbbext_bnx');
+        } else {
+            set_config($setting, $existing, 'bbbext_bnx');
+        }
+
+        xmldb_bbbext_bnx_upgrade(2026091607);
+
+        $this->assertSame($expected, get_config('bbbext_bnx', $setting));
+    }
+
+    /**
+     * Values for the override settings upgrade test.
+     *
+     * @return array
+     */
+    public static function override_settings_upgrade_provider(): array {
+        return [
+            'lock settings unset' => ['locksettings_enabled', null, '1'],
+            'lock settings disabled' => ['locksettings_enabled', 0, '0'],
+            'lock settings enabled' => ['locksettings_enabled', 1, '1'],
+            'waiting room unset' => ['approvalbeforejoin_enabled', null, '1'],
+            'waiting room disabled' => ['approvalbeforejoin_enabled', 0, '0'],
+            'waiting room enabled' => ['approvalbeforejoin_enabled', 1, '1'],
+        ];
+    }
+
+    /**
      * BN Reminders settings/data should be migrated without changing its state.
      */
     public function test_migrate_bnreminders_data_without_disabling_plugin(): void {

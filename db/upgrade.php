@@ -151,5 +151,15 @@ function xmldb_bbbext_bnx_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026091607, 'bbbext', 'bnx');
     }
 
+    if ($oldversion < 2026091608) {
+        if (get_config('bbbext_bnx', 'locksettings_enabled') === false) {
+            set_config('locksettings_enabled', 1, 'bbbext_bnx');
+        }
+        if (get_config('bbbext_bnx', 'approvalbeforejoin_enabled') === false) {
+            set_config('approvalbeforejoin_enabled', 1, 'bbbext_bnx');
+        }
+        upgrade_plugin_savepoint(true, 2026091608, 'bbbext', 'bnx');
+    }
+
     return true;
 }

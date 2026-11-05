@@ -217,11 +217,11 @@ class mod_form_helper {
      * @return bool
      */
     public static function is_feature_enabled(string $feature): bool {
-        if ($feature !== 'approvalbeforejoin') {
+        if (!in_array($feature, ['approvalbeforejoin', 'locksettings'], true)) {
             return true;
         }
 
-        $enabled = get_config('bbbext_bnx', 'approvalbeforejoin_enabled');
+        $enabled = get_config('bbbext_bnx', $feature . '_enabled');
         return $enabled === false || (bool)$enabled;
     }
 

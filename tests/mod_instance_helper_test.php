@@ -313,6 +313,26 @@ final class mod_instance_helper_test extends \advanced_testcase {
     }
 
     /**
+     * Disabled lock settings retain stored values across creation and updates.
+     *
+     * @return void
+     */
+    public function test_disabled_lock_settings_preserve_stored_values(): void {
+        $module = $this->create_bigbluebutton_activity();
+        $bnxid = $this->ensure_bnx_record($module->id);
+        $service = bnx_settings_service::get_service();
+        $service->set_settings($bnxid, ['enablecam' => 0]);
+        set_config('locksettings_enabled', 0, 'bbbext_bnx');
+        set_config('cam_default', 1, 'bbbext_bnx');
+
+        $helper = new mod_instance_helper();
+        $helper->add_instance((object) ['id' => $module->id]);
+        $this->assertSame('0', $service->get_setting($bnxid, 'enablecam'));
+        $helper->update_instance((object) ['id' => $module->id, 'enablecam' => 1]);
+        $this->assertSame('0', $service->get_setting($bnxid, 'enablecam'));
+    }
+
+    /**
      * Test add_instance saves presentation draft files and creates BNX links.
      *
      * @return void

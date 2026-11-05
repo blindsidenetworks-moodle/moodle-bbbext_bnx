@@ -120,6 +120,15 @@ if ($ADMIN->fulltree) {
             new lang_string("section_{$section}_desc", 'bbbext_bnx')
         ));
 
+        if ($section === 'locksettings') {
+            $settings->add(new admin_setting_configcheckbox(
+                'bbbext_bnx/locksettings_enabled',
+                new lang_string('locksettings_enabled', 'bbbext_bnx'),
+                new lang_string('locksettings_enabled_desc', 'bbbext_bnx'),
+                1
+            ));
+        }
+
         foreach ($features as $feature) {
             if ($feature === 'approvalbeforejoin') {
                 $settings->add(new admin_setting_configcheckbox(

@@ -179,6 +179,18 @@ final class action_url_parameters_test extends \advanced_testcase {
     }
 
     /**
+     * Disabled BNX lock settings do not override the parent create parameters.
+     *
+     * @return void
+     */
+    public function test_disabled_lock_settings_do_not_add_create_parameters(): void {
+        set_config('locksettings_enabled', 0, 'bbbext_bnx');
+        set_config('approvalbeforejoin_enabled', 0, 'bbbext_bnx');
+
+        $this->assertSame([], action_url_parameters::get_parameters('create', 0));
+    }
+
+    /**
      * Default lock parameters emitted when no per-instance overrides exist.
      *
      * @return array<string, string>

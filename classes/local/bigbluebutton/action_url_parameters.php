@@ -51,7 +51,7 @@ class action_url_parameters {
     public static function get_parameters(string $action, int $instanceid): array {
         $parameters = [];
 
-        if ($action === 'create') {
+        if ($action === 'create' && mod_form_helper::is_feature_enabled('locksettings')) {
             $parameters = array_merge($parameters, self::get_lock_settings_parameters($instanceid));
         }
 

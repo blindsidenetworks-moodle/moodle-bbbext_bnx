@@ -155,7 +155,9 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
      * @return void
      */
     public function definition_after_data(): void {
-        mod_form_helper::remove_lock_settings_elements($this->mform);
+        if (mod_form_helper::is_feature_enabled('locksettings')) {
+            mod_form_helper::remove_lock_settings_elements($this->mform);
+        }
         $this->remove_core_presentation_settings();
 
         if (!reminders_utils::is_reminders_enabled()) {
@@ -231,7 +233,9 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
             mod_form_helper::remove_element($this->mform, 'wait');
         }
 
-        mod_form_helper::add_lock_settings_fields($this->mform);
+        if (mod_form_helper::is_feature_enabled('locksettings')) {
+            mod_form_helper::add_lock_settings_fields($this->mform);
+        }
 
         // Add reminder fields if the feature is enabled.
         if (reminders_utils::is_reminders_enabled() && mod_form_helper::is_feature_editable('reminder')) {
