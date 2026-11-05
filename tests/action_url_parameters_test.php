@@ -64,6 +64,10 @@ final class action_url_parameters_test extends \advanced_testcase {
 
         set_config('logo', 'testlogo.png', 'core_admin');
         $this->assertSame($OUTPUT->get_logo_url()->out(false), action_url_parameters::get_parameters('create', $bbb->id)['logo']);
+        set_config('locksettings_enabled', 0, 'bbbext_bnx');
+        $parameters = action_url_parameters::get_parameters('create', $bbb->id);
+        $this->assertSame($OUTPUT->get_logo_url()->out(false), $parameters['logo']);
+        $this->assertArrayNotHasKey('lockSettingsLockOnJoin', $parameters);
         $this->assertArrayNotHasKey('logo', action_url_parameters::get_parameters('join', $bbb->id));
         set_config('logo_source', 'none', 'bbbext_bnx');
         $this->assertArrayNotHasKey('logo', action_url_parameters::get_parameters('create', $bbb->id));
@@ -76,6 +80,10 @@ final class action_url_parameters_test extends \advanced_testcase {
             $OUTPUT->get_compact_logo_url()->out(false),
             action_url_parameters::get_parameters('create', $bbb->id)['logo']
         );
+        set_config('locksettings_enabled', 1, 'bbbext_bnx');
+        $parameters = action_url_parameters::get_parameters('create', $bbb->id);
+        $this->assertSame($OUTPUT->get_compact_logo_url()->out(false), $parameters['logo']);
+        $this->assertArrayHasKey('lockSettingsLockOnJoin', $parameters);
 
         $bnxid = $this->ensure_bnx_record($bbb->id);
         $service = bnx_settings_service::get_service();

@@ -53,6 +53,9 @@ class action_url_parameters {
 
         if ($action === 'create' && mod_form_helper::is_feature_enabled('locksettings')) {
             $parameters = array_merge($parameters, self::get_lock_settings_parameters($instanceid));
+        }
+
+        if ($action === 'create') {
             $logourl = self::get_logo_url($instanceid);
             if ($logourl !== '') {
                 $parameters['logo'] = $logourl;
