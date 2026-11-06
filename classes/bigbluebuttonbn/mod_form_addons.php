@@ -237,7 +237,7 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
         $options = \mod_bigbluebuttonbn\local\config::get_options();
         $bigbluebuttonbn = get_config('mod_bigbluebuttonbn');
         if ($options['preuploadpresentation_editable'] || !empty($bigbluebuttonbn->showpresentation_editable)) {
-            $this->mform->addElement('header', 'bnx_preuploadpresentation', get_string('section_preuploads_heading', 'bbbext_bnx'));
+            $this->mform->addElement('header', 'bnx_preuploadpresentation', get_string('mod_form_preuploads_header', 'bbbext_bnx'));
             if ($options['preuploadpresentation_editable']) {
                 $this->mform->addElement(
                     'filemanager',

@@ -86,6 +86,9 @@ if ($ADMIN->fulltree) {
         'waitingroom' => [
             'approvalbeforejoin',
         ],
+        'reminders' => [
+            'reminder',
+        ],
         'locksettings' => [
             'cam',
             'mic',
@@ -95,12 +98,10 @@ if ($ADMIN->fulltree) {
             'userlist',
             'hideviewerscursor',
         ],
-        'reminders' => [
-            'reminder',
-        ],
         'earlyaccess' => [
             'earlyaccess',
         ],
+        'preuploads' => [],
         'logo' => [
             'logo',
         ],
@@ -122,6 +123,16 @@ if ($ADMIN->fulltree) {
             new lang_string("section_{$section}_heading", 'bbbext_bnx'),
             new lang_string("section_{$section}_desc", 'bbbext_bnx')
         ));
+
+        if ($section === 'preuploads') {
+            $settings->add(new admin_setting_configtext(
+                'bbbext_bnx/maxfiles',
+                new lang_string('maxfiles', 'bbbext_bnx'),
+                new lang_string('maxfiles_desc', 'bbbext_bnx'),
+                10,
+                PARAM_INT
+            ));
+        }
 
         if ($section === 'locksettings') {
             $settings->add(new admin_setting_configcheckbox(
@@ -171,48 +182,36 @@ if ($ADMIN->fulltree) {
                 1
             ));
         }
+
+        if ($section === 'reminders') {
+            $settings->add(new admin_setting_heading(
+                'bbbext_bnx/emailcontent',
+                new lang_string('emailcontent', 'bbbext_bnx'),
+                new lang_string('emailcontent:desc', 'bbbext_bnx')
+            ));
+
+            $settings->add(new admin_setting_configtext(
+                'bbbext_bnx/emailsubject',
+                new lang_string('emailsubject', 'bbbext_bnx'),
+                new lang_string('emailsubject:desc', 'bbbext_bnx'),
+                new lang_string('emailsubject:default', 'bbbext_bnx')
+            ));
+
+            $settings->add(new admin_setting_confightmleditor(
+                'bbbext_bnx/emailtemplate',
+                new lang_string('emailtemplate', 'bbbext_bnx'),
+                new lang_string('emailtemplate:desc', 'bbbext_bnx'),
+                new lang_string('emailtemplate:default', 'bbbext_bnx')
+            ));
+
+            $settings->add(new admin_setting_confightmleditor(
+                'bbbext_bnx/emailfooter',
+                new lang_string('emailfooter', 'bbbext_bnx'),
+                new lang_string('emailfooter:desc', 'bbbext_bnx'),
+                ''
+            ));
+        }
     }
 
     $PAGE->requires->js_call_amd('bbbext_bnx/waiting_room_settings', 'init');
-
-    $settings->add(new admin_setting_heading(
-        'bbbext_bnx/section_preuploads',
-        new lang_string('section_preuploads_heading', 'bbbext_bnx'),
-        new lang_string('section_preuploads_desc', 'bbbext_bnx')
-    ));
-    $settings->add(new admin_setting_configtext(
-        'bbbext_bnx/maxfiles',
-        new lang_string('maxfiles', 'bbbext_bnx'),
-        new lang_string('maxfiles_desc', 'bbbext_bnx'),
-        10,
-        PARAM_INT
-    ));
-
-    // Email customisation settings for reminders.
-    $settings->add(new admin_setting_heading(
-        'bbbext_bnx/emailcontent',
-        new lang_string('emailcontent', 'bbbext_bnx'),
-        new lang_string('emailcontent:desc', 'bbbext_bnx')
-    ));
-
-    $settings->add(new admin_setting_configtext(
-        'bbbext_bnx/emailsubject',
-        new lang_string('emailsubject', 'bbbext_bnx'),
-        new lang_string('emailsubject:desc', 'bbbext_bnx'),
-        new lang_string('emailsubject:default', 'bbbext_bnx')
-    ));
-
-    $settings->add(new admin_setting_confightmleditor(
-        'bbbext_bnx/emailtemplate',
-        new lang_string('emailtemplate', 'bbbext_bnx'),
-        new lang_string('emailtemplate:desc', 'bbbext_bnx'),
-        new lang_string('emailtemplate:default', 'bbbext_bnx')
-    ));
-
-    $settings->add(new admin_setting_confightmleditor(
-        'bbbext_bnx/emailfooter',
-        new lang_string('emailfooter', 'bbbext_bnx'),
-        new lang_string('emailfooter:desc', 'bbbext_bnx'),
-        ''
-    ));
 }
