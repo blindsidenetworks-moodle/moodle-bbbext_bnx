@@ -200,6 +200,24 @@ final class mod_form_addons_test extends \advanced_testcase {
     }
 
     /**
+     * Disabled reminders do not add BNX controls to the activity form.
+     *
+     * @return void
+     */
+    public function test_disabled_reminders_do_not_add_fields(): void {
+        global $CFG;
+
+        require_once($CFG->libdir . '/formslib.php');
+        set_config('reminder_enabled', 0, 'bbbext_bnx');
+        set_config('reminder_editable', 1, 'bbbext_bnx');
+
+        $form = new \MoodleQuickForm('bnxform', 'post', '');
+        (new mod_form_addons($form))->add_fields();
+
+        $this->assertFalse($form->elementExists('bnx_reminders'));
+    }
+
+    /**
      * Test Early Access field is added when the feature is editable.
      *
      * @return void
@@ -218,6 +236,25 @@ final class mod_form_addons_test extends \advanced_testcase {
 
         $this->assertTrue($form->elementExists('bnx_earlyaccess'));
         $this->assertTrue($form->elementExists('earlyaccess'));
+    }
+
+    /**
+     * Disabled Early Access does not add BNX controls to the activity form.
+     *
+     * @return void
+     */
+    public function test_disabled_earlyaccess_does_not_add_fields(): void {
+        global $CFG;
+
+        require_once($CFG->libdir . '/formslib.php');
+        set_config('earlyaccess_enabled', 0, 'bbbext_bnx');
+        set_config('earlyaccess_editable', 1, 'bbbext_bnx');
+
+        $form = new \MoodleQuickForm('bnxform', 'post', '');
+        (new mod_form_addons($form))->add_fields();
+
+        $this->assertFalse($form->elementExists('bnx_earlyaccess'));
+        $this->assertFalse($form->elementExists('earlyaccess'));
     }
 
     /**
@@ -275,6 +312,25 @@ final class mod_form_addons_test extends \advanced_testcase {
     }
 
     /**
+     * Disabled logo support does not add BNX controls to the activity form.
+     *
+     * @return void
+     */
+    public function test_disabled_logo_does_not_add_activity_control(): void {
+        global $CFG;
+
+        require_once($CFG->libdir . '/formslib.php');
+        set_config('logo_enabled', 0, 'bbbext_bnx');
+        set_config('logo_source', 'site_logo', 'bbbext_bnx');
+        set_config('logo_editable', 1, 'bbbext_bnx');
+
+        $form = new \MoodleQuickForm('bnxform', 'post', '');
+        (new mod_form_addons($form))->add_fields();
+
+        $this->assertFalse($form->elementExists('bnx_logodisplay'));
+    }
+
+    /**
      * Test BNX adds a multi-file presentation manager when uploads are editable.
      *
      * @return void
@@ -314,6 +370,33 @@ final class mod_form_addons_test extends \advanced_testcase {
         $this->assertFalse($form->elementExists('preuploadpresentation'));
         $this->assertFalse($form->elementExists('presentation'));
         $this->assertFalse($form->elementExists('showpresentation'));
+    }
+
+    /**
+     * Disabled BNX presentations leave the core presentation controls in place.
+     *
+     * @return void
+     */
+    public function test_disabled_preuploads_preserve_core_presentation_controls(): void {
+        global $CFG;
+
+        require_once($CFG->libdir . '/formslib.php');
+        set_config('preuploads_enabled', 0, 'bbbext_bnx');
+
+        $form = new \MoodleQuickForm('bnxform', 'post', '');
+        $form->addElement('header', 'preuploadpresentation', 'Presentation');
+        $form->addElement('filemanager', 'presentation', 'Select presentation');
+        $form->addElement('advcheckbox', 'showpresentation', 'Show presentation');
+
+        $addons = new mod_form_addons($form);
+        $addons->definition_after_data();
+        $addons->add_fields();
+
+        $this->assertTrue($form->elementExists('preuploadpresentation'));
+        $this->assertTrue($form->elementExists('presentation'));
+        $this->assertTrue($form->elementExists('showpresentation'));
+        $this->assertFalse($form->elementExists('bnx_preuploadpresentation'));
+        $this->assertFalse($form->elementExists('bnx_presentation'));
     }
 
     /**

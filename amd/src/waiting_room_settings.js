@@ -20,8 +20,34 @@
  */
 
 const FEATURES = {
-    approvalbeforejoin: ['approvalbeforejoin'],
-    locksettings: ['cam', 'mic', 'publicchat', 'privatechat', 'notes', 'userlist', 'hideviewerscursor'],
+    approvalbeforejoin: ['approvalbeforejoin_default', 'approvalbeforejoin_editable'],
+    earlyaccess: ['earlyaccess_default', 'earlyaccess_editable'],
+    locksettings: [
+        'cam_default', 'cam_editable', 'mic_default', 'mic_editable',
+        'publicchat_default', 'publicchat_editable', 'privatechat_default', 'privatechat_editable',
+        'notes_default', 'notes_editable', 'userlist_default', 'userlist_editable',
+        'hideviewerscursor_default', 'hideviewerscursor_editable',
+    ],
+    logo: ['logo_source', 'logo_default', 'logo_editable'],
+    preuploads: ['maxfiles'],
+    reminder: ['reminder_default', 'reminder_editable', 'emailsubject', 'emailtemplate', 'emailfooter'],
+};
+
+/**
+ * Set the mode for a TinyMCE editor backed by an admin-setting textarea.
+ *
+ * @param {HTMLTextAreaElement} control The editor's source textarea.
+ * @param {boolean} disabled Whether the editor should be read-only.
+ */
+const updateEditorMode = (control, disabled) => {
+    if (!window.tinymce) {
+        return;
+    }
+
+    const editor = window.tinymce.get(control.id);
+    if (editor) {
+        editor.mode.set(disabled ? 'readonly' : 'design');
+    }
 };
 
 /**
@@ -34,7 +60,11 @@ const updateDependentControls = (enabledControl, controls) => {
     const disabled = !enabledControl.checked;
 
     controls.forEach(([control, originallyDisabled]) => {
-        control.disabled = disabled || originallyDisabled;
+        const controlDisabled = disabled || originallyDisabled;
+        control.disabled = controlDisabled;
+        if (control instanceof HTMLTextAreaElement) {
+            updateEditorMode(control, controlDisabled);
+        }
     });
 };
 
@@ -50,19 +80,20 @@ export const init = () => {
 
         const controls = [];
         dependencies.forEach((dependency) => {
-            ['default', 'editable'].forEach((suffix) => {
-                const control = document.querySelector(`#id_s_bbbext_bnx_${dependency}_${suffix}`);
-                if (!(control instanceof HTMLInputElement || control instanceof HTMLSelectElement)) {
-                    return;
+            const control = document.querySelector(`#id_s_bbbext_bnx_${dependency}`);
+            if (!(
+                control instanceof HTMLInputElement || control instanceof HTMLSelectElement ||
+                control instanceof HTMLTextAreaElement
+            )) {
+                return;
+            }
+            controls.push([control, control.disabled]);
+            if (control instanceof HTMLInputElement) {
+                const hiddenControl = control.parentElement?.querySelector('input[type="hidden"]');
+                if (hiddenControl instanceof HTMLInputElement && hiddenControl.name === control.name) {
+                    controls.push([hiddenControl, hiddenControl.disabled]);
                 }
-                controls.push([control, control.disabled]);
-                if (control instanceof HTMLInputElement) {
-                    const hiddenControl = control.parentElement?.querySelector('input[type="hidden"]');
-                    if (hiddenControl instanceof HTMLInputElement && hiddenControl.name === control.name) {
-                        controls.push([hiddenControl, hiddenControl.disabled]);
-                    }
-                }
-            });
+            }
         });
 
         updateDependentControls(enabledControl, controls);

@@ -98,6 +98,27 @@ final class earlyaccess_helper_test extends \advanced_testcase {
     }
 
     /**
+     * Disabled Early Access must not change the parent meeting availability.
+     *
+     * @return void
+     */
+    public function test_disabled_earlyaccess_does_not_adjust_meeting_data(): void {
+        $this->setAdminUser();
+        set_config('earlyaccess_enabled', 0, 'bbbext_bnx');
+        $instance = $this->create_future_instance();
+        $meetingdata = (object) [
+            'canjoin' => false,
+            'statusmessage' => 'Parent status',
+            'statusrunning' => false,
+        ];
+
+        $result = earlyaccess_helper::adjust_meeting_data($instance, $meetingdata);
+
+        $this->assertFalse($result->canjoin);
+        $this->assertSame('Parent status', $result->statusmessage);
+    }
+
+    /**
      * Create a BigBlueButton activity with an opening time in the future.
      *
      * @return instance

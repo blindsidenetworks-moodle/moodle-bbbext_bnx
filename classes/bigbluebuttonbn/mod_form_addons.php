@@ -123,6 +123,10 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
             $defaultvalues['bnx_remindertoguestsenabled'] = (int)$settings['remindertoguestsenabled'];
         }
 
+        if (!mod_form_helper::is_feature_enabled('preuploads')) {
+            return;
+        }
+
         $cm = get_coursemodule_from_instance('bigbluebuttonbn', (int)$defaultvalues['id']);
         if ($cm === false) {
             return;
@@ -158,7 +162,9 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
         if (mod_form_helper::is_feature_enabled('locksettings')) {
             mod_form_helper::remove_lock_settings_elements($this->mform);
         }
-        $this->remove_core_presentation_settings();
+        if (mod_form_helper::is_feature_enabled('preuploads')) {
+            $this->remove_core_presentation_settings();
+        }
 
         if (!reminders_utils::is_reminders_enabled()) {
             return;
@@ -194,6 +200,7 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
         }
 
         if (
+            mod_form_helper::is_feature_enabled('logo') &&
             mod_form_helper::is_feature_editable('logo') &&
             in_array(get_config('bbbext_bnx', 'logo_source'), ['site_logo', 'compact_logo'], true)
         ) {
@@ -236,7 +243,10 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
 
         $options = \mod_bigbluebuttonbn\local\config::get_options();
         $bigbluebuttonbn = get_config('mod_bigbluebuttonbn');
-        if ($options['preuploadpresentation_editable'] || !empty($bigbluebuttonbn->showpresentation_editable)) {
+        if (
+            mod_form_helper::is_feature_enabled('preuploads') &&
+            ($options['preuploadpresentation_editable'] || !empty($bigbluebuttonbn->showpresentation_editable))
+        ) {
             $this->mform->addElement('header', 'bnx_preuploadpresentation', get_string('mod_form_preuploads_header', 'bbbext_bnx'));
             if ($options['preuploadpresentation_editable']) {
                 $this->mform->addElement(

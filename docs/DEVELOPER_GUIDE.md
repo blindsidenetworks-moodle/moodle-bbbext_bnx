@@ -72,6 +72,11 @@ over naming-based discovery.
    context, login, capability, and ownership checks before serving them.
 5. Add focused PHPUnit coverage and a Behat scenario for browser-visible flows
    that do not need a real BigBlueButton server.
+6. Add a site-level `*_enabled` setting and register the feature in
+   `mod_form_helper::SITE_ENABLED_FEATURES`. Gate every BNX form, persistence,
+   task, and runtime override path with `is_feature_enabled()`. A disabled
+   override must leave the parent-module behaviour intact where Moodle provides
+   an equivalent feature.
 
 ## Testing
 
@@ -91,7 +96,7 @@ that cannot represent the server state honestly.
 
 ## Compatibility rules
 
-BNX 1.3 supports Moodle 5.3 only. Before relying on a new parent API, verify
-that it exists on the required Moodle branch and add a regression test for the
-parent-to-extension call contract. Do not add a compatibility shim for guest
+BNX 1.3 supports Moodle 5.3 through Moodle 6.0. Before relying on a new parent
+API, verify that it exists on every supported Moodle branch and add a regression
+test for the parent-to-extension call contract. Do not add a compatibility shim for guest
 access: core delegation is the supported architecture.

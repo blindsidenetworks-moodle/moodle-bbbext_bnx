@@ -16,6 +16,8 @@
 
 namespace bbbext_bnx;
 
+use bbbext_bnx\local\helpers\mod_form_helper;
+
 /**
  * Utility class for email reminders.
  *
@@ -63,7 +65,7 @@ class reminders_utils {
         if (!$plugininfo || !$plugininfo->is_enabled()) {
             return false;
         }
-        return true;
+        return mod_form_helper::is_feature_enabled('reminder');
     }
 
     /**

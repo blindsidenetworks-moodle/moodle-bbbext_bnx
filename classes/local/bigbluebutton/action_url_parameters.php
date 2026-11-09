@@ -78,6 +78,10 @@ class action_url_parameters {
     private static function get_logo_url(int $instanceid): string {
         global $OUTPUT;
 
+        if (!mod_form_helper::is_feature_enabled('logo')) {
+            return '';
+        }
+
         $source = get_config('bbbext_bnx', 'logo_source');
         if (!in_array($source, ['site_logo', 'compact_logo'], true)) {
             return '';

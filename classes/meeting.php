@@ -21,6 +21,7 @@ use mod_bigbluebuttonbn\instance;
 use mod_bigbluebuttonbn\logger;
 use mod_bigbluebuttonbn\local\exceptions\bigbluebutton_exception;
 use bbbext_bnx\recording;
+use bbbext_bnx\local\helpers\mod_form_helper;
 
 /**
  * Class to describe a BBB Meeting with BNX extensions support.
@@ -166,6 +167,10 @@ class meeting extends \mod_bigbluebuttonbn\meeting {
      * @return array
      */
     protected function get_presentations_for_ws(): array {
+        if (!mod_form_helper::is_feature_enabled('preuploads')) {
+            return [];
+        }
+
         return local\helpers\presentation_helper::get_presentations_for_ws($this->instance->get_instance_id());
     }
 
@@ -175,6 +180,10 @@ class meeting extends \mod_bigbluebuttonbn\meeting {
      * @return array
      */
     protected function get_presentations(): array {
+        if (!mod_form_helper::is_feature_enabled('preuploads')) {
+            return [];
+        }
+
         return local\helpers\presentation_helper::get_presentations($this->instance->get_instance_id());
     }
 }

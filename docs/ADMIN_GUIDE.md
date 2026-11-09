@@ -39,10 +39,12 @@ Teachers configure eligible per-activity options in the standard
 BigBlueButton activity form. A setting that is not editable site-wide is stored
 from its site default and is not shown as an activity-level choice.
 
-The Waiting Room and Lock Settings overrides are enabled by default. To use the
-parent module's corresponding controls and behaviour, disable the relevant
-feature in BNX settings. Its BNX defaults and activity settings are retained and
-take effect again if the feature is re-enabled.
+All BNX features are enabled by default and can be independently disabled in
+BNX settings. When Waiting Room, Lock Settings, or multiple presentations are
+disabled, the parent module's corresponding controls and behaviour remain
+available. Disabling Early Access, reminders, or the session logo suppresses
+that BNX behaviour. BNX defaults and activity settings are retained and take
+effect again if the feature is re-enabled.
 
 ## Operational prerequisites
 

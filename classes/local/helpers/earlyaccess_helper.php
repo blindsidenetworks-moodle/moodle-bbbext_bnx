@@ -36,6 +36,10 @@ class earlyaccess_helper {
      * @return stdClass
      */
     public static function adjust_meeting_data(instance $instance, stdClass $meetingdata): stdClass {
+        if (!mod_form_helper::is_feature_enabled('earlyaccess')) {
+            return $meetingdata;
+        }
+
         if (self::user_has_early_access($instance) && empty($meetingdata->statusrunning)) {
             $meetingdata->canjoin = true;
             $meetingdata->statusmessage = get_string('view_early_message', 'bbbext_bnx');
@@ -56,6 +60,10 @@ class earlyaccess_helper {
      * @return bool
      */
     public static function user_has_early_access(instance $instance): bool {
+        if (!mod_form_helper::is_feature_enabled('earlyaccess')) {
+            return false;
+        }
+
         if (!has_capability('bbbext/bnx:earlyjoinaccess', $instance->get_context())) {
             return false;
         }

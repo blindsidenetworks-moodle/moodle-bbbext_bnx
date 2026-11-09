@@ -167,6 +167,10 @@ function bbbext_bnx_extend_navigation_user_settings(
  */
 function bbbext_bnx_meeting_add_guests(array $emails, int $instanceid): void {
     global $USER;
+    if (!\bbbext_bnx\reminders_utils::is_reminders_enabled()) {
+        return;
+    }
+
     foreach ($emails as $email) {
         \bbbext_bnx\local\persistent\guest_email::create_guest_mail_record($email, $instanceid, $USER->id);
     }

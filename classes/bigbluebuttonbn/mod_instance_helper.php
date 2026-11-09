@@ -193,7 +193,11 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
         global $DB;
 
         if (empty($data->bnx_form_submitted)) {
-            if (get_config('bbbext_bnx', 'logo_editable') && !property_exists($data, 'bnx_logodisplay')) {
+            if (
+                mod_form_helper::is_feature_enabled('logo') &&
+                get_config('bbbext_bnx', 'logo_editable') &&
+                !property_exists($data, 'bnx_logodisplay')
+            ) {
                 $default = get_config('bbbext_bnx', 'logo_default');
                 $data->bnx_logodisplay = (int)($default === false || !empty($default));
             }
@@ -220,7 +224,7 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
                     }
                 }
             }
-        } else if (get_config('bbbext_bnx', 'reminder_editable')) {
+        } else if (mod_form_helper::is_feature_enabled('reminder') && get_config('bbbext_bnx', 'reminder_editable')) {
             // Preserve omitted unchecked controls when the reminder fields were rendered.
             return;
         }
@@ -374,6 +378,10 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
      * @return void
      */
     private function save_presentations(stdClass $data): void {
+        if (!mod_form_helper::is_feature_enabled('preuploads')) {
+            return;
+        }
+
         $moduleid = $this->resolve_module_id($data);
         if ($moduleid === null || empty($data->bnx_presentation)) {
             return;
@@ -438,7 +446,14 @@ class mod_instance_helper extends \mod_bigbluebuttonbn\local\extension\mod_insta
                 continue;
             }
 
-            if ($field === 'bnx_logodisplay' && !get_config('bbbext_bnx', 'logo_editable')) {
+            if ($field === 'earlyaccess' && !mod_form_helper::is_feature_enabled('earlyaccess')) {
+                continue;
+            }
+
+            if (
+                $field === 'bnx_logodisplay' &&
+                (!mod_form_helper::is_feature_enabled('logo') || !get_config('bbbext_bnx', 'logo_editable'))
+            ) {
                 continue;
             }
             if (!property_exists($data, $field)) {

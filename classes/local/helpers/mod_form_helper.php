@@ -30,6 +30,16 @@ use pix_icon;
  * @author    Shamiso Jaravaza (shamiso [dt] jaravaza [at] blindsidenetworks [dt] com)
  */
 class mod_form_helper {
+    /** Features that administrators can enable or disable site-wide. */
+    private const SITE_ENABLED_FEATURES = [
+        'approvalbeforejoin',
+        'earlyaccess',
+        'locksettings',
+        'logo',
+        'preuploads',
+        'reminder',
+    ];
+
     /**
      * Core lock elements replaced by BNX lock settings.
      */
@@ -217,7 +227,7 @@ class mod_form_helper {
      * @return bool
      */
     public static function is_feature_enabled(string $feature): bool {
-        if (!in_array($feature, ['approvalbeforejoin', 'locksettings'], true)) {
+        if (!in_array($feature, self::SITE_ENABLED_FEATURES, true)) {
             return true;
         }
 

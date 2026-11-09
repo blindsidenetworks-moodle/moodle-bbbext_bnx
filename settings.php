@@ -125,12 +125,36 @@ if ($ADMIN->fulltree) {
         ));
 
         if ($section === 'preuploads') {
+            $settings->add(new admin_setting_configcheckbox(
+                'bbbext_bnx/preuploads_enabled',
+                new lang_string('preuploads_enabled', 'bbbext_bnx'),
+                new lang_string('preuploads_enabled_desc', 'bbbext_bnx'),
+                1
+            ));
             $settings->add(new admin_setting_configtext(
                 'bbbext_bnx/maxfiles',
                 new lang_string('maxfiles', 'bbbext_bnx'),
                 new lang_string('maxfiles_desc', 'bbbext_bnx'),
                 10,
                 PARAM_INT
+            ));
+        }
+
+        if ($section === 'reminders') {
+            $settings->add(new admin_setting_configcheckbox(
+                'bbbext_bnx/reminder_enabled',
+                new lang_string('reminder_enabled', 'bbbext_bnx'),
+                new lang_string('reminder_enabled_desc', 'bbbext_bnx'),
+                1
+            ));
+        }
+
+        if ($section === 'earlyaccess') {
+            $settings->add(new admin_setting_configcheckbox(
+                'bbbext_bnx/earlyaccess_enabled',
+                new lang_string('earlyaccess_enabled', 'bbbext_bnx'),
+                new lang_string('earlyaccess_enabled_desc', 'bbbext_bnx'),
+                1
             ));
         }
 
@@ -144,6 +168,12 @@ if ($ADMIN->fulltree) {
         }
 
         if ($section === 'logo') {
+            $settings->add(new admin_setting_configcheckbox(
+                'bbbext_bnx/logo_enabled',
+                new lang_string('logo_enabled', 'bbbext_bnx'),
+                new lang_string('logo_enabled_desc', 'bbbext_bnx'),
+                1
+            ));
             $settings->add(new admin_setting_configselect(
                 'bbbext_bnx/logo_source',
                 new lang_string('logo_source', 'bbbext_bnx'),
