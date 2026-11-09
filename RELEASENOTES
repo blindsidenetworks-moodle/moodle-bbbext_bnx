@@ -1,3 +1,8 @@
+1.3-beta.2 (November 5, 2026)
+- feat: Administrators can independently enable or disable BNX Early Access, multiple-presentation management, email reminders, and session logo display. Features are enabled by default. When Waiting Room, Lock Settings, or multiple presentations are disabled, Moodle's core controls remain available.
+- refactor: Guest access is now rendered and handled entirely by the parent BigBlueButton module. Guest reminders remain a separate BNX feature.
+- compat: Supports Moodle 5.3 through Moodle 6.0.
+
 1.3-beta.1 (November 5, 2026)
 - chore: Promote BNX 1.3 to beta for Moodle 5.3.
 - feat: Allow administrators to independently disable BNX Waiting Room and Lock Settings overrides and use Moodle's core settings instead (MD-111).

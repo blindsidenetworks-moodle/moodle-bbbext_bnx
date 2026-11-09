@@ -26,6 +26,7 @@ shared runtime contract used by sibling `bbbext_bnx_*` sidecars.
 - Multiple pre-uploaded presentation files per activity
 - Temporary, activity-bound presentation delivery for BigBlueButton meeting
   creation
+- Independent site-level enablement controls for every BNX feature area
 - A public BNX enable/disable event contract for sidecars
 
 BNX is a `bbbext` subplugin. It does not replace `mod_bigbluebuttonbn`; it
@@ -34,8 +35,9 @@ already exposes.
 
 ## Supported platform
 
-- Moodle: 5.3 (Build 20260714) and later (`$plugin->requires = 2026071400`)
-- Plugin maturity: alpha (`MATURITY_ALPHA`)
+- Moodle: 5.3 through 6.0 (Moodle 5.3 Build 20260714 minimum;
+  `$plugin->requires = 2026071400`)
+- Plugin maturity: beta (`MATURITY_BETA`)
 - BigBlueButton server: no BNX-specific server-version gate is enforced; BNX
   follows the BigBlueButton API and server compatibility of the installed
   `mod_bigbluebuttonbn` release
@@ -91,6 +93,7 @@ BNX currently groups settings into these areas:
 - Presentations
 - Reminders
 - Reminder email subject/template/footer
+- Logo
 
 The parent BigBlueButton settings page also changes slightly when credentials
 are preconfigured in `config.php`: BNX replaces the generic setup description
@@ -284,6 +287,8 @@ See:
   detailed Open LMS code review #2 remediation log for 1.2-beta.2
 - [docs/release-notes/1.3-alpha.1.md](docs/release-notes/1.3-alpha.1.md) for
   BNX 1.3 alpha implementation and compatibility notes
+- [docs/release-notes/1.3-beta.2.md](docs/release-notes/1.3-beta.2.md) for
+  BNX 1.3 beta 2 feature-toggle, guest-access, and compatibility changes
 
 ## Related plugins
 

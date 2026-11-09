@@ -1,3 +1,8 @@
+1.3-beta.2 (November 5, 2026)
+- feat: Add site-level enablement controls for BNX Early Access, multiple presentations, email reminders, and session logo display. Disabled features no longer render BNX controls or run their BNX behaviour.
+- refactor: Remove the remaining BNX guest-access rendering so Moodle core owns the guest-access UI and flow end to end.
+- compat: Support Moodle 5.3 through Moodle 6.0.
+
 1.3-beta.1 (November 5, 2026)
 - chore: Promote the BNX 1.3 release line to beta (MATURITY_BETA).
 - feat: Add independent administrator controls for BNX Waiting Room and Lock Settings overrides, preserving Moodle's core settings when an override is disabled (MD-111).
