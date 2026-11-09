@@ -109,7 +109,6 @@ $string['mic_default'] = 'Microphone enabled by default';
 $string['mic_default_desc'] = 'Choose whether microphones are enabled or disabled by default in new activities.';
 $string['mic_editable'] = 'Allow teachers to change microphone setting';
 $string['mic_editable_desc'] = 'If enabled, teachers can override the default microphone behaviour in activity settings.';
-$string['mod_form_block_guestaccess'] = 'Guest access +';
 $string['mod_form_block_room'] = 'Room settings +';
 $string['mod_form_earlyaccess'] = 'Allow room access before opening time';
 $string['mod_form_earlyaccess_error'] = 'Set an opening time to enable early access.';

@@ -48,7 +48,6 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
      */
     private const HEADER_STRING_OVERRIDES = [
         'room' => 'mod_form_block_room',
-        'guestaccess' => 'mod_form_block_guestaccess',
     ];
 
     /**
