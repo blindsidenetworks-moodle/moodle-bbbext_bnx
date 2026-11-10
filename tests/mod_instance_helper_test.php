@@ -393,6 +393,73 @@ final class mod_instance_helper_test extends \advanced_testcase {
     }
 
     /**
+     * Saving a crafted draft area cannot exceed the configured presentation limit.
+     *
+     * @return void
+     */
+    public function test_save_presentation_files_enforces_maxfiles(): void {
+        global $USER;
+
+        $this->setAdminUser();
+        set_config('maxfiles', 1, 'bbbext_bnx');
+        $module = $this->create_bigbluebutton_activity();
+        $this->ensure_bnx_record($module->id);
+        $cm = get_coursemodule_from_instance('bigbluebuttonbn', $module->id, 0, false, MUST_EXIST);
+        $draftitemid = file_get_unused_draft_itemid();
+        $draftcontextid = \context_user::instance($USER->id)->id;
+        $fs = get_file_storage();
+        foreach (['first.pdf', 'second.pdf'] as $filename) {
+            $fs->create_file_from_string([
+                'contextid' => $draftcontextid,
+                'component' => 'user',
+                'filearea' => 'draft',
+                'itemid' => $draftitemid,
+                'filepath' => '/',
+                'filename' => $filename,
+            ], 'Presentation content');
+        }
+
+        presentation_helper::save_files(
+            $module->id,
+            $draftitemid,
+            \context_module::instance($cm->id)->id
+        );
+
+        $this->assertCount(1, presentation_helper::get_files($module->id));
+    }
+
+    /**
+     * Unsupported files from crafted draft areas are not retained as presentations.
+     *
+     * @return void
+     */
+    public function test_save_presentation_files_rejects_unsupported_type(): void {
+        global $USER;
+
+        $this->setAdminUser();
+        $module = $this->create_bigbluebutton_activity();
+        $this->ensure_bnx_record($module->id);
+        $cm = get_coursemodule_from_instance('bigbluebuttonbn', $module->id, 0, false, MUST_EXIST);
+        $draftitemid = file_get_unused_draft_itemid();
+        get_file_storage()->create_file_from_string([
+            'contextid' => \context_user::instance($USER->id)->id,
+            'component' => 'user',
+            'filearea' => 'draft',
+            'itemid' => $draftitemid,
+            'filepath' => '/',
+            'filename' => 'unsupported.exe',
+        ], 'Unsupported content');
+
+        presentation_helper::save_files(
+            $module->id,
+            $draftitemid,
+            \context_module::instance($cm->id)->id
+        );
+
+        $this->assertEmpty(presentation_helper::get_files($module->id));
+    }
+
+    /**
      * Test delete_instance.
      *
      * @return void

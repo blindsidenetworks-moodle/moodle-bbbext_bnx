@@ -138,7 +138,7 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
             'bbbext_bnx',
             presentation_helper::FILEAREA,
             0,
-            ['subdirs' => 0]
+            presentation_helper::get_filemanager_options()
         );
         $defaultvalues['bnx_presentation'] = $draftitemid;
     }
@@ -253,12 +253,7 @@ class mod_form_addons extends \mod_bigbluebuttonbn\local\extension\mod_form_addo
                     'bnx_presentation',
                     get_string('selectfiles', 'bbbext_bnx'),
                     null,
-                    [
-                        'accepted_types' => '*',
-                        'maxbytes' => 0,
-                        'subdirs' => 0,
-                        'maxfiles' => (int)get_config('bbbext_bnx', 'maxfiles'),
-                    ]
+                    presentation_helper::get_filemanager_options() + ['maxbytes' => 0]
                 );
             }
 

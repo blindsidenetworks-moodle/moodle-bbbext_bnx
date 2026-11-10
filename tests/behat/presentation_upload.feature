@@ -27,8 +27,8 @@ Feature: Manage BigBlueButton presentations
     Given I change window size to "large"
     And I am on the "BNX Room" "bigbluebuttonbn activity editing" page logged in as teacher1
     And I expand all fieldsets
-    When I upload "lib/tests/fixtures/upload_users.csv" file to "Select presentation files" filemanager
+    When I upload "mod/bigbluebuttonbn/tests/fixtures/bbpresentation.pptx" file to "Select presentation files" filemanager
     And I press "Save and display"
     And I am on the "BNX Room" "bigbluebuttonbn activity editing" page
     And I expand all fieldsets
-    Then I should see "upload_users.csv"
+    Then I should see "bbpresentation.pptx"

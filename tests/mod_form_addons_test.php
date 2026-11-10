@@ -26,6 +26,7 @@
 namespace bbbext_bnx;
 
 use bbbext_bnx\bigbluebuttonbn\mod_form_addons;
+use bbbext_bnx\local\helpers\presentation_helper;
 use bbbext_bnx\local\services\bnx_settings_service;
 
 /**
@@ -348,6 +349,11 @@ final class mod_form_addons_test extends \advanced_testcase {
 
         $this->assertTrue($form->elementExists('bnx_preuploadpresentation'));
         $this->assertTrue($form->elementExists('bnx_presentation'));
+        $this->assertSame([
+            'accepted_types' => presentation_helper::SUPPORTED_FILE_TYPES,
+            'maxfiles' => 3,
+            'subdirs' => 0,
+        ], presentation_helper::get_filemanager_options());
     }
 
     /**

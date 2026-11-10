@@ -33,6 +33,57 @@ class presentation_helper {
     /** Presentation stored-file area. */
     public const FILEAREA = 'presentation';
 
+    /** Default number of presentations allowed per activity. */
+    public const DEFAULT_MAX_FILES = 10;
+
+    /** File extensions supported by BigBlueButton presentation conversion. */
+    public const SUPPORTED_FILE_TYPES = [
+        '.pdf',
+        '.doc',
+        '.docx',
+        '.xls',
+        '.xlsx',
+        '.ppt',
+        '.pptx',
+        '.odt',
+        '.ods',
+        '.odp',
+        '.odg',
+        '.jpg',
+        '.jpeg',
+        '.png',
+        '.webp',
+        '.rtf',
+        '.txt',
+    ];
+
+    /**
+     * Return the configured presentation-file limit.
+     *
+     * @return int
+     */
+    public static function get_max_files(): int {
+        $maxfiles = get_config('bbbext_bnx', 'maxfiles');
+        if ($maxfiles === false || !is_numeric($maxfiles)) {
+            return self::DEFAULT_MAX_FILES;
+        }
+
+        return max(0, (int) $maxfiles);
+    }
+
+    /**
+     * Return shared filemanager options for BNX presentations.
+     *
+     * @return array<string, array<int, string>|int>
+     */
+    public static function get_filemanager_options(): array {
+        return [
+            'accepted_types' => self::SUPPORTED_FILE_TYPES,
+            'maxfiles' => self::get_max_files(),
+            'subdirs' => 0,
+        ];
+    }
+
     /**
      * Find the BNX presentation record that owns a stored file.
      *
@@ -104,7 +155,14 @@ class presentation_helper {
             return;
         }
 
-        file_save_draft_area_files($draftitemid, $contextid, 'bbbext_bnx', self::FILEAREA, 0, ['subdirs' => 0]);
+        file_save_draft_area_files(
+            $draftitemid,
+            $contextid,
+            'bbbext_bnx',
+            self::FILEAREA,
+            0,
+            self::get_filemanager_options()
+        );
         $files = get_file_storage()->get_area_files(
             $contextid,
             'bbbext_bnx',
@@ -114,6 +172,15 @@ class presentation_helper {
             false
         );
 
+        foreach ($files as $key => $file) {
+            if (self::is_supported_file($file)) {
+                continue;
+            }
+
+            $file->delete();
+            unset($files[$key]);
+        }
+
         $DB->delete_records(self::PRESENTATIONS_TABLE, ['bnxid' => $bnxid]);
         foreach ($files as $file) {
             $DB->insert_record(self::PRESENTATIONS_TABLE, (object) [
@@ -122,6 +189,17 @@ class presentation_helper {
                 'filename' => $file->get_filename(),
             ]);
         }
+    }
+
+    /**
+     * Determine whether a stored file is supported by BigBlueButton presentation conversion.
+     *
+     * @param \stored_file $file
+     * @return bool
+     */
+    private static function is_supported_file(\stored_file $file): bool {
+        $extension = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
+        return in_array('.' . strtolower($extension), self::SUPPORTED_FILE_TYPES, true);
     }
 
     /**
