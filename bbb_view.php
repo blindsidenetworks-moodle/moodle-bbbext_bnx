@@ -24,6 +24,7 @@
  */
 
 use mod_bigbluebuttonbn\instance;
+use bbbext_bnx\local\helpers\group_helper;
 use mod_bigbluebuttonbn\local\exceptions\bigbluebutton_exception;
 use mod_bigbluebuttonbn\local\exceptions\server_not_available_exception;
 use mod_bigbluebuttonbn\local\proxy\bigbluebutton_proxy;
@@ -61,22 +62,10 @@ $context = $instance->get_context();
 
 require_login($course, true, $cm);
 
-// Note: this uses the group optional_param as a value to decide which groupid.
-$groupid = groups_get_activity_group($cm, true) ?: null;
+// Access-all-groups users join the first real group to share its guest lobby.
+$groupid = group_helper::get_groupid_for_join($cm, $context);
 
-// Override group 0 for teachers/moderators - use first actual group instead.
-// This ensures teachers join the same group as their students by default for guest lobby.
-if ($groupid === 0 && has_capability('moodle/site:accessallgroups', context_module::instance($cm->id))) {
-    $allowedgroups = groups_get_all_groups($cm->course, 0, $cm->groupingid);
-    foreach ($allowedgroups as $group) {
-        if ($group->id > 0) {
-            $groupid = $group->id;
-            break;
-        }
-    }
-}
-
-if ($groupid) {
+if ($groupid !== null) {
     $instance->set_group_id($groupid);
 }
 
