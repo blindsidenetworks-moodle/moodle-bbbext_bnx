@@ -408,16 +408,20 @@ function bbbext_bnx_has_pending_bnreminders_migration(): bool {
         }
     }
 
-    $preferences = $DB->get_records_sql(
-        "SELECT userid, name FROM {user_preferences} WHERE name LIKE ?",
-        ['bbbext_bnreminders_%']
+    $preferences = $DB->get_recordset_sql(
+        "SELECT id, userid, name
+           FROM {user_preferences}
+          WHERE " . $DB->sql_like('name', ':legacypreference'),
+        ['legacypreference' => $DB->sql_like_escape('bbbext_bnreminders_') . '%']
     );
     foreach ($preferences as $preference) {
         $name = str_replace('bbbext_bnreminders_', 'bbbext_bnx_reminder_', $preference->name);
         if (!$DB->record_exists('user_preferences', ['userid' => $preference->userid, 'name' => $name])) {
+            $preferences->close();
             return true;
         }
     }
+    $preferences->close();
 
     return false;
 }
@@ -599,10 +603,10 @@ function bbbext_bnx_migrate_bnreminders_user_preferences(): void {
     global $DB;
 
     $oldprefs = $DB->get_recordset_sql(
-        "SELECT userid, name, value
+        "SELECT id, userid, name, value
            FROM {user_preferences}
-          WHERE name LIKE ?",
-        ['bbbext_bnreminders_%']
+          WHERE " . $DB->sql_like('name', ':legacypreference'),
+        ['legacypreference' => $DB->sql_like_escape('bbbext_bnreminders_') . '%']
     );
 
     foreach ($oldprefs as $pref) {

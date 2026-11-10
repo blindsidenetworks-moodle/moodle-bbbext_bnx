@@ -270,24 +270,60 @@ final class install_migration_test extends \advanced_testcase {
         $bbb1 = $this->getDataGenerator()->create_module('bigbluebuttonbn', ['course' => $course->id]);
         $bbb2 = $this->getDataGenerator()->create_module('bigbluebuttonbn', ['course' => $course->id]);
 
-        $user1 = (int) $this->getDataGenerator()->create_user()->id;
-        $user2 = (int) $this->getDataGenerator()->create_user()->id;
+        $userid = (int) $this->getDataGenerator()->create_user()->id;
 
         $DB->insert_record('user_preferences', (object) [
-            'userid' => $user1,
+            'userid' => $userid,
             'name' => 'bbbext_bnreminders_' . $bbb1->id,
             'value' => '1',
         ]);
         $DB->insert_record('user_preferences', (object) [
-            'userid' => $user2,
+            'userid' => $userid,
             'name' => 'bbbext_bnreminders_' . $bbb2->id,
             'value' => '0',
         ]);
 
         bbbext_bnx_migrate_bnreminders_user_preferences();
 
-        $this->assertSame('1', (string) get_user_preferences('bbbext_bnx_reminder_' . $bbb1->id, null, $user1));
-        $this->assertSame('0', (string) get_user_preferences('bbbext_bnx_reminder_' . $bbb2->id, null, $user2));
+        $this->assertSame('1', (string) get_user_preferences('bbbext_bnx_reminder_' . $bbb1->id, null, $userid));
+        $this->assertSame('0', (string) get_user_preferences('bbbext_bnx_reminder_' . $bbb2->id, null, $userid));
+    }
+
+    /**
+     * Pending migration detection must inspect every legacy preference for a user.
+     */
+    public function test_pending_migration_detects_all_user_preferences(): void {
+        global $DB;
+
+        $this->create_legacy_bnreminders_tables();
+
+        $course = $this->getDataGenerator()->create_course();
+        $bbb1 = $this->getDataGenerator()->create_module('bigbluebuttonbn', ['course' => $course->id]);
+        $bbb2 = $this->getDataGenerator()->create_module('bigbluebuttonbn', ['course' => $course->id]);
+        $userid = (int) $this->getDataGenerator()->create_user()->id;
+
+        $DB->insert_record('user_preferences', (object) [
+            'userid' => $userid,
+            'name' => 'bbbext_bnreminders_' . $bbb2->id,
+            'value' => '1',
+        ]);
+        $DB->insert_record('user_preferences', (object) [
+            'userid' => $userid,
+            'name' => 'bbbext_bnreminders_' . $bbb1->id,
+            'value' => '1',
+        ]);
+        set_user_preference('bbbext_bnx_reminder_' . $bbb1->id, '1', $userid);
+
+        $this->assertTrue(bbbext_bnx_has_pending_bnreminders_migration());
+
+        set_user_preference('bbbext_bnx_reminder_' . $bbb2->id, '1', $userid);
+        $DB->insert_record('user_preferences', (object) [
+            'userid' => $userid,
+            'name' => 'bbbextXbnreminders_' . $bbb1->id,
+            'value' => '1',
+        ]);
+
+        $this->assertFalse(bbbext_bnx_has_pending_bnreminders_migration());
     }
 
     /**
