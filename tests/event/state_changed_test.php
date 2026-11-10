@@ -80,6 +80,18 @@ final class state_changed_test extends \advanced_testcase {
     }
 
     /**
+     * Enabling BNX must not overwrite the administrator's core presentation setting.
+     */
+    public function test_enable_preserves_core_presentation_editability_setting(): void {
+        $this->resetAfterTest(true);
+        set_config('bigbluebuttonbn_preuploadpresentation_editable', 0);
+
+        observer::config_log_created($this->build_config_event('bbbext_bnx', 'disabled', '0', '1'));
+
+        $this->assertSame('0', (string) get_config(null, 'bigbluebuttonbn_preuploadpresentation_editable'));
+    }
+
+    /**
      * Enabling BNX with active BN Reminders must queue a visible error.
      *
      * @return void

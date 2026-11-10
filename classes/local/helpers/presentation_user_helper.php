@@ -27,6 +27,12 @@ class presentation_user_helper {
     /** Service user identifier retained from the pre-uploads sidecar. */
     public const USERNAME = 'bnx_preuploads_systemuser';
 
+    /** BNX configuration key that identifies the service account it created. */
+    public const USERID_CONFIG = 'presentation_service_userid';
+
+    /** Immutable email address of the BNX-owned service account. */
+    private const EMAIL = 'bnx_preuploads_systemuser@noemail.blindsidenetworks.com';
+
     /**
      * Return the presentation service user, creating it through Moodle's user API when needed.
      *
@@ -45,14 +51,72 @@ class presentation_user_helper {
             'username' => self::USERNAME,
             'firstname' => 'BNX Preuploads',
             'lastname' => 'System User',
-            'email' => 'bnx_preuploads_systemuser@noemail.blindsidenetworks.com',
+            'email' => self::EMAIL,
             'auth' => 'manual',
             'confirmed' => 1,
             'mnethostid' => $CFG->mnet_localhost_id,
             'password' => hash_internal_user_password(bin2hex(random_bytes(16))),
         ];
         $user->id = \core\user::create_user($user, false, false);
+        set_config(self::USERID_CONFIG, $user->id, 'bbbext_bnx');
 
         return $user;
+    }
+
+    /**
+     * Return the service account when it is owned by BNX.
+     *
+     * Accounts that merely share the historic username are never treated as
+     * owned unless BNX recorded their identifier when it created them.
+     *
+     * @return \stdClass|null
+     */
+    public static function get_owned_user(): ?\stdClass {
+        global $DB;
+
+        $userid = get_config('bbbext_bnx', self::USERID_CONFIG);
+        if ($userid === false) {
+            return null;
+        }
+
+        $user = $DB->get_record('user', ['id' => (int) $userid], '*', IGNORE_MISSING);
+        if (!$user || !self::matches_owned_user($user)) {
+            return null;
+        }
+
+        return $user;
+    }
+
+    /**
+     * Delete the BNX-owned service account.
+     *
+     * @param \stdClass $user Service account returned by get_owned_user().
+     * @return void
+     */
+    public static function delete_owned_user(\stdClass $user): void {
+        global $CFG;
+
+        if (!self::matches_owned_user($user)) {
+            return;
+        }
+
+        require_once($CFG->dirroot . '/user/lib.php');
+        user_delete_user($user);
+        unset_config(self::USERID_CONFIG, 'bbbext_bnx');
+    }
+
+    /**
+     * Confirm that an account still has BNX's service-account identity.
+     *
+     * @param \stdClass $user User record.
+     * @return bool
+     */
+    private static function matches_owned_user(\stdClass $user): bool {
+        return $user->username === self::USERNAME
+            && $user->firstname === 'BNX Preuploads'
+            && $user->lastname === 'System User'
+            && $user->email === self::EMAIL
+            && $user->auth === 'manual'
+            && empty($user->deleted);
     }
 }

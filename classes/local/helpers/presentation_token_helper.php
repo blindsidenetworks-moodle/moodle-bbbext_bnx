@@ -128,6 +128,32 @@ class presentation_token_helper {
     }
 
     /**
+     * Delete core web-service tokens tracked by BNX for its service account.
+     *
+     * @param int $userid BNX-owned presentation service account id.
+     * @return void
+     */
+    public static function delete_owned_tokens(int $userid): void {
+        global $DB;
+
+        $dbman = $DB->get_manager();
+        if (!$dbman->table_exists(new \xmldb_table(self::TOKENS_TABLE))) {
+            return;
+        }
+
+        $webservice = self::get_webservice_manager();
+        $tokens = $DB->get_records(self::TOKENS_TABLE, null, '', 'id, tokenid');
+        foreach ($tokens as $token) {
+            $coretoken = $DB->get_record('external_tokens', ['id' => $token->tokenid], 'id, userid', IGNORE_MISSING);
+            if ($coretoken && (int) $coretoken->userid === $userid) {
+                $webservice->delete_user_ws_token($coretoken->id);
+            }
+        }
+
+        $DB->delete_records(self::TOKENS_TABLE);
+    }
+
+    /**
      * Load and return Moodle's webservice manager.
      *
      * @return \webservice

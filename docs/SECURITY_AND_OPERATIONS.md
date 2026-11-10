@@ -34,6 +34,12 @@ Uploaded presentations are activity content, not user-owned personal data. BNX
 backs them up and restores the file-to-presentation link. Deleting an activity
 removes its presentation files, links, and temporary-token records.
 
+On uninstall, BNX removes its reminder preferences, tracked presentation
+tokens, and only the presentation service account whose identifier BNX recorded
+when creating it. A pre-existing or repurposed account with the historic
+service username is left untouched. BNX does not change the parent module's
+pre-upload presentation setting during install, enablement, or uninstall.
+
 BNX does process personal data for guest reminder subscriptions and reminder
 preferences. Its privacy provider exposes context discovery, export, deletion,
 and user-list operations for those records. Keep metadata strings and provider
