@@ -86,6 +86,21 @@ final class lib_test extends \advanced_testcase {
     }
 
     /**
+     * The pluginfile callback serves presentations only.
+     *
+     * @return void
+     */
+    public function test_pluginfile_rejects_unsupported_file_area(): void {
+        $this->resetAfterTest();
+        [$course, $cm, $context] = $this->create_activity();
+        $this->setAdminUser();
+
+        $this->assertFalse(
+            bbbext_bnx_pluginfile($course, $cm, $context, 'emailmessage', [0, 'message.png'], false)
+        );
+    }
+
+    /**
      * Create a BigBlueButton activity and return its course module and context.
      *
      * @return array{\stdClass, \stdClass, \context_module}

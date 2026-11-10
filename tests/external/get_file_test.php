@@ -137,6 +137,31 @@ final class get_file_test extends \advanced_testcase {
     }
 
     /**
+     * The regular pluginfile presentation URL includes its item ID, as
+     * required by the BNX pluginfile callback.
+     *
+     * @return void
+     */
+    public function test_presentation_url_includes_file_item_id(): void {
+        [, $file] = $this->create_presentation();
+        $presentation = presentation_helper::get_presentation_by_fileid($file->get_id());
+        $urls = presentation_helper::get_presentations((int)$presentation->bigbluebuttonbnid);
+
+        $this->assertCount(1, $urls);
+        $this->assertSame(
+            \moodle_url::make_pluginfile_url(
+                $file->get_contextid(),
+                $file->get_component(),
+                $file->get_filearea(),
+                $file->get_itemid(),
+                $file->get_filepath(),
+                $file->get_filename()
+            )->out(false),
+            $urls[0]['url']
+        );
+    }
+
+    /**
      * Create one BNX presentation record and its stored file.
      *
      * @return array{int, \stored_file}

@@ -163,7 +163,7 @@ class presentation_helper {
                     $file->get_contextid(),
                     $file->get_component(),
                     $file->get_filearea(),
-                    null,
+                    $file->get_itemid(),
                     $file->get_filepath(),
                     $file->get_filename()
                 )->out(false),

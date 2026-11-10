@@ -88,12 +88,12 @@ function bbbext_bnx_pluginfile(
         return false;
     }
 
+    if ($filearea !== \bbbext_bnx\local\helpers\presentation_helper::FILEAREA) {
+        return false;
+    }
+
     require_login($course, false, $cm);
     $canview = has_capability('mod/bigbluebuttonbn:view', $context);
-
-    if ($filearea === \bbbext_bnx\reminders_utils::EMAIL_REMINDER_FILEAREA) {
-        $canview = true; // External users can see the image.
-    }
 
     if (!$canview) {
         return false;
@@ -117,10 +117,7 @@ function bbbext_bnx_pluginfile(
         return false;
     }
 
-    if (
-        $filearea === \bbbext_bnx\local\helpers\presentation_helper::FILEAREA
-        && !\bbbext_bnx\local\helpers\presentation_helper::belongs_to_module($file->get_id(), (int)$cm->instance)
-    ) {
+    if (!\bbbext_bnx\local\helpers\presentation_helper::belongs_to_module($file->get_id(), (int)$cm->instance)) {
         return false;
     }
 
