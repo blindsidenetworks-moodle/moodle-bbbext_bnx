@@ -347,4 +347,34 @@ final class check_email_reminder_test extends \advanced_testcase {
         unset_config('disabled', 'bbbext_bnx');
         \core_plugin_manager::reset_caches();
     }
+
+    /**
+     * A stale BNX settings row must not stop the scheduled task.
+     *
+     * @return void
+     */
+    public function test_stale_instance_is_skipped(): void {
+        global $DB;
+
+        $staleinstanceid = 999999;
+        $this->assertNull(instance::get_from_instanceid($staleinstanceid));
+
+        $bnxid = $DB->insert_record('bbbext_bnx', (object) [
+            'bigbluebuttonbnid' => $staleinstanceid,
+            'timecreated' => time(),
+            'timemodified' => time(),
+        ]);
+        $DB->insert_record('bbbext_bnx_settings', (object) [
+            'bnxid' => $bnxid,
+            'name' => 'reminderenabled',
+            'value' => '1',
+            'timecreated' => time(),
+            'timemodified' => time(),
+        ]);
+
+        $task = new check_emails_reminder();
+        $task->execute();
+
+        $this->assertTrue(true);
+    }
 }

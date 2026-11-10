@@ -40,6 +40,9 @@ if (!reminders_utils::is_reminders_enabled()) {
 }
 
 $bbbinstance = instance::get_from_cmid($cmid);
+if ($bbbinstance === null) {
+    throw new moodle_exception('invalidcoursemodule', 'error');
+}
 $meetingname = $bbbinstance->get_meeting_name();
 
 $PAGE->set_url(new moodle_url('/mod/bigbluebuttonbn/extension/bnx/subscription.php', ['cmid' => $cmid]));

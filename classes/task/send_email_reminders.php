@@ -45,6 +45,9 @@ class send_email_reminders extends adhoc_task {
         $emailhtmlmessage = $customdata->htmlmessage;
         $emailfooter = $customdata->emailfooter;
         $instance = instance::get_from_instanceid($customdata->instanceid);
+        if ($instance === null) {
+            return;
+        }
         $cmid = $instance->get_cm_id();
 
         foreach ($customdata->emails as $email) {

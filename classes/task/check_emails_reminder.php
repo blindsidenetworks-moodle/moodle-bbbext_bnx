@@ -72,7 +72,7 @@ class check_emails_reminder extends scheduled_task {
 
         foreach ($allinstancesreminder as $instancereminder) {
             $instance = instance::get_from_instanceid($instancereminder->bigbluebuttonbnid);
-            if (empty($instance->get_instance_var('openingtime'))) {
+            if ($instance === null || empty($instance->get_instance_var('openingtime'))) {
                 continue;
             }
 
