@@ -28,6 +28,9 @@ The service validates token ownership before resolving the stored file. It does
 not permit arbitrary Moodle file IDs. Do not log complete presentation URLs or
 share them outside the BBB request path.
 
+The account that owns these tokens uses Moodle's non-interactive `webservice`
+authentication. It is not a user login account and has no role assignments.
+
 ## Privacy and lifecycle
 
 Uploaded presentations are activity content, not user-owned personal data. BNX

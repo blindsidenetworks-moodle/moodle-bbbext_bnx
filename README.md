@@ -289,6 +289,8 @@ See:
   BNX 1.3 alpha implementation and compatibility notes
 - [docs/release-notes/1.3-beta.2.md](docs/release-notes/1.3-beta.2.md) for
   BNX 1.3 beta 2 feature-toggle, guest-access, and compatibility changes
+- [docs/release-notes/1.3-beta.3.md](docs/release-notes/1.3-beta.3.md) for
+  BNX 1.3 beta 3 presentation-service-account hardening
 
 ## Related plugins
 

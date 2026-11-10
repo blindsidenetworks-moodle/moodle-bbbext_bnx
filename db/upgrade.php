@@ -161,5 +161,12 @@ function xmldb_bbbext_bnx_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026091608, 'bbbext', 'bnx');
     }
 
+    if ($oldversion < 2026110502) {
+        // Convert only the service account previously marked as BNX-owned.
+        \bbbext_bnx\local\helpers\presentation_user_helper::migrate_owned_user_to_webservice();
+
+        upgrade_plugin_savepoint(true, 2026110502, 'bbbext', 'bnx');
+    }
+
     return true;
 }

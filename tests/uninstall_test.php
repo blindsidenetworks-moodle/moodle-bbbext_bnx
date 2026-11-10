@@ -43,6 +43,7 @@ final class uninstall_test extends \advanced_testcase {
 
         $user = presentation_user_helper::get_or_create_user();
         set_config(presentation_user_helper::USERID_CONFIG, $user->id, 'bbbext_bnx');
+        presentation_user_helper::migrate_owned_user_to_webservice();
         $otheruser = $this->getDataGenerator()->create_user();
         set_user_preference('bbbext_bnx_reminder_1', '1', $user->id);
         set_user_preference('bbbext_bnx_reminder_2', '1', $otheruser->id);
@@ -61,6 +62,25 @@ final class uninstall_test extends \advanced_testcase {
             'name' => 'unrelated_preference',
         ]));
         $this->assertFalse(get_config('bbbext_bnx', presentation_user_helper::USERID_CONFIG));
+    }
+
+    /**
+     * A marked legacy account is safely made non-interactive by the upgrade.
+     */
+    public function test_migrate_owned_user_to_webservice_is_idempotent(): void {
+        global $DB;
+
+        $user = presentation_user_helper::get_or_create_user();
+        $DB->set_field('user', 'auth', 'manual', ['id' => $user->id]);
+        $DB->set_field('user', 'email', 'bnx_preuploads_systemuser@noemail.blindsidenetworks.com', ['id' => $user->id]);
+        set_config(presentation_user_helper::USERID_CONFIG, $user->id, 'bbbext_bnx');
+
+        presentation_user_helper::migrate_owned_user_to_webservice();
+        presentation_user_helper::migrate_owned_user_to_webservice();
+
+        $user = $DB->get_record('user', ['id' => $user->id], 'auth, email', MUST_EXIST);
+        $this->assertSame('webservice', $user->auth);
+        $this->assertSame('bnx_preuploads_systemuser@invalid', $user->email);
     }
 
     /**

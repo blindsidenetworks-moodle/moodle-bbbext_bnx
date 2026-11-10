@@ -30,8 +30,14 @@ class presentation_user_helper {
     /** BNX configuration key that identifies the service account it created. */
     public const USERID_CONFIG = 'presentation_service_userid';
 
+    /** Authentication method for the non-interactive service account. */
+    private const AUTH = 'webservice';
+
     /** Immutable email address of the BNX-owned service account. */
-    private const EMAIL = 'bnx_preuploads_systemuser@noemail.blindsidenetworks.com';
+    private const EMAIL = 'bnx_preuploads_systemuser@invalid';
+
+    /** Legacy email address used before the account was made non-interactive. */
+    private const LEGACY_EMAIL = 'bnx_preuploads_systemuser@noemail.blindsidenetworks.com';
 
     /**
      * Return the presentation service user, creating it through Moodle's user API when needed.
@@ -52,7 +58,7 @@ class presentation_user_helper {
             'firstname' => 'BNX Preuploads',
             'lastname' => 'System User',
             'email' => self::EMAIL,
-            'auth' => 'manual',
+            'auth' => self::AUTH,
             'confirmed' => 1,
             'mnethostid' => $CFG->mnet_localhost_id,
             'password' => hash_internal_user_password(bin2hex(random_bytes(16))),
@@ -61,6 +67,29 @@ class presentation_user_helper {
         set_config(self::USERID_CONFIG, $user->id, 'bbbext_bnx');
 
         return $user;
+    }
+
+    /**
+     * Migrate a marked legacy service account to non-interactive authentication.
+     *
+     * @return void
+     */
+    public static function migrate_owned_user_to_webservice(): void {
+        global $DB;
+
+        $userid = get_config('bbbext_bnx', self::USERID_CONFIG);
+        if ($userid === false) {
+            return;
+        }
+
+        $user = $DB->get_record('user', ['id' => (int) $userid], '*', IGNORE_MISSING);
+        if (!$user || !self::matches_legacy_owned_user($user)) {
+            return;
+        }
+
+        $user->auth = self::AUTH;
+        $user->email = self::EMAIL;
+        \core\user::update_user($user, false, false);
     }
 
     /**
@@ -116,6 +145,21 @@ class presentation_user_helper {
             && $user->firstname === 'BNX Preuploads'
             && $user->lastname === 'System User'
             && $user->email === self::EMAIL
+            && $user->auth === self::AUTH
+            && empty($user->deleted);
+    }
+
+    /**
+     * Confirm that an account has the original BNX-owned service identity.
+     *
+     * @param \stdClass $user User record.
+     * @return bool
+     */
+    private static function matches_legacy_owned_user(\stdClass $user): bool {
+        return $user->username === self::USERNAME
+            && $user->firstname === 'BNX Preuploads'
+            && $user->lastname === 'System User'
+            && $user->email === self::LEGACY_EMAIL
             && $user->auth === 'manual'
             && empty($user->deleted);
     }

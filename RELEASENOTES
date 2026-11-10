@@ -1,3 +1,6 @@
+1.3-beta.3 (November 10, 2026)
+- fix: Harden the BNX presentation service account. New accounts use Moodle's non-interactive web-service authentication, and only BNX-marked legacy accounts are migrated.
+
 1.3-beta.2 (November 5, 2026)
 - feat: Administrators can independently enable or disable BNX Early Access, multiple-presentation management, email reminders, and session logo display. Features are enabled by default. When Waiting Room, Lock Settings, or multiple presentations are disabled, Moodle's core controls remain available.
 - refactor: Guest access is now rendered and handled entirely by the parent BigBlueButton module. Guest reminders remain a separate BNX feature.

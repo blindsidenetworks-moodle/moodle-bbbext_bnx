@@ -1,3 +1,6 @@
+1.3-beta.3 (November 10, 2026)
+- fix: Make the BNX presentation service account non-interactive and migrate marked existing accounts safely (MDLSHIELD-6).
+
 1.3-beta.2 (November 5, 2026)
 - feat: Add site-level enablement controls for BNX Early Access, multiple presentations, email reminders, and session logo display. Disabled features no longer render BNX controls or run their BNX behaviour.
 - refactor: Remove the remaining BNX guest-access rendering so Moodle core owns the guest-access UI and flow end to end.
