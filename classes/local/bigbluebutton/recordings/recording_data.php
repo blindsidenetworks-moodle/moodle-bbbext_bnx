@@ -217,7 +217,10 @@ class recording_data extends base_recording_data {
         \renderer_base $renderer
     ): array {
         if (empty($instance)) {
-            return [$rec->get('name'), $rec->get('description')];
+            return [
+                s((string) $rec->get('name')),
+                s((string) $rec->get('description')),
+            ];
         }
 
         $recordingname = new recording_name_editable($rec, $instance);
