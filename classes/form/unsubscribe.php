@@ -49,16 +49,6 @@ class unsubscribe extends moodleform {
         $mform->addElement('hidden', 'cmid', $customdata['cmid']);
         $mform->setType('cmid', PARAM_INT);
 
-        if (!empty($customdata['email'])) {
-            $mform->addElement('hidden', 'email', $customdata['email']);
-            $mform->setType('email', PARAM_EMAIL);
-        }
-
-        if (!empty($customdata['userid'])) {
-            $mform->addElement('hidden', 'userid', $customdata['userid']);
-            $mform->setType('userid', PARAM_INT);
-        }
-
         $this->add_action_buttons(true, get_string('unsubscribe', 'bbbext_bnx'));
     }
 }

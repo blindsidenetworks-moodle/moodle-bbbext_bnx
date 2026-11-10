@@ -70,15 +70,13 @@ if ($state !== null && ($email || $userid)) {
     );
 }
 
-// Interactive form flow requires authentication.
-require_login();
+// Interactive form flow must be bound to the logged-in user and activity access.
+require_login($bbbinstance->get_course(), false, $bbbinstance->get_cm());
+require_capability('mod/bigbluebuttonbn:view', $bbbinstance->get_context());
 
 // Show confirmation form for manual unsubscription.
 $customdata = [
     'cmid' => $cmid,
-    'email' => $email,
-    'userid' => $userid,
-    'meetingname' => $meetingname,
 ];
 
 $mform = new unsubscribe(null, $customdata);
@@ -90,13 +88,8 @@ if ($mform->is_cancelled()) {
         null,
         \core\output\notification::NOTIFY_INFO
     );
-} else if ($data = $mform->get_data()) {
-    if (!empty($data->email)) {
-        subscription_utils::change_reminder_subcription_email(false, $data->email, $bbbinstance);
-    }
-    if (!empty($data->userid)) {
-        subscription_utils::change_reminder_subcription_user(false, (int) $data->userid, $bbbinstance);
-    }
+} else if ($mform->get_data()) {
+    subscription_utils::change_reminder_subcription_user(false, $USER->id, $bbbinstance);
     redirect(
         new moodle_url('/'),
         get_string('unsubscribed:success', 'bbbext_bnx', ['name' => $meetingname]),
