@@ -1,3 +1,11 @@
+1.3 (November 12, 2026)
+- feat: BNX 1.3 is now a stable release for Moodle 5.3.
+- feat: Administrators can independently enable or disable the BNX Waiting Room, Lock Settings, Early Access, multiple presentations, email reminders, and session-logo features. Disabled overrides return control to the parent BigBlueButton activity where applicable.
+- feat: Teachers can manage multiple pre-uploaded presentation files, which BNX delivers through short-lived, activity-bound service URLs when BigBlueButton creates a meeting.
+- refactor: Guest access is rendered and handled entirely by the parent BigBlueButton activity.
+- fix: Address the BNX 1.3 MDLSHIELD findings, including presentation delivery hardening, upload validation, reminder and legacy-preference handling, group resolution, and lifecycle cleanup.
+- compat: Supports Moodle 5.3. Moodle 6.0 is still under development and is not declared for this stable release.
+
 1.3-beta.3 (November 10, 2026)
 - fix: Harden the BNX presentation service account. New accounts use Moodle's non-interactive web-service authentication, and only BNX-marked legacy accounts are migrated.
 

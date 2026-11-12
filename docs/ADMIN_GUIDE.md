@@ -6,7 +6,7 @@
 is a `bbbext` subplugin, so it is installed below the parent module and depends
 on the parent module's server configuration and extension dispatcher.
 
-This guide applies to BNX `1.3-beta.3`, which supports Moodle 5.3 through Moodle 6.0.
+This guide applies to stable BNX `1.3`, which supports Moodle 5.3.
 
 ## Install and upgrade
 

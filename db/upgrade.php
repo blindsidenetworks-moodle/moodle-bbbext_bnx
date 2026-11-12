@@ -168,5 +168,10 @@ function xmldb_bbbext_bnx_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026110502, 'bbbext', 'bnx');
     }
 
+    if ($oldversion < 2026110503) {
+        // 1.3 stable: release-only version bump with no schema or data migration.
+        upgrade_plugin_savepoint(true, 2026110503, 'bbbext', 'bnx');
+    }
+
     return true;
 }

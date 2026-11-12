@@ -96,7 +96,7 @@ that cannot represent the server state honestly.
 
 ## Compatibility rules
 
-BNX 1.3 supports Moodle 5.3 through Moodle 6.0. Before relying on a new parent
-API, verify that it exists on every supported Moodle branch and add a regression
-test for the parent-to-extension call contract. Do not add a compatibility shim for guest
+BNX 1.3 supports Moodle 5.3. Before relying on a new parent API, verify that it
+exists on the supported Moodle branch and add a regression test for the
+parent-to-extension call contract. Do not add a compatibility shim for guest
 access: core delegation is the supported architecture.

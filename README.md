@@ -35,9 +35,9 @@ already exposes.
 
 ## Supported platform
 
-- Moodle: 5.3 through 6.0 (Moodle 5.3 Build 20260714 minimum;
+- Moodle: 5.3 (Moodle 5.3 Build 20260714 minimum;
   `$plugin->requires = 2026071400`)
-- Plugin maturity: beta (`MATURITY_BETA`)
+- Plugin maturity: stable (`MATURITY_STABLE`)
 - BigBlueButton server: no BNX-specific server-version gate is enforced; BNX
   follows the BigBlueButton API and server compatibility of the installed
   `mod_bigbluebuttonbn` release
@@ -291,6 +291,8 @@ See:
   BNX 1.3 beta 2 feature-toggle, guest-access, and compatibility changes
 - [docs/release-notes/1.3-beta.3.md](docs/release-notes/1.3-beta.3.md) for
   BNX 1.3 beta 3 presentation-service-account hardening
+- [docs/release-notes/1.3.md](docs/release-notes/1.3.md) for the BNX 1.3
+  stable release notes
 
 ## Related plugins
 
