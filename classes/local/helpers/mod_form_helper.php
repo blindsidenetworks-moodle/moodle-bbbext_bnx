@@ -221,7 +221,8 @@ class mod_form_helper {
     /**
      * Determine whether a feature is enabled site-wide.
      *
-     * Features without an explicit site-wide setting are always enabled.
+     * Features without an explicit site-wide setting are enabled by default.
+     * Multiple presentations also require web service authentication.
      *
      * @param string $feature Feature key
      * @return bool
@@ -229,6 +230,10 @@ class mod_form_helper {
     public static function is_feature_enabled(string $feature): bool {
         if (!in_array($feature, self::SITE_ENABLED_FEATURES, true)) {
             return true;
+        }
+
+        if ($feature === 'preuploads' && !\core\di::get(\core\authentication::class)->is_enabled('webservice')) {
+            return false;
         }
 
         $enabled = get_config('bbbext_bnx', $feature . '_enabled');
