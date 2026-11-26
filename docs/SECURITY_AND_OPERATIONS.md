@@ -30,6 +30,9 @@ share them outside the BBB request path.
 
 The account that owns these tokens uses Moodle's non-interactive `webservice`
 authentication. It is not a user login account and has no role assignments.
+Web services authentication must be enabled for BNX multiple presentations;
+BNX does not change the site's authentication configuration. If it is disabled,
+the override is inactive and the parent module's presentation behaviour applies.
 
 ## Privacy and lifecycle
 

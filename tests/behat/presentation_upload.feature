@@ -16,8 +16,9 @@ Feature: Manage BigBlueButton presentations
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
     And the following config values are set as admin:
-      | bigbluebuttonbn_preuploadpresentation_editable | 1  |            |
-      | maxfiles                                       | 10 | bbbext_bnx |
+      | auth                                           | webservice |            |
+      | bigbluebuttonbn_preuploadpresentation_editable | 1          |            |
+      | maxfiles                                       | 10         | bbbext_bnx |
     And the following "activities" exist:
       | course | activity        | name       |
       | C1     | bigbluebuttonbn | BNX Room   |

@@ -47,6 +47,7 @@ final class mod_instance_helper_test extends \advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
+        set_config('auth', 'webservice');
     }
 
     /**
@@ -390,6 +391,14 @@ final class mod_instance_helper_test extends \advanced_testcase {
         $this->assertSame('slides.pdf', $record->filename);
         $this->assertNotFalse($file);
         $this->assertSame('Presentation content', $file->get_content());
+
+        set_config('auth', '');
+        (new mod_instance_helper())->update_instance((object) [
+            'id' => $module->id,
+            'bnx_presentation' => file_get_unused_draft_itemid(),
+        ]);
+        $this->assertTrue($DB->record_exists(presentation_helper::PRESENTATIONS_TABLE, ['id' => $record->id]));
+        $this->assertNotFalse(presentation_helper::get_file_by_id((int)$record->fileid));
     }
 
     /**

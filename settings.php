@@ -125,6 +125,18 @@ if ($ADMIN->fulltree) {
         ));
 
         if ($section === 'preuploads') {
+            if (!\core\di::get(\core\authentication::class)->is_enabled('webservice')) {
+                $message = get_string('preuploads_webservice_auth_disabled', 'bbbext_bnx');
+                $message .= ' ' . html_writer::link(
+                    new moodle_url('/admin/settings.php', ['section' => 'manageauths']),
+                    get_string('preuploads_webservice_auth_manage', 'bbbext_bnx')
+                );
+                $settings->add(new admin_setting_description(
+                    'bbbext_bnx/preuploads_webservice_auth_notice',
+                    '',
+                    $OUTPUT->notification($message, \core\output\notification::NOTIFY_WARNING)
+                ));
+            }
             $settings->add(new admin_setting_configcheckbox(
                 'bbbext_bnx/preuploads_enabled',
                 new lang_string('preuploads_enabled', 'bbbext_bnx'),

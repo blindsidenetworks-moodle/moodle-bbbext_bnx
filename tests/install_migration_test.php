@@ -35,6 +35,28 @@ final class install_migration_test extends \advanced_testcase {
     }
 
     /**
+     * Installation succeeds and warns when web service authentication is disabled.
+     */
+    public function test_install_warns_when_webservice_authentication_is_disabled(): void {
+        global $SESSION;
+
+        require_once(__DIR__ . '/../db/install.php');
+        set_config('auth', '');
+        set_config('preuploads_enabled', 1, 'bbbext_bnx');
+        \core\notification::fetch();
+
+        xmldb_bbbext_bnx_install();
+
+        $this->assertSame('', get_config('core', 'auth'));
+        $this->assertSame('1', get_config('bbbext_bnx', 'preuploads_enabled'));
+        $this->assertFalse(\bbbext_bnx\local\helpers\mod_form_helper::is_feature_enabled('preuploads'));
+        $this->assertNotEmpty($SESSION->notifications);
+        $notification = end($SESSION->notifications);
+        $this->assertSame(\core\notification::WARNING, $notification->type);
+        $this->assertSame(get_string('preuploads_webservice_auth_disabled', 'bbbext_bnx'), $notification->message);
+    }
+
+    /**
      * Upgrades enable overrides only when no choice has been saved.
      *
      * @param string $setting Setting to test.

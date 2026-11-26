@@ -71,6 +71,14 @@ context under the BNX `presentation` file area. During meeting creation, BNX
 generates a short-lived service URL for each presentation so BigBlueButton can
 fetch it without a teacher's Moodle browser session.
 
+Multiple presentations require Web services authentication to be enabled in
+Site administration > Plugins > Authentication > Manage authentication. BNX
+does not enable it automatically. If it is disabled, BNX warns administrators
+and leaves the parent module's single-presentation controls and behaviour in
+place. Existing BNX presentation files remain stored but are not sent to
+meetings until authentication is enabled again. The BNX multiple-presentation
+setting is preserved.
+
 Do not reuse those URLs outside the meeting create flow. They expire after ten
 minutes, are bound to the activity, and have a limited number of requests.
 
@@ -97,7 +105,7 @@ do not re-enable the legacy plugin alongside BNX.
 | --- | --- |
 | BNX controls are absent | Confirm both the parent module and BNX are enabled, then review BNX setting editability. |
 | Teachers cannot join early | Confirm the activity has an opening time, Early Access is enabled, and the user has `bbbext/bnx:earlyjoinaccess`. |
-| Presentations do not preload | Confirm a file is attached to the correct activity and inspect the parent module's BigBlueButton create request/logs. |
+| Presentations do not preload | Confirm Web services authentication is enabled, check that a file is attached to the correct activity, and inspect the parent module's BigBlueButton create request/logs. |
 | Reminders do not arrive | Confirm Moodle cron, reminder settings/timespans, recipient subscriptions, and mail configuration. |
 | A legacy-reminders warning appears | Run the migration, verify its result, and leave the legacy sidecar disabled. |
 

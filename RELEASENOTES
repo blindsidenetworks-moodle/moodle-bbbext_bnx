@@ -1,3 +1,6 @@
+Unreleased
+- fix: BNX installs when Web services authentication is disabled, warns administrators, and uses the core single-presentation behaviour until the prerequisite is enabled.
+
 1.3 (November 12, 2026)
 - feat: BNX 1.3 is now a stable release for Moodle 5.3.
 - feat: Administrators can independently enable or disable the BNX Waiting Room, Lock Settings, Early Access, multiple presentations, email reminders, and session-logo features. Disabled overrides return control to the parent BigBlueButton activity where applicable.

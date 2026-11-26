@@ -44,6 +44,9 @@ function xmldb_bbbext_bnx_install() {
     bbbext_bnx_migrate_core_locksettings_data();
 
     \bbbext_bnx\local\helpers\presentation_user_helper::get_or_create_user();
+    if (!\core\di::get(\core\authentication::class)->is_enabled('webservice')) {
+        \core\notification::warning(get_string('preuploads_webservice_auth_disabled', 'bbbext_bnx'));
+    }
     if (get_config('bbbext_bnx', 'maxfiles') === false) {
         set_config('maxfiles', 10, 'bbbext_bnx');
     }

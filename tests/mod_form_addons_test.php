@@ -64,6 +64,7 @@ final class mod_form_addons_test extends \advanced_testcase {
         // form-addons feature gates must enable the parent explicitly.
         \core\plugininfo\mod::enable_plugin('bigbluebuttonbn', 1);
         \core_plugin_manager::reset_caches();
+        set_config('auth', 'webservice');
 
         $this->originalpost = $_POST;
         $this->originalget = $_GET;
@@ -81,6 +82,21 @@ final class mod_form_addons_test extends \advanced_testcase {
         $_REQUEST = $this->originalrequest;
 
         parent::tearDown();
+    }
+
+    /**
+     * The presentation override requires enabled web service authentication.
+     */
+    public function test_preuploads_require_webservice_authentication(): void {
+        set_config('preuploads_enabled', 1, 'bbbext_bnx');
+        set_config('auth', '');
+        $this->assertFalse(\bbbext_bnx\local\helpers\mod_form_helper::is_feature_enabled('preuploads'));
+
+        set_config('auth', 'webservice');
+        $this->assertTrue(\bbbext_bnx\local\helpers\mod_form_helper::is_feature_enabled('preuploads'));
+
+        set_config('preuploads_enabled', 0, 'bbbext_bnx');
+        $this->assertFalse(\bbbext_bnx\local\helpers\mod_form_helper::is_feature_enabled('preuploads'));
     }
 
     /**
@@ -381,13 +397,17 @@ final class mod_form_addons_test extends \advanced_testcase {
     /**
      * Disabled BNX presentations leave the core presentation controls in place.
      *
+    * @param int $enabled Site-wide presentation setting.
+    * @param string $auth Enabled authentication plugins.
      * @return void
      */
-    public function test_disabled_preuploads_preserve_core_presentation_controls(): void {
+    #[\PHPUnit\Framework\Attributes\DataProvider('disabled_preuploads_provider')]
+    public function test_disabled_preuploads_preserve_core_presentation_controls(int $enabled, string $auth): void {
         global $CFG;
 
         require_once($CFG->libdir . '/formslib.php');
-        set_config('preuploads_enabled', 0, 'bbbext_bnx');
+        set_config('preuploads_enabled', $enabled, 'bbbext_bnx');
+        set_config('auth', $auth);
 
         $form = new \MoodleQuickForm('bnxform', 'post', '');
         $form->addElement('header', 'preuploadpresentation', 'Presentation');
@@ -403,6 +423,18 @@ final class mod_form_addons_test extends \advanced_testcase {
         $this->assertTrue($form->elementExists('showpresentation'));
         $this->assertFalse($form->elementExists('bnx_preuploadpresentation'));
         $this->assertFalse($form->elementExists('bnx_presentation'));
+    }
+
+    /**
+     * States in which the core presentation controls must remain available.
+     *
+     * @return array
+     */
+    public static function disabled_preuploads_provider(): array {
+        return [
+            'override disabled' => [0, 'webservice'],
+            'authentication disabled' => [1, ''],
+        ];
     }
 
     /**
